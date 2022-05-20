@@ -2,6 +2,7 @@ SRCS	=	main.cpp \
 			get_response.cpp \
 			utils.cpp \
 			class/request.cpp \
+			class/response.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 

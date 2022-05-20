@@ -56,7 +56,8 @@ std::string Request::getUrl(void) {
 std::string Request::getRelativeUrl(void) {
 	return (this->conf.root + url);
 }
-std::string Request::tryUrl( int *status ) {
+
+std::string Request::tryUrl( int *status, std::string *message ) {
 
 	std::string actual_url = this->getRelativeUrl();
 	if ( file_exist(actual_url) && is_file( actual_url.c_str() ) )
@@ -77,9 +78,11 @@ std::string Request::tryUrl( int *status ) {
 		if ( file_exist(actual_url)  && is_file( actual_url.c_str() ) )
 		{
 			*status = 200;
+			*message = "OK";
 			return (actual_url);
 		}
 	}
 	*status = 404;
+	*message = "Not Found";
 	return ( this->getRelativeUrl() );
 }

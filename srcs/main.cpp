@@ -50,7 +50,6 @@ void process_request(int client_socket)
 	conf.root = "./www";
 
 	std::string req_raw_data;
-	std::string res;
 	char buffer[256];
 	bzero(buffer,256);
 	req_raw_data = "";
@@ -61,10 +60,10 @@ void process_request(int client_socket)
 		req_raw_data += buffer;
 	}
 	Request req(req_raw_data, conf);
+	Response res(client_socket, conf);
 
 	std::cout << "request url: " << req.getUrl() << std::endl;
 	http_get_response(req, res); 
-	send(client_socket, res.c_str(), res.size(), 0);
 }
 
 int main(void)

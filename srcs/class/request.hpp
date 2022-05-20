@@ -30,7 +30,7 @@ class Request
 		std::string getBody(void);
 		std::string getUrl(void);
 		std::string getRelativeUrl(void);
-		std::string tryUrl( int *status );
+		std::string tryUrl( int *status, std::string *msg );
 };
 
 

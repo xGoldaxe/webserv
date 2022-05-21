@@ -1,0 +1,20 @@
+server {
+	server_name() = test;
+	listen = 80;
+	listen() = 3000;
+	error_page 404 403 = error.html;
+	body_max_size=2048;
+
+	location / {
+		root ./;
+		index index.html index.htm;
+		error_page 404 = 404.html;
+		methods = POST GET DELETE;
+	}
+	location /php {
+		root ./php;
+		index index.php;
+		enable_cgi $CGI_PATH; # by default enable cgi is used on all files
+		cgi_extension php; # only .php will be call with cgi
+	}
+}

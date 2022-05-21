@@ -1,33 +1,41 @@
 #include "../webserv.hpp"
+#include <fstream>
+#include <string.h>
+#include <algorithm>
 
-bool is_file(const char* name)
+bool	is_file(const char* name)
 {
-    DIR* directory = opendir(name);
+	DIR* directory = opendir(name);
 
-    if(directory != NULL)
-    {
-    	closedir(directory);
-    	return false;
-    }
+	if(directory != NULL)
+	{
+		closedir(directory);
+		return false;
+	}
 
-    if(errno == ENOTDIR)
-    {
-    	return true;
-    }
+	if(errno == ENOTDIR)
+	{
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
-inline bool file_exist(const std::string& name) {
-	struct stat buffer;   
+bool	file_exist(const std::string& name) {
+	struct stat	buffer;   
 	return (stat (name.c_str(), &buffer) == 0); 
 }
 
+bool	file_readable(const std::string &name) {
+
+	std::ifstream	my_file( name.c_str() );
+	return ( my_file.good() );
+}
 
 Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	
 	std::vector<std::string> splitted_str;
-
+	
 	// split the first line
 	std::string first_line = raw_data.substr(0, raw_data.find("\n"));
 	std::stringstream stream_str(first_line);
@@ -37,14 +45,32 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	
 	//file informations
 	this->method = splitted_str.at(0);
+	/* find route */
 	this->url = splitted_str.at(1);
+	std::string tmp_url;
+	for ( std::vector<Route>::iterator it = conf.routes.begin(); it != conf.routes.end(); ++it )
+	{
+		// int pos = this->url.compare( 0, it->location.size() - 1, it->location );
+		// std::cout << it->location << ":" << this->url << ":" << pos << std::endl;
+		if ( strncmp( this->url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
+		{
+			this->route = &(*it);
+			tmp_url = this->route->root
+				+ this->url.substr( this->url.find_first_of( it->location ) + it->location.size() );
+		}
+	}
+	this->url = tmp_url;
+	/* find route */
+
+	this->legacy_url = splitted_str.at(1);
 	this->version = splitted_str.at(2);
 	this->row_data = raw_data;
 };
+
 Request::~Request( void ) {};
 
 /* end coplien */
-std::string	Request::getMethod(void) {
+std::string	Request::getMethod(void) const{
 	return (method);
 }
 std::string Request::getBody(void) {
@@ -54,35 +80,53 @@ std::string Request::getUrl(void) {
 	return (url);
 }
 std::string Request::getRelativeUrl(void) {
+	std::cout << "out of date" << std::endl;
 	return (this->conf.root + url);
 }
+Route	*Request::get_route(void) {
+	return (this->route);
+}
 
-std::string Request::tryUrl( int *status, std::string *message ) {
+bool	Request::is_allowed_method( const std::string &method ) const {
 
-	std::string actual_url = this->getRelativeUrl();
-	if ( file_exist(actual_url) && is_file( actual_url.c_str() ) )
+	return ( std::find( this->route->methods.begin(), this->route->methods.end(), method) != this->route->methods.end() );
+}
+
+std::string Request::try_url( int *status, std::string *message ) {
+
+	*status = 404;
+	*message = "Not Found";
+	if ( file_exist( this->url ) && is_file( this->url.c_str() ) )
 	{
-		*status = 200;
-		return (actual_url);
-	}
-	for ( std::vector<std::string>::iterator it = this->conf.index.begin();
-		it != this->conf.index.end() ; ++it )
-	{
-		if ( this->getUrl().at( this->getUrl().size() - 1 ) == '/' )
-			actual_url = this->getRelativeUrl() + *it;
-		else
-			actual_url = this->getRelativeUrl() + '/' + *it;
-
-		std::cout << " try... "  << actual_url << std::endl;
-
-		if ( file_exist(actual_url)  && is_file( actual_url.c_str() ) )
+		if ( file_readable( this->url ) )
 		{
 			*status = 200;
 			*message = "OK";
-			return (actual_url);
+		}
+		else
+		{
+			*status = 403;
+			*message = "Forbidden";
 		}
 	}
-	*status = 404;
-	*message = "Not Found";
-	return ( this->getRelativeUrl() );
+	else
+	{
+		std::string test_url = finish_by_only_one( this->url, '/' );
+
+		for ( std::vector<std::string>::iterator it = this->conf.index.begin();
+			it != this->conf.index.end() ; ++it )
+		{
+			test_url += *it;
+
+			std::cout << " try... "  << test_url << std::endl;
+
+			if ( file_exist(test_url)  && is_file( test_url.c_str() ) )
+			{
+				*status = 200;
+				*message = "OK";
+				this->url = test_url;
+			}
+		}
+	}
+	return ( this->url );
 }

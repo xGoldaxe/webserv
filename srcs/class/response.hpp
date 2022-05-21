@@ -31,6 +31,7 @@ class Response
 		std::string	get_str_code(void);
 		int	add_header( std::string key, std::string value );
 		void set_status( int status_code, std::string msg );
+		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		int	send(void);
 		const webserv_conf &get_conf() const { return conf; };

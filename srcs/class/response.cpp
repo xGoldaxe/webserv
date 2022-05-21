@@ -1,6 +1,8 @@
 #include "../webserv.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <cstdlib>
+#include "unistd.h"
 
 Response::Response( int client_socket, webserv_conf &conf ) : conf(conf) {
 	
@@ -39,6 +41,19 @@ int	Response::send() {
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
 	return (status);
+}
+
+std::string Response::load_body( Request &req ) {
+
+	if ( req.get_route()->cgi_enable == true 
+		&& get_extension( req.getUrl().c_str() ) == req.get_route()->cgi_extension ) {
+
+		std::cout << std::string( req.get_route()->cgi_path + " " + req.getUrl() ) << std::endl;
+		std::system( std::string( req.get_route()->cgi_path + " " + req.getUrl() ).c_str() );
+	}
+	else
+		this->body = read_binary( req.getUrl() );
+	return this->body;
 }
 
 std::string error_template(std::string error_code, std::string message);

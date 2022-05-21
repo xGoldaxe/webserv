@@ -46,9 +46,6 @@ void report(struct sockaddr_in *server_addr)
 
 void process_request(int client_socket)
 {
-	webserv_conf	conf; 
-	conf.root = "./www";
-
 	std::string req_raw_data;
 	char buffer[256];
 	bzero(buffer,256);
@@ -59,15 +56,21 @@ void process_request(int client_socket)
 		n = read(client_socket, buffer, 255);
 		req_raw_data += buffer;
 	}
-	Request req(req_raw_data, conf);
+	webserv_conf	conf; 
+
+	Request req( req_raw_data, conf );
 	Response res(client_socket, conf);
 
 	std::cout << "request url: " << req.getUrl() << std::endl;
 	http_get_response(req, res); 
 }
 
-int main(void)
+int main(int argc, char **argv, char **env)
 {
+	(void) argc;
+	(void) argv;
+	env_store(env, 0);
+
 	int server_socket = socket(
 		AF_INET,
 		SOCK_STREAM,

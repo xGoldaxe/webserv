@@ -2,16 +2,16 @@
 #	define REQUEST_HPP
 
 #include "../webserv.hpp"
-bool is_file(const char* name);
-bool file_exist(const std::string& name);
 
 class Request
 {
 
 	private:
 		webserv_conf	&conf;
+		Route			*route;
 		std::string		method;
 		std::string		url;
+		std::string		legacy_url;
 		std::string		version;
 		std::map<std::string, std::string>		headers;
 		std::string		body;
@@ -26,11 +26,13 @@ class Request
 
 		Request &   operator=( Request const & rhs );
 		/* end coplien */
-		std::string	getMethod(void);
+		std::string	getMethod(void) const;
+		bool	is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
 		std::string getUrl(void);
 		std::string getRelativeUrl(void);
-		std::string tryUrl( int *status, std::string *msg );
+		std::string try_url( int *status, std::string *msg );
+		Route		*get_route(void);
 };
 
 

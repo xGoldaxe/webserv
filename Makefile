@@ -3,13 +3,17 @@ SRCS	=	main.cpp \
 			utils.cpp \
 			class/request.cpp \
 			class/response.cpp \
+			class/route.cpp \
+			http_header/Date.cpp \
+			http_header/Server.cpp \
+			http_header/Data-length.cpp \
+			http_header/Content-Type.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 
 NAME	=	webserv
 
 CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98
-
 
 RM		=	rm -rf
 

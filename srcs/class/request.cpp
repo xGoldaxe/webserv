@@ -1,36 +1,6 @@
 #include "../webserv.hpp"
-#include <fstream>
-#include <string.h>
 #include <algorithm>
-
-bool	is_file(const char* name)
-{
-	DIR* directory = opendir(name);
-
-	if(directory != NULL)
-	{
-		closedir(directory);
-		return false;
-	}
-
-	if(errno == ENOTDIR)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-bool	file_exist(const std::string& name) {
-	struct stat	buffer;   
-	return (stat (name.c_str(), &buffer) == 0); 
-}
-
-bool	file_readable(const std::string &name) {
-
-	std::ifstream	my_file( name.c_str() );
-	return ( my_file.good() );
-}
+#include <string.h>
 
 Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	

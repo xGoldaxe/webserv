@@ -69,7 +69,8 @@ int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
-	env_store(env, 0);
+	(void) env;
+	// env_store(env, 0);
 
 	int server_socket = socket(
 		AF_INET,

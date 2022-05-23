@@ -41,6 +41,8 @@ int	Response::send() {
 	raw_response += "\r\n\n";
 	raw_response += body;
 
+	// std::cout << raw_response << std::endl;
+
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
 	return (status);
 }
@@ -75,12 +77,15 @@ std::string Response::load_body( Request &req ) {
 		}
 		else {
 
+			this->add_header( "Content-Type", "text/html" );
 			new_body = read_fd( pipe_fd[0] );
 			close( pipe_fd[0] );
 		}
 	}
 	else
+	{
 		new_body = read_binary( req.getUrl() );
+	}
 	this->body = new_body;
 	return this->body;
 }

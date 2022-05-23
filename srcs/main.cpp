@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include <netinet/tcp.h>   /* TCP_KEEPIDLE, etc. */
 #include <arpa/inet.h>
 
 #include <iostream>
@@ -49,15 +50,26 @@ void process_request(int client_socket, char **env)
 	std::string req_raw_data;
 	char buffer[256];
 	bzero(buffer,256);
-	req_raw_data = "";
 	int n = 255;
-	while (n == 255)
+	while ( n != -1 )
 	{
+		bzero(buffer,256);
 		n = read(client_socket, buffer, 255);
+		buffer[n] = '\0';
 		req_raw_data += buffer;
+		if ( req_raw_data.at( req_raw_data.size() - 2 ) == '\r' &&
+				req_raw_data.at( req_raw_data.size() - 1 ) == '\n')
+			break ;
 	}
-	webserv_conf	conf; 
 
+	std::cout << "<-----------{top}----------->" << std::endl;
+	std::cout << req_raw_data << std::endl;
+	std::cout << "<-----------{bottom}----------->" << std::endl;
+	/* we will need further verification */
+	if (req_raw_data.size() == 0)
+		return ;
+
+	webserv_conf	conf; 
 	Request req( req_raw_data, conf );
 	req.env = env;
 	Response res( client_socket, conf );
@@ -80,7 +92,7 @@ int main(int argc, char **argv, char **env)
 
 	short port = 3000;
 
-	struct sockaddr_in	server_addr;
+	struct sockaddr_in	server_addr, cli_addr;
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(port);
 	server_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -105,21 +117,43 @@ int main(int argc, char **argv, char **env)
 	int client_socket;
 
 	///////////////////////////////
-	int epfd = epoll_create1(0);
+	int epfd = epoll_create1(O_CLOEXEC);
 	fcntl(server_socket, F_SETFL, O_NONBLOCK);
 	while(1) {
 		// we accept some new request
 		while (1)
 		{
-			client_socket = accept(server_socket, NULL, NULL);
+			socklen_t clilen = sizeof(cli_addr);
+			client_socket = accept( server_socket, (struct sockaddr *) &cli_addr, &clilen );
 			if (client_socket == -1)
 				break;
+
+			int swtch = 1;	/* 1=KeepAlive On, 0=KeepAlive Off. */
+			int idle = 1;	/* Number of idle seconds before sending a KeepAlive probe. */
+			int interval= 5;	/* How often in seconds to resend an unacked KeepAlive probe. */
+			int count =10;	/* How many times to resend a KA probe if previous probe was unacked. */
+
+			/* Switch KeepAlive on or off for this side of the socket. */
+			setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
+
+			if (swtch)
+			{
+				/* Set the number of seconds the connection must be idle before sending a KA probe. */
+				setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
+
+				/* Set how often in seconds to resend an unacked KA probe. */
+				setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
+
+				/* Set how many times to resend a KA probe if previous probe was unacked. */
+				setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
+			}
+
 			struct epoll_event ev;
 			bzero( &ev, sizeof(ev) );
 			ev.events = EPOLLIN;
 			ev.data.fd = client_socket;
 			epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &ev);
-			std::cout << "new registered connection!" << std::endl;
+			std::cout << "========>new registered connection!<========" << std::endl;
 		}
 
 		struct epoll_event evlist[1024];

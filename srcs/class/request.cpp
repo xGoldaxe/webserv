@@ -17,23 +17,23 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	this->method = splitted_str.at(0);
 	/* find route */
 	this->url = splitted_str.at(1);
+	this->legacy_url = this->url;
 	std::string tmp_url;
 	for ( std::vector<Route>::iterator it = conf.routes.begin(); it != conf.routes.end(); ++it )
 	{
-		// std::cout<< this->url << " : " << it->location << std::endl;
+		std::string test_url = finish_by_only_one( this->url, '/' );
 		// int pos = this->url.compare( 0, it->location.size() - 1, it->location );
-		// std::cout << it->location << ":" << this->url << ":" << pos << std::endl;
-		if ( strncmp( this->url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
+		if ( strncmp( test_url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
 		{
 			this->route = &(*it);
 			tmp_url = this->route->root
-				+ this->url.substr( this->url.find_first_of( it->location ) + it->location.size() );
+				+ test_url.substr( test_url.find_first_of( it->location ) + it->location.size() );
+			tmp_url = tmp_url.substr(0, tmp_url.size()-1);
 		}
 	}
 	this->url = tmp_url;
 	/* find route */
 
-	this->legacy_url = splitted_str.at(1);
 	this->version = splitted_str.at(2);
 	this->row_data = raw_data;
 };

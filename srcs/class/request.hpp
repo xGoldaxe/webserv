@@ -19,6 +19,8 @@ class Request
 
 		Request( void );
 	public:
+		char			**env;
+
 		/* coplien */
 		Request( std::string raw_data, webserv_conf &conf );
 		Request( Request const &src );

@@ -44,7 +44,7 @@ void report(struct sockaddr_in *server_addr)
 	std::cout << "\n\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }
 
-void process_request(int client_socket)
+void process_request(int client_socket, char **env)
 {
 	std::string req_raw_data;
 	char buffer[256];
@@ -59,10 +59,11 @@ void process_request(int client_socket)
 	webserv_conf	conf; 
 
 	Request req( req_raw_data, conf );
-	Response res(client_socket, conf);
+	req.env = env;
+	Response res( client_socket, conf );
 
 	std::cout << "request url: " << req.getUrl() << std::endl;
-	http_get_response(req, res); 
+	http_get_response(req, res);
 }
 
 int main(int argc, char **argv, char **env)
@@ -70,7 +71,6 @@ int main(int argc, char **argv, char **env)
 	(void) argc;
 	(void) argv;
 	(void) env;
-	// env_store(env, 0);
 
 	int server_socket = socket(
 		AF_INET,
@@ -115,17 +115,20 @@ int main(int argc, char **argv, char **env)
 			if (client_socket == -1)
 				break;
 			struct epoll_event ev;
+			bzero( &ev, sizeof(ev) );
 			ev.events = EPOLLIN;
 			ev.data.fd = client_socket;
 			epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &ev);
-			// std::cout << "new registered connection!" << std::endl;
+			std::cout << "new registered connection!" << std::endl;
 		}
 
 		struct epoll_event evlist[1024];
 		int nbr_req = epoll_wait(epfd, evlist, 1024, 0);
 		for (int i = 0; i < nbr_req; ++i)
 		{
-			process_request( evlist[i].data.fd );
+			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
+			process_request( evlist[i].data.fd, env );
+			// std::cout << "now closing connection, fd: " << evlist[i].data.fd << std::endl;
 			close( evlist[i].data.fd );
 		}
 	}

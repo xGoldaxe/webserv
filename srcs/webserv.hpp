@@ -27,6 +27,7 @@ std::string to_string( int number );
 std::string read_binary( std::string filename );
 std::string get_extension(std::string file_name);
 std::string	finish_by_only_one( std::string str, char c );
+std::string	read_fd( int fd );
 
 
 /* http */

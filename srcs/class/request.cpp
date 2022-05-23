@@ -4,8 +4,8 @@
 
 Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	
+	// std::cout << raw_data << std::endl;
 	std::vector<std::string> splitted_str;
-	
 	// split the first line
 	std::string first_line = raw_data.substr(0, raw_data.find("\n"));
 	std::stringstream stream_str(first_line);
@@ -20,6 +20,7 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	std::string tmp_url;
 	for ( std::vector<Route>::iterator it = conf.routes.begin(); it != conf.routes.end(); ++it )
 	{
+		// std::cout<< this->url << " : " << it->location << std::endl;
 		// int pos = this->url.compare( 0, it->location.size() - 1, it->location );
 		// std::cout << it->location << ":" << this->url << ":" << pos << std::endl;
 		if ( strncmp( this->url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
@@ -81,6 +82,7 @@ std::string Request::try_url( int *status, std::string *message ) {
 	}
 	else
 	{
+
 		std::string test_url = finish_by_only_one( this->url, '/' );
 
 		for ( std::vector<std::string>::iterator it = this->conf.index.begin();
@@ -88,7 +90,7 @@ std::string Request::try_url( int *status, std::string *message ) {
 		{
 			test_url += *it;
 
-			std::cout << " try... "  << test_url << std::endl;
+			// std::cout << " try... "  << test_url << ":" << this->url << std::endl;
 
 			if ( file_exist(test_url)  && is_file( test_url.c_str() ) )
 			{

@@ -1,5 +1,7 @@
 #include "webserv.hpp"
 #include <fstream>
+#include <unistd.h>
+#include <strings.h>
 
 std::string to_string( int number ) {
 
@@ -42,7 +44,7 @@ bool	file_readable(const std::string &name) {
 
 std::string	finish_by_only_one( std::string str, char c ) {
 
-	if ( *( str.end() ) == c )
+	if ( str.at( str.size() - 1 ) == c )
 		return str;
 	str += c;
 	return str;
@@ -56,8 +58,24 @@ std::string read_binary( std::string filename ) {
 	return ss;
 }
 
+std::string	read_fd( int fd ) {
+
+	(void)fd;
+	char buff[256];
+	int readed = 255;
+	std::string	res;
+	while (readed != 0)
+	{
+		bzero(buff, 256);
+		readed = read( fd, buff, 255 );
+		buff[readed] = '\0';
+		res += buff;
+	}
+	return res;
+}
+
 std::string get_extension(std::string file_name)
 {
-	int position=file_name.find_last_of(".");
+	int position = file_name.find_last_of(".");
 	return file_name.substr(position+1);
 }

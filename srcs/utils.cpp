@@ -13,22 +13,22 @@ std::string to_string( int number ) {
 	return ( result );
 }
 
-bool	is_file(const char* name)
+int	is_file(const char* name)
 {
 	DIR* directory = opendir(name);
 
 	if(directory != NULL)
 	{
 		closedir(directory);
-		return false;
+		return 0;
 	}
 
 	if(errno == ENOTDIR)
 	{
-		return true;
+		return 1;
 	}
-
-	return false;
+	//doesnt exist
+	return -1;
 }
 
 bool	file_exist(const std::string& name) {
@@ -42,8 +42,15 @@ bool	file_readable(const std::string &name) {
 	return ( my_file.good() );
 }
 
+bool	usable_file( const std::string &name ) {
+
+	return ( file_exist( name ) && is_file( name.c_str() ) == 1 && file_readable( name ) );
+}
+
 std::string	finish_by_only_one( std::string str, char c ) {
 
+	if ( str.size() == 0 )
+		return str;
 	if ( str.at( str.size() - 1 ) == c )
 		return str;
 	str += c;

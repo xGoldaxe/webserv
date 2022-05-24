@@ -26,7 +26,8 @@ struct webserv_conf
 		routes.push_back( route1 );
 		routes.push_back( route2 );
 		routes.back().enable_cgi( "/usr/bin/php" );
-	};
+		routes.at(0).add_error_page( 404, "defaultPages/404.html");
+	}
 	webserv_conf( webserv_conf &rhs ) : root(rhs.root) {};
 	~webserv_conf(void) {};
 };

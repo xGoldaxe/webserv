@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 struct Route
 {
@@ -11,6 +12,8 @@ struct Route
 	std::string					location;
 	std::vector<std::string>	index;
 	std::vector<std::string>	methods;
+	std::map<int, std::string>	error_pages;
+	bool						auto_index;
 	/* cgi*/
 	std::string					cgi_path;
 	bool						cgi_enable;
@@ -21,6 +24,7 @@ struct Route
 	~Route(void);
 
 	void	enable_cgi( std::string path );
+	void	add_error_page( int status_code, std::string error_message );
 };
 
 

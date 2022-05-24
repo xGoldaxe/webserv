@@ -3,8 +3,7 @@
 #include <string.h>
 
 Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
-	
-	// std::cout << raw_data << std::endl;
+
 	std::vector<std::string> splitted_str;
 	// split the first line
 	std::string first_line = raw_data.substr(0, raw_data.find("\n"));
@@ -22,7 +21,6 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	for ( std::vector<Route>::iterator it = conf.routes.begin(); it != conf.routes.end(); ++it )
 	{
 		std::string test_url = finish_by_only_one( this->url, '/' );
-		// int pos = this->url.compare( 0, it->location.size() - 1, it->location );
 		if ( strncmp( test_url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
 		{
 			this->route = &(*it);
@@ -36,6 +34,7 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 
 	this->version = splitted_str.at(2);
 	this->row_data = raw_data;
+	this->auto_index = false;
 };
 
 Request::~Request( void ) {};
@@ -49,6 +48,9 @@ std::string Request::getBody(void) {
 }
 std::string Request::getUrl(void) {
 	return (url);
+}
+std::string Request::get_legacy_url(void) {
+	return this->legacy_url;
 }
 std::string Request::getRelativeUrl(void) {
 	std::cout << "out of date" << std::endl;
@@ -67,7 +69,13 @@ std::string Request::try_url( int *status, std::string *message ) {
 
 	*status = 404;
 	*message = "Not Found";
-	if ( file_exist( this->url ) && is_file( this->url.c_str() ) )
+	if ( this->route->auto_index && is_file( this->url.c_str() ) == 0 )
+	{
+		*status = 200;
+		*message = "OK";
+		this->auto_index = true;
+	}
+	else if ( file_exist( this->url ) && is_file( this->url.c_str() ) == 1 )
 	{
 		if ( file_readable( this->url ) )
 		{
@@ -92,7 +100,7 @@ std::string Request::try_url( int *status, std::string *message ) {
 
 			// std::cout << " try... "  << test_url << ":" << this->url << std::endl;
 
-			if ( file_exist(test_url)  && is_file( test_url.c_str() ) )
+			if ( file_exist(test_url) && is_file( test_url.c_str() ) == 1 )
 			{
 				*status = 200;
 				*message = "OK";

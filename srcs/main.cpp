@@ -51,28 +51,31 @@ void process_request(int client_socket, char **env)
 	char buffer[256];
 	bzero(buffer,256);
 	int n = 255;
-	while ( n != -1 )
+	while ( n > 0 )
 	{
 		bzero(buffer,256);
 		n = read(client_socket, buffer, 255);
 		buffer[n] = '\0';
 		req_raw_data += buffer;
-		if ( req_raw_data.at( req_raw_data.size() - 2 ) == '\r' &&
-				req_raw_data.at( req_raw_data.size() - 1 ) == '\n')
+		if ( req_raw_data.size() < 2 ||
+				( req_raw_data.at( req_raw_data.size() - 2 ) == '\r' &&
+					req_raw_data.at( req_raw_data.size() - 1 ) == '\n' ) 
+			)
 			break ;
 	}
 
-	std::cout << "<-----------{top}----------->" << std::endl;
-	std::cout << req_raw_data << std::endl;
-	std::cout << "<-----------{bottom}----------->" << std::endl;
+	// std::cout << "<-----------{top}----------->" << std::endl;
+	// std::cout << req_raw_data << std::endl;
+	// std::cout << "<-----------{bottom}----------->" << std::endl;
 	/* we will need further verification */
 	if (req_raw_data.size() == 0)
 		return ;
 
 	webserv_conf	conf; 
+	
 	Request req( req_raw_data, conf );
 	req.env = env;
-	Response res( client_socket, conf );
+	Response res( client_socket, conf, req );
 
 	std::cout << "request url: " << req.getUrl() << std::endl;
 	http_get_response(req, res);
@@ -130,8 +133,8 @@ int main(int argc, char **argv, char **env)
 
 			int swtch = 1;	/* 1=KeepAlive On, 0=KeepAlive Off. */
 			int idle = 1;	/* Number of idle seconds before sending a KeepAlive probe. */
-			int interval= 5;	/* How often in seconds to resend an unacked KeepAlive probe. */
-			int count =10;	/* How many times to resend a KA probe if previous probe was unacked. */
+			int interval= 1;	/* How often in seconds to resend an unacked KeepAlive probe. */
+			int count = 1;	/* How many times to resend a KA probe if previous probe was unacked. */
 
 			/* Switch KeepAlive on or off for this side of the socket. */
 			setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
@@ -150,7 +153,7 @@ int main(int argc, char **argv, char **env)
 
 			struct epoll_event ev;
 			bzero( &ev, sizeof(ev) );
-			ev.events = EPOLLIN;
+			ev.events = EPOLLET | EPOLLIN;
 			ev.data.fd = client_socket;
 			epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &ev);
 			std::cout << "========>new registered connection!<========" << std::endl;
@@ -163,7 +166,7 @@ int main(int argc, char **argv, char **env)
 			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
 			process_request( evlist[i].data.fd, env );
 			// std::cout << "now closing connection, fd: " << evlist[i].data.fd << std::endl;
-			close( evlist[i].data.fd );
+			// close( evlist[i].data.fd );
 		}
 	}
 	/* connections must have a lifetime */

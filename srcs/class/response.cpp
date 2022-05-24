@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 #include "unistd.h"
 
-Response::Response( int client_socket, webserv_conf &conf ) : conf(conf) {
+Response::Response( int client_socket, webserv_conf &conf, const Request &req ) : conf(conf), req( req ) {
 	
 	this->client_socket = client_socket;
 	version = this->conf.http_version;
@@ -47,10 +47,16 @@ int	Response::send() {
 	return (status);
 }
 
+std::string auto_index_template( std::string url, std::string legacy_url );
+
 std::string Response::load_body( Request &req ) {
 
 	std::string new_body;
-	if ( req.get_route()->cgi_enable == true 
+	if ( req.auto_index == true ) {
+		this->add_header("Content-Type", "text/html");
+		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
+	}
+	else if ( req.get_route()->cgi_enable == true 
 		&& get_extension( req.getUrl().c_str() ) == req.get_route()->cgi_extension ) {
 
 		int pipe_fd[2];
@@ -95,7 +101,22 @@ std::string error_template(std::string error_code, std::string message);
 std::string & Response::error_body(void) {
 
 	this->add_header("Content-Type", "text/html");
-	this->body = error_template(this->get_str_code(), this->status_message);
+	try
+	{
+		std::string filename = this->req.route->error_pages.at( this->status_code );
+		if ( usable_file( filename ) )
+			this->body = read_binary( filename );
+		else
+		{
+			this->set_status( 500, "Internal Server Error" );
+			this->body = error_template(this->get_str_code(), this->status_message);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		this->body = error_template(this->get_str_code(), this->status_message);
+	}
+	
 	return (this->body);
 }
 
@@ -128,3 +149,53 @@ std::string error_template(std::string error_code, std::string message) {
 	</body>\
 	</html>"));
 }
+
+#include <dirent.h> 
+#include <stdio.h>
+
+std::string auto_index_template( std::string url, std::string legacy_url ) {
+
+	std::string files;
+	std::cout << "auto_index_template" << std::endl;
+	/* get each files */
+	DIR *d;
+	struct dirent *dir;
+	d = opendir( url.c_str() );
+	if (d) {
+		while ((dir = readdir(d)) != NULL) {
+			std::string dirname = dir->d_name;
+			if ( is_file( std::string( finish_by_only_one( url, '/' ) + dirname ).c_str() ) == 0 )
+				dirname = finish_by_only_one( dirname, '/' );
+			if ( dirname != "./" )
+				files += "<p><a href=\"" + finish_by_only_one( legacy_url, '/' ) + dirname + "\">" + dirname + "</a></p>";
+		}
+		closedir(d);
+	}
+	return std::string( std::string("<!DOCTYPE html>\
+		<html lang=\"en\">\
+		<head>\
+			<meta charset=\"UTF-8\">\
+			<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\
+			<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
+			<title>Index of ")
+			+ legacy_url
+			+ std::string ("</title>\
+			\
+			<style>\
+			p, h1 {\
+				text-align: center;\
+			}\
+			</style>\
+		</head>\
+		<body>\
+			<h1>Index of ")
+		+ legacy_url
+		+ std::string( "</h1>\
+			<hr />\
+			<p>")
+		+ files
+		+ std::string("</p>\
+		<hr />\
+		</body>\
+		</html>"));
+	}

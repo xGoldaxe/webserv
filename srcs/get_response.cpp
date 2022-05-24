@@ -17,7 +17,6 @@ int http_GET( Request &req, Response &res ) {
 	{
 		res.load_body( req );
 		http_header_content_type(req, res);
-		http_header_content_length(req, res);
 	}
 	else
 	{
@@ -41,9 +40,10 @@ int http_get_response( Request &req, Response &res )
 		res.error_body();
 	}
 	/* generic headers */
+	http_header_content_length(req, res);
 	http_header_date(req, res);
 	http_header_server(req, res);
-	// res.add_header( "Connection", "keep-alive" );
+	res.add_header( "Connection", "keep-alive" );
 
 	res.send();
 	return 1;

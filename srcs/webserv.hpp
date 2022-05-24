@@ -20,7 +20,7 @@
 #include "http_header/http_header.hpp"
 
 /* utils */
-bool 		is_file(const char* name);
+int			is_file(const char* name);
 bool 		file_exist(const std::string& name);
 bool		file_readable(const std::string &name);
 std::string to_string( int number );
@@ -28,6 +28,7 @@ std::string read_binary( std::string filename );
 std::string get_extension(std::string file_name);
 std::string	finish_by_only_one( std::string str, char c );
 std::string	read_fd( int fd );
+bool		usable_file( const std::string &name );
 
 
 /* http */

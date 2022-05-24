@@ -8,7 +8,6 @@ class Request
 
 	private:
 		webserv_conf	&conf;
-		Route			*route;
 		std::string		method;
 		std::string		url;
 		std::string		legacy_url;
@@ -19,6 +18,8 @@ class Request
 
 		Request( void );
 	public:
+		bool			auto_index;
+		Route			*route;
 		char			**env;
 
 		/* coplien */
@@ -29,9 +30,10 @@ class Request
 		Request &   operator=( Request const & rhs );
 		/* end coplien */
 		std::string	getMethod(void) const;
-		bool	is_allowed_method( const std::string &method ) const;
+		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
 		std::string getUrl(void);
+		std::string get_legacy_url(void);
 		std::string getRelativeUrl(void);
 		std::string try_url( int *status, std::string *msg );
 		Route		*get_route(void);

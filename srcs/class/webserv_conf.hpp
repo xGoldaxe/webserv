@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include "route.hpp"
+#include <list>
 
 struct Webserv_conf
 {
@@ -15,9 +16,12 @@ struct Webserv_conf
 	std::string 				http_version;
 	std::string					server_name;
 	std::vector<Route>			routes;
+	std::list<int>				port; //Choisir le port; ecouter plusieurs ports
 
 	Webserv_conf(void);
 	Webserv_conf(std::string filename);
+
+	void	print_conf(void);
 
 /* exceptions */
         class FailedToOpenFile : public std::exception	{
@@ -26,6 +30,7 @@ struct Webserv_conf
                     return ("Webserv_conf::Webserv_conf Couldn't open file");
                 }
         };
+
 };
 
 

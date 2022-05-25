@@ -86,6 +86,15 @@ void testconf()
 	
 	try
 	{
+		Webserv_conf conf = Webserv_conf("idOnotExist");
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
 		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
 	}
 	catch (const std::exception &e)

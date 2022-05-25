@@ -1,7 +1,6 @@
 server {
-	server_name() = test;
-	listen = 80;
-	listen() = 3000;
+	server_name = test;
+	listen = 3000;
 	error_page 404 403 = error.html;
 	body_max_size=2048;
 

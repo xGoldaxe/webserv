@@ -11,10 +11,11 @@ class Request
 		std::string		method;
 		std::string		url;
 		std::string		legacy_url;
-		std::string		version;
 		std::map<std::string, std::string>		headers;
 		std::string		body;
 		std::string		row_data;
+		std::string		version;
+		bool			request_validity;
 
 		Request( void );
 	public:
@@ -37,6 +38,16 @@ class Request
 		std::string getRelativeUrl(void);
 		std::string try_url( int *status, std::string *msg );
 		Route		*get_route(void);
+		bool		is_request_valid(void) const;
+		std::string	get_http_version(void) const;
+
+		/* exceptions */
+        class invalid_http_request : public std::exception	{
+            public:
+                virtual const	char* what() const throw()	{
+                    return ("Request:Request canno't parse the http raw request.");
+                }
+        };
 };
 
 

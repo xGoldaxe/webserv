@@ -6,10 +6,19 @@
 #include <sys/wait.h>
 #include "unistd.h"
 
-Response::Response( int client_socket, webserv_conf &conf, const Request &req ) : conf(conf), req( req ) {
+Response::Response( int client_socket, webserv_conf &conf, Request const &req ) : conf(conf), req( req ) {
 	
 	this->client_socket = client_socket;
-	version = this->conf.http_version;
+	this->version = this->conf.http_version;
+	this->status_code = -1;
+
+	std::string	req_http_version = req.get_http_version();
+	std::cout << req_http_version << " size:" << req_http_version.size() << std::endl;
+	std::cout << this->version << "==" << req_http_version << " " << (this->version == req_http_version) << std::endl;
+	if ( req.is_request_valid() == false )
+		this->set_status( 400, "Bad Request" );
+	// else if ( this->version != req_http_version )
+	// 	this->set_status( 505, "HTTP Version Not Supported" );
 }
 
 Response::~Response( void ) {}
@@ -122,6 +131,7 @@ std::string & Response::error_body(void) {
 
 std::string error_template(std::string error_code, std::string message) {
 
+	message = "zz";
 	return std::string( std::string("<!DOCTYPE html>\
 	<html lang=\"en\">\
 	<head>\

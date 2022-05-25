@@ -2,37 +2,40 @@
 #include <algorithm>
 #include <string.h>
 
-Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
+std::string find_route( Route **route, std::vector<Route> routes, std::string url ) {
 
-	std::vector<std::string> splitted_str;
-	// split the first line
-	std::string first_line = raw_data.substr(0, raw_data.find("\n"));
-	std::stringstream stream_str(first_line);
-	std::string buffer_str;
-	while (std::getline(stream_str, buffer_str, ' '))
-		splitted_str.push_back(buffer_str);
-	
-	//file informations
-	this->method = splitted_str.at(0);
-	/* find route */
-	this->url = splitted_str.at(1);
-	this->legacy_url = this->url;
 	std::string tmp_url;
-	for ( std::vector<Route>::iterator it = conf.routes.begin(); it != conf.routes.end(); ++it )
+	for ( std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it )
 	{
-		std::string test_url = finish_by_only_one( this->url, '/' );
+		std::string test_url = finish_by_only_one( url, '/' );
 		if ( strncmp( test_url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
 		{
-			this->route = &(*it);
-			tmp_url = this->route->root
+			*route = &(*it);
+			tmp_url = (*route)->root
 				+ test_url.substr( test_url.find_first_of( it->location ) + it->location.size() );
 			tmp_url = tmp_url.substr(0, tmp_url.size()-1);
 		}
 	}
-	this->url = tmp_url;
-	/* find route */
+	return tmp_url;
+}
 
-	this->version = splitted_str.at(2);
+Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
+
+	std::string line = raw_data.substr( 0, raw_data.find("\n") );
+	std::vector<std::string> splitted_str = split_str( line );
+	
+	if ( splitted_str.size() != 3 )
+	{
+		request_validity = false;
+		return ;
+	}
+	//file informations
+	request_validity = true;
+	this->method = splitted_str[0];
+	this->legacy_url = splitted_str[1];
+	this->version = splitted_str[2];
+
+	this->url = find_route( &this->route, conf.routes, this->legacy_url );
 	this->row_data = raw_data;
 	this->auto_index = false;
 };
@@ -56,8 +59,16 @@ std::string Request::getRelativeUrl(void) {
 	std::cout << "out of date" << std::endl;
 	return (this->conf.root + url);
 }
+std::string Request::get_http_version(void) const {
+	std::cout << this->version << " size:" << this->version.size() << std::endl;
+	return this->version;
+}
 Route	*Request::get_route(void) {
 	return (this->route);
+}
+
+bool	Request::is_request_valid(void) const {
+	return request_validity;
 }
 
 bool	Request::is_allowed_method( const std::string &method ) const {

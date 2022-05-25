@@ -86,3 +86,17 @@ std::string get_extension(std::string file_name)
 	int position = file_name.find_last_of(".");
 	return file_name.substr(position+1);
 }
+
+std::vector<std::string>	split_str( std::string str ) {
+
+	std::vector<std::string> splitted_str;
+
+	std::cout << str << "|" << str.size() << std::endl;
+	std::stringstream stream_str( str );
+	std::string buffer_str;
+	while ( std::getline(stream_str, buffer_str, ' ') )
+	{
+		splitted_str.push_back(buffer_str);
+	}
+	return	splitted_str;
+}

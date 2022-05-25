@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "webserv.hpp"
 
@@ -30,21 +31,31 @@ bool verify_method( const Request &req, std::string method ) {
 	return strcmp( req.getMethod().c_str(), method.c_str() ) == 0 && req.is_allowed_method(method);
 }
 
-int http_get_response( Request &req, Response &res )
-{
-	if ( verify_method( req, "GET" ) )
-		http_GET(req, res);
+int http_get_response( Request &req, Response &res ) {
+
+	if ( res.status_code >= 400 )
+	{
+		// res.error_body();
+		res.send();
+		close( res.client_socket );
+		return 1;
+	}
 	else
 	{
-		res.set_status( 405, "Method Not Allowed" );
-		res.error_body();
-	}
-	/* generic headers */
-	http_header_content_length(req, res);
-	http_header_date(req, res);
-	http_header_server(req, res);
-	res.add_header( "Connection", "keep-alive" );
+		if ( verify_method( req, "GET" ) )
+			http_GET(req, res);
+		else
+		{
+			res.set_status( 405, "Method Not Allowed" );
+			res.error_body();
+		}
+		/* generic headers */
+		http_header_content_length(req, res);
+		http_header_date(req, res);
+		http_header_server(req, res);
+		res.add_header( "Connection", "keep-alive" );
 
-	res.send();
+		res.send();
+	}
 	return 1;
 }

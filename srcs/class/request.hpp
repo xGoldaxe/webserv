@@ -1,7 +1,7 @@
 #ifndef REQUEST_HPP
 #	define REQUEST_HPP
 
-#include "../webserv.hpp"
+#include "response.hpp"
 
 class Request
 {
@@ -36,7 +36,7 @@ class Request
 		std::string getUrl(void);
 		std::string get_legacy_url(void);
 		std::string getRelativeUrl(void);
-		std::string try_url( int *status, std::string *msg );
+		std::string try_url( Response & res );
 		Route		*get_route(void);
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;

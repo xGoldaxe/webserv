@@ -32,3 +32,10 @@ void	Route::add_error_page( int status_code, std::string error_message ) {
 	std::pair<int, std::string> pair( status_code, error_message );
 	this->error_pages.insert( pair );
 }
+
+void	Route::add_redirection( std::string url, std::string redirect_url ) {
+
+	std::pair<int, std::string> pair( url, redirect_url );
+	this->redirections.insert( pair );
+}
+

@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 #include "class/webserv_conf.hpp"
-#include "class/request.hpp"
 #include "class/response.hpp"
+#include "class/request.hpp"
 
 #include "http_header/http_header.hpp"
 

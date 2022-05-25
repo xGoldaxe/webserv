@@ -1,7 +1,7 @@
 #ifndef RESPONSE_HPP
 #	define RESPONSE_HPP
 
-#include "../webserv.hpp"
+#include "request.hpp"
 
 class Response
 {

@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "route.hpp"
-#include "../webserv.hpp"
 
 struct webserv_conf
 {
@@ -27,6 +26,7 @@ struct webserv_conf
 		routes.push_back( route2 );
 		routes.back().enable_cgi( "/usr/bin/php" );
 		routes.at(0).add_error_page( 404, "defaultPages/404.html");
+		routes.at(0).add_redirection( "moved.html", "/sub" );
 	}
 	webserv_conf( webserv_conf &rhs ) : root(rhs.root) {};
 	~webserv_conf(void) {};

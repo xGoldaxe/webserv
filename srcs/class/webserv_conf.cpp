@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/25 16:43:49 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/25 16:57:19 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,20 @@ Webserv_conf::Webserv_conf(std::string filename)
 		throw Webserv_conf::FailedToOpenFile();
 	}
 
+	//std::stringstream bufstream;
+	//bufstream << file.rdbuf();
+	//buffer = bufstream.str();
+	std::getline(file, buffer);
+	
+	while(!file.eof())
+	{
+		std::cout << buffer << std::endl;
+		std::getline(file, buffer);
+	}
+
 	file.close();
+
+
 /*
 		index.push_back("index.html");
 		http_version = "HTTP/1.1";

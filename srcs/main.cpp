@@ -81,11 +81,31 @@ void process_request(int client_socket, char **env)
 	http_get_response(req, res);
 }
 
+void testconf()
+{
+	
+	try
+	{
+		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+}
+
 int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
 	(void) env;
+
+	if(argc == 2 && strcmp(argv[1],"testconf") == 0)
+	{
+		testconf();
+		return(0);
+	}
 
 	int server_socket = socket(
 		AF_INET,

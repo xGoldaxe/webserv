@@ -6,17 +6,18 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/25 17:24:05 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/25 18:42:20 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv_conf.hpp"
 #include "../webserv.hpp"
+#include <cstring>
 
 //default values
 Webserv_conf::Webserv_conf(void)
 {	
-		port.push_front(3000);
+		port.push_back(3000);
 		root = ".";
 		index.push_back("index.html");
 		http_version = "HTTP/1.1";
@@ -29,6 +30,13 @@ Webserv_conf::Webserv_conf(void)
 		routes.at(0).add_error_page( 404, "defaultPages/404.html");
 };
 
+static int return_type_parse(std::string s)
+{
+	if(s.compare("server_name") == 0)
+		return (1);
+	return (-1);
+}
+
 Webserv_conf::Webserv_conf(std::string filename)
 {
 	root = ".";
@@ -38,20 +46,37 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 	std::ifstream file;
 	std::string buffer;
+	std::stringstream s;
+	std::vector<std::string> words;
+	size_t pos = 0;	
+	int check = -1;
+	unsigned int it = 0; 
+
 	file.open(filename.c_str(), std::ifstream::in);
 	if (!file.is_open())
 	{
 		throw Webserv_conf::FailedToOpenFile();
 	}
-	std::getline(file, buffer);
-	while(!file.eof())
+	s << file.rdbuf();
+	buffer = s.str();
+	file.close();
+
+	//buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
+	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
+	
+	while ((pos = buffer.find(" ")) != std::string::npos) {
+        words.push_back(buffer.substr(0, pos));
+        buffer.erase(0, pos + 1);
+    }
+
+	while(it != words.size())    
 	{
-		//std::cout << buffer << std::endl;
-		
-		std::getline(file, buffer);
+		check = return_type_parse(words[it]);
+        std::cout << words[it] << "|" << " type " << check << std::endl;		
+		//TODO:switch depending on check
+		it++;
 	}
 
-	file.close();
 };
 
 void	Webserv_conf::print_conf(void)

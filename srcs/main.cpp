@@ -81,6 +81,8 @@ void process_request(int client_socket, char **env)
 	http_get_response(req, res);
 }
 
+//testing confparser if you type ./webserv testconf
+//to remove when done
 void testconf()
 {
 	

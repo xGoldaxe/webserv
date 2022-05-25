@@ -8,6 +8,7 @@
 #include <sstream>
 #include "route.hpp"
 #include <list>
+#include <algorithm>
 
 struct Webserv_conf
 {

@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 #include "unistd.h"
 
-Response::Response( int client_socket, webserv_conf &conf, Request const &req ) : conf(conf), req( req ) {
+Response::Response( int client_socket, Webserv_conf &conf, Request const &req ) : conf(conf), req( req ) {
 	
 	this->client_socket = client_socket;
 	this->version = this->conf.http_version;

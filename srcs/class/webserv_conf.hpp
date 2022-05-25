@@ -4,10 +4,11 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
 #include "route.hpp"
-#include "../webserv.hpp"
 
-struct webserv_conf
+struct Webserv_conf
 {
 	std::string 				root;
 	std::vector<std::string>	index;
@@ -15,21 +16,16 @@ struct webserv_conf
 	std::string					server_name;
 	std::vector<Route>			routes;
 
-	webserv_conf(void) {
+	Webserv_conf(void);
+	Webserv_conf(std::string filename);
 
-		root = ".";
-		index.push_back("index.html");
-		http_version = "HTTP/1.1";
-		server_name = "webserv (42) v0.1-dev";
-		Route route1( "/", "./www" );
-		Route route2( "/php", "./cgi" );
-		routes.push_back( route1 );
-		routes.push_back( route2 );
-		routes.back().enable_cgi( "/usr/bin/php" );
-		routes.at(0).add_error_page( 404, "defaultPages/404.html");
-	}
-	webserv_conf( webserv_conf &rhs ) : root(rhs.root) {};
-	~webserv_conf(void) {};
+/* exceptions */
+        class FailedToOpenFile : public std::exception	{
+            public:
+                virtual const	char* what() const throw()	{
+                    return ("Webserv_conf::Webserv_conf Couldn't open file");
+                }
+        };
 };
 
 

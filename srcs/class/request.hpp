@@ -7,7 +7,7 @@ class Request
 {
 
 	private:
-		webserv_conf	&conf;
+		Webserv_conf	&conf;
 		std::string		method;
 		std::string		url;
 		std::string		legacy_url;
@@ -24,7 +24,7 @@ class Request
 		char			**env;
 
 		/* coplien */
-		Request( std::string raw_data, webserv_conf &conf );
+		Request( std::string raw_data, Webserv_conf &conf );
 		Request( Request const &src );
 		~Request( void );
 

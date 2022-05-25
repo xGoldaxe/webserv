@@ -1,6 +1,7 @@
 SRCS	=	main.cpp \
 			get_response.cpp \
 			utils.cpp \
+			class/webserv_conf.cpp \
 			class/request.cpp \
 			class/response.cpp \
 			class/route.cpp \

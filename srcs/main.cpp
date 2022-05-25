@@ -71,7 +71,7 @@ void process_request(int client_socket, char **env)
 	if (req_raw_data.size() == 0)
 		return ;
 
-	webserv_conf	conf; 
+	Webserv_conf	conf; 
 	
 	Request req( req_raw_data, conf );
 	req.env = env;

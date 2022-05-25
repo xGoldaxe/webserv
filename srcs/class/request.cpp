@@ -19,7 +19,7 @@ std::string find_route( Route **route, std::vector<Route> routes, std::string ur
 	return tmp_url;
 }
 
-Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
+Request::Request( std::string raw_data, Webserv_conf &conf ) : conf(conf) {
 
 	std::string line = raw_data.substr( 0, raw_data.find("\n") );
 	std::vector<std::string> splitted_str = split_str( line );

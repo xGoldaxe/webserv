@@ -55,6 +55,7 @@
 		"ratio": "cpp",
 		"iomanip": "cpp",
 		"map": "cpp",
-		"list": "cpp"
+		"list": "cpp",
+		"cstring": "cpp"
 	}
 }

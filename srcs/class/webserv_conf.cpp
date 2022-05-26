@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 14:11:20 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/26 15:24:27 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,17 @@
 // default values
 Webserv_conf::Webserv_conf(void)
 {
-	port.push_back(3000);
+//	port.push_back(3000);
 	root = ".";
-	index.push_back("index.html");
+//	index.push_back("index.html");
 	http_version = "HTTP/1.1";
-	server_name = "webserv (42) v0.1-dev";
-	Route route1("/", "./www");
-	Route route2("/php", "./cgi");
-	routes.push_back(route1);
-	routes.push_back(route2);
-	routes.back().enable_cgi("/usr/bin/php");
-	routes.at(0).add_error_page(404, "defaultPages/404.html");
+//	server_name = "webserv (42) v0.1-dev";
+//	Route route1("/", "./www");
+//	Route route2("/php", "./cgi");
+//	routes.push_back(route1);
+//	routes.push_back(route2);
+//	routes.back().enable_cgi("/usr/bin/php");
+//	routes.at(0).add_error_page(404, "defaultPages/404.html");
 };
 
 static int return_type_parse(std::string s)
@@ -52,7 +52,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	root = ".";
 
 	// default server name "Setup server_name ou pas"
-	server_name = "webserv (42) v0.1-dev";
+	//server_name = "webserv (42) v0.1-dev";
 
 	std::ifstream file;
 	std::string buffer;
@@ -92,7 +92,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		it++;
 	}
 };
-
+/*
 void Webserv_conf::print_conf(void)
 {
 	std::cout << "root = " << this->root << std::endl;
@@ -110,7 +110,7 @@ void Webserv_conf::print_conf(void)
 	for (std::list<int>::const_iterator k = (this->port).begin(); k != (this->port).end(); ++k)
 		std::cout << *k << ' ';
 	std::cout << std::endl;
-}
+}*/
 
 /*
 	std::string 				root;

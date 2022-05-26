@@ -24,16 +24,16 @@
 struct Webserv_conf
 {
 	std::string 				root;
-	std::vector<std::string>	index;
+//	std::vector<std::string>	index;
 	std::string 				http_version;
-	std::string					server_name;
-	std::vector<Route>			routes;
-	std::list<int>				port; //Choisir le port; ecouter plusieurs ports
+//	std::string					server_name;
+//	std::vector<Route>			routes;
+//	std::list<int>				port; 
 
 	Webserv_conf(void);
 	Webserv_conf(std::string filename);
 
-	void	print_conf(void);
+//	void	print_conf(void);
 
 /* exceptions */
         class FailedToOpenFile : public std::exception	{

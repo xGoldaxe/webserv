@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   serveur.hpp                                        :+:      :+:    :+:   */
+/*   Server_conf.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -15,7 +15,7 @@
 #include "../webserv.hpp"
 #include "webserv_conf.hpp"
 
-class Serveur
+class Server_conf
 {
 
 	private:
@@ -24,7 +24,7 @@ class Serveur
 		std::string					server_name = "webserv (42) v0.1-dev";
 		std::vector<std::string>	index;
 	public:
-		Serveur(void);
+		Server_conf(void);
 		
 		std::list<int>				getPort();
 		std::vector<Route>			getRoutes();

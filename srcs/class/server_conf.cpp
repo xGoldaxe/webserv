@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   serveur.cpp                                        :+:      :+:    :+:   */
+/*   server_conf.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 15:23:12 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/26 16:24:19 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "serveur.hpp"
+#include "server_conf.hpp"
 
-Serveur::Serveur(void)
+Server_conf::Server_conf(void)
 {
 	this->server_name = "webserv (42) v0.1-dev";
 	this->port.push_back(3000);
@@ -25,38 +25,38 @@ Serveur::Serveur(void)
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
-std::list<int> Serveur::getPort()
+std::list<int> Server_conf::getPort()
 {
 	return this->port;
 }
-std::vector<Route> Serveur::getRoutes()
+std::vector<Route> Server_conf::getRoutes()
 {
 	return this->routes;
 }
-std::string Serveur::getName()
+std::string Server_conf::getName()
 {
 	return this->server_name;
 }
 
-std::vector<std::string> Serveur::getIndex()
+std::vector<std::string> Server_conf::getIndex()
 {
 	return this->index;
 }
 
-void Serveur::addPort(int port)
+void Server_conf::addPort(int port)
 {
 	this->port.push_back(port);
 }
-void Serveur::addRoute(Route route)
+void Server_conf::addRoute(Route route)
 {
 	this->routes.push_back(route);
 }
-void Serveur::setName(std::string server_name)
+void Server_conf::setName(std::string server_name)
 {
 	this->server_name.clear();
 	this->server_name.append(server_name);
 }
-void Serveur::addIndex(std::string index)
+void Server_conf::addIndex(std::string index)
 {
 	this->index.push_back(index);
 }

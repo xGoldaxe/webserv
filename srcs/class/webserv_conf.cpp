@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/25 18:42:20 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/26 13:10:23 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,15 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 	//buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
-	
+	std::replace(buffer.begin(), buffer.end(), '{', ' ');
+	std::replace(buffer.begin(), buffer.end(), '}', ' ');
+	std::replace(buffer.begin(), buffer.end(), '\n', ' ');
+
 	while ((pos = buffer.find(" ")) != std::string::npos) {
         words.push_back(buffer.substr(0, pos));
         buffer.erase(0, pos + 1);
     }
-
+	words.erase(std::remove(words.begin(), words.end(), ""), words.end());
 	while(it != words.size())    
 	{
 		check = return_type_parse(words[it]);

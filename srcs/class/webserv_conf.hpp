@@ -17,6 +17,9 @@
 #define ROOT 4
 #define INDEX 5
 #define METHODS 6
+#define ENABLE_CGI 7
+#define CGI_EXTENSION 8
+#define BODY_MAX_SIZE 9
 
 struct Webserv_conf
 {

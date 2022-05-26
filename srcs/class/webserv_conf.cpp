@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 13:39:00 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/26 14:11:20 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,12 @@ Webserv_conf::Webserv_conf(void)
 static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;
-	std::string tab[7] = {"server_name", "listen",
+	std::string tab[10] = {"server_name", "listen",
 						 "error_page", "location",
 						 "root", "index",
-						 "methods"};
-	while (i < 7)
+						 "methods", "enable_cgi",
+						 "cgi_extension", "body_max_size"};
+	while (i < 10)
 	{
 		if (s.compare(tab[i]) == 0)
 			return i;

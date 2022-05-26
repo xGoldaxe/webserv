@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 13:10:23 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/26 13:39:00 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,43 +14,52 @@
 #include "../webserv.hpp"
 #include <cstring>
 
-//default values
+// default values
 Webserv_conf::Webserv_conf(void)
-{	
-		port.push_back(3000);
-		root = ".";
-		index.push_back("index.html");
-		http_version = "HTTP/1.1";
-		server_name = "webserv (42) v0.1-dev";
-		Route route1( "/", "./www" );
-		Route route2( "/php", "./cgi" );
-		routes.push_back( route1 );
-		routes.push_back( route2 );
-		routes.back().enable_cgi( "/usr/bin/php" );
-		routes.at(0).add_error_page( 404, "defaultPages/404.html");
+{
+	port.push_back(3000);
+	root = ".";
+	index.push_back("index.html");
+	http_version = "HTTP/1.1";
+	server_name = "webserv (42) v0.1-dev";
+	Route route1("/", "./www");
+	Route route2("/php", "./cgi");
+	routes.push_back(route1);
+	routes.push_back(route2);
+	routes.back().enable_cgi("/usr/bin/php");
+	routes.at(0).add_error_page(404, "defaultPages/404.html");
 };
 
 static int return_type_parse(std::string s)
 {
-	if(s.compare("server_name") == 0)
-		return (1);
+	unsigned int i = 0;
+	std::string tab[7] = {"server_name", "listen",
+						 "error_page", "location",
+						 "root", "index",
+						 "methods"};
+	while (i < 7)
+	{
+		if (s.compare(tab[i]) == 0)
+			return i;
+		i++;
+	}
 	return (-1);
 }
 
 Webserv_conf::Webserv_conf(std::string filename)
 {
 	root = ".";
-	
-	//default server name "Setup server_name ou pas"
+
+	// default server name "Setup server_name ou pas"
 	server_name = "webserv (42) v0.1-dev";
 
 	std::ifstream file;
 	std::string buffer;
 	std::stringstream s;
 	std::vector<std::string> words;
-	size_t pos = 0;	
+	size_t pos = 0;
 	int check = -1;
-	unsigned int it = 0; 
+	unsigned int it = 0;
 
 	file.open(filename.c_str(), std::ifstream::in);
 	if (!file.is_open())
@@ -61,28 +70,29 @@ Webserv_conf::Webserv_conf(std::string filename)
 	buffer = s.str();
 	file.close();
 
-	//buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
+	// buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
 	std::replace(buffer.begin(), buffer.end(), '{', ' ');
 	std::replace(buffer.begin(), buffer.end(), '}', ' ');
 	std::replace(buffer.begin(), buffer.end(), '\n', ' ');
 
-	while ((pos = buffer.find(" ")) != std::string::npos) {
-        words.push_back(buffer.substr(0, pos));
-        buffer.erase(0, pos + 1);
-    }
+	while ((pos = buffer.find(" ")) != std::string::npos)
+	{
+		words.push_back(buffer.substr(0, pos));
+		buffer.erase(0, pos + 1);
+	}
 	words.erase(std::remove(words.begin(), words.end(), ""), words.end());
-	while(it != words.size())    
+	while (it != words.size())
 	{
 		check = return_type_parse(words[it]);
-        std::cout << words[it] << "|" << " type " << check << std::endl;		
-		//TODO:switch depending on check
+		std::cout << words[it] << "|"
+				  << check << std::endl;
+		// TODO:switch depending on check
 		it++;
 	}
-
 };
 
-void	Webserv_conf::print_conf(void)
+void Webserv_conf::print_conf(void)
 {
 	std::cout << "root = " << this->root << std::endl;
 	std::cout << "http version = " << this->http_version << std::endl;
@@ -90,14 +100,14 @@ void	Webserv_conf::print_conf(void)
 
 	std::cout << "index = " << std::endl;
 	for (std::vector<std::string>::const_iterator i = (this->index).begin(); i != (this->index).end(); ++i)
- 	   std::cout << *i << ' ';
+		std::cout << *i << ' ';
 	std::cout << std::endl;
 
-	//for (std::vector<Route>::const_iterator i = (this->index).begin(); i != path.end(); ++i)
- 	//   std::cout << *i << ' ';
+	// for (std::vector<Route>::const_iterator i = (this->index).begin(); i != path.end(); ++i)
+	//    std::cout << *i << ' ';
 	std::cout << "ports = " << std::endl;
 	for (std::list<int>::const_iterator k = (this->port).begin(); k != (this->port).end(); ++k)
- 	   std::cout << *k << ' ';
+		std::cout << *k << ' ';
 	std::cout << std::endl;
 }
 
@@ -107,5 +117,5 @@ void	Webserv_conf::print_conf(void)
 	std::string 				http_version;
 	std::string					server_name;
 	std::vector<Route>			routes;
-	std::list<int>				port; 
+	std::list<int>				port;
 */

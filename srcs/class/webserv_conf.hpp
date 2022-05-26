@@ -10,6 +10,14 @@
 #include <list>
 #include <algorithm>
 
+#define SERVER_NAME 0
+#define LISTEN 1
+#define ERROR_PAGE 2
+#define LOCATION 3
+#define ROOT 4
+#define INDEX 5
+#define METHODS 6
+
 struct Webserv_conf
 {
 	std::string 				root;

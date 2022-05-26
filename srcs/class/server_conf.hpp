@@ -10,10 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#pragma once
+#ifndef SERVER_CONF_HPP
+# define SERVER_CONF_HPP
 
-#include "../webserv.hpp"
-#include "webserv_conf.hpp"
+#include "route.hpp"
+#include <list>
 
 class Server_conf
 {
@@ -21,7 +22,7 @@ class Server_conf
 	private:
 		std::list<int>				port;
 		std::vector<Route>			routes;
-		std::string					server_name = "webserv (42) v0.1-dev";
+		std::string					server_name;
 		std::vector<std::string>	index;
 	public:
 		Server_conf(void);
@@ -35,3 +36,5 @@ class Server_conf
 		void 						setName(std::string server_name);
 		void						addIndex(std::string index);
 };
+
+#endif

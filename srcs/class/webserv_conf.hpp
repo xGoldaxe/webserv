@@ -9,6 +9,8 @@
 #include "route.hpp"
 #include <list>
 #include <algorithm>
+#include <cstring>
+#include "server_conf.hpp"
 
 #define SERVER_NAME 0
 #define LISTEN 1
@@ -24,11 +26,8 @@
 struct Webserv_conf
 {
 	std::string 				root;
-//	std::vector<std::string>	index;
+	std::vector<Server_conf>	servers;
 	std::string 				http_version;
-//	std::string					server_name;
-//	std::vector<Route>			routes;
-//	std::list<int>				port; 
 
 	Webserv_conf(void);
 	Webserv_conf(std::string filename);

@@ -6,28 +6,19 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 15:24:27 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/26 17:55:09 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserv_conf.hpp"
-#include "../webserv.hpp"
-#include <cstring>
 
 // default values
 Webserv_conf::Webserv_conf(void)
 {
-//	port.push_back(3000);
 	root = ".";
-//	index.push_back("index.html");
 	http_version = "HTTP/1.1";
-//	server_name = "webserv (42) v0.1-dev";
-//	Route route1("/", "./www");
-//	Route route2("/php", "./cgi");
-//	routes.push_back(route1);
-//	routes.push_back(route2);
-//	routes.back().enable_cgi("/usr/bin/php");
-//	routes.at(0).add_error_page(404, "defaultPages/404.html");
+	Server_conf server = Server_conf();
+	this->servers.push_back(server);
 };
 
 static int return_type_parse(std::string s)
@@ -50,9 +41,9 @@ static int return_type_parse(std::string s)
 Webserv_conf::Webserv_conf(std::string filename)
 {
 	root = ".";
-
-	// default server name "Setup server_name ou pas"
-	//server_name = "webserv (42) v0.1-dev";
+	http_version = "HTTP/1.1";
+	Server_conf server = Server_conf();
+	this->servers.push_back(server);
 
 	std::ifstream file;
 	std::string buffer;
@@ -111,12 +102,3 @@ void Webserv_conf::print_conf(void)
 		std::cout << *k << ' ';
 	std::cout << std::endl;
 }*/
-
-/*
-	std::string 				root;
-	std::vector<std::string>	index;
-	std::string 				http_version;
-	std::string					server_name;
-	std::vector<Route>			routes;
-	std::list<int>				port;
-*/

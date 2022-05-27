@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 16:22:46 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 16:52:56 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,9 +136,25 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case ROOT:
 			break;
 		case INDEX:
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
+			{
+				it = it + 2;
+				while (it < words.size() && words[it].compare(";") != 0)
+				{
+					if (contextlocation == 0)
+						server.addIndex(words[it]);
+					else
+						server.addIndexRoute(words[it]);
+					it++;
+				}
+			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
 			break;
 		case METHODS:
-			if(!contextlocation)
+			if (!contextlocation)
 				throw Webserv_conf::SussyParsing();
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
 			{
@@ -149,6 +165,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 					it++;
 				}
 			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
 			break;
 		case ENABLE_CGI:
 			break;
@@ -157,7 +177,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case BODY_MAX_SIZE:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				server.setBodyMaxSize(std::atoi(words[it+2].c_str()));
+				server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
 			else

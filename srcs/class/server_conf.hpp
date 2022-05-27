@@ -40,6 +40,7 @@ class Server_conf
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);
+		void							addIndexRoute(std::string index);
 		void 							addMethods(std::string methods);
 		void 							addErrorPages(int error, std::string errorpage);
 		void							setBodyMaxSize(int body_max_size);

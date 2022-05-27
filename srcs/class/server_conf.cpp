@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 15:45:35 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 16:51:59 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,11 @@ void Server_conf::setName(std::string server_name)
 void Server_conf::addIndex(std::string index)
 {
 	this->index.push_back(index);
+}
+
+void Server_conf::addIndexRoute(std::string index)
+{
+	this->routes.back().add_index(index);
 }
 
 void Server_conf::addErrorPages(int error, std::string errorpage)

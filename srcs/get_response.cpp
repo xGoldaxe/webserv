@@ -13,7 +13,7 @@
 
 int http_GET( Request &req, Response &res ) {
 	
-	req.try_url( &(res.status_code), &(res.status_message) );
+	req.try_url( res );
 	if ( res.status_code == 200 )
 	{
 		res.load_body( req );

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
 #include <sstream>
 #include <filesystem>
 
@@ -14,11 +15,19 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-#include "class/webserv_conf.hpp"
+
+/* class */
+class Response;
+class Route;
+struct webserv_conf;
+
+#include "class/route.hpp"
 #include "class/response.hpp"
 #include "class/request.hpp"
+#include "class/webserv_conf.hpp"
 
 #include "http_header/http_header.hpp"
+
 
 /* utils */
 int							is_file(const char* name);
@@ -32,8 +41,9 @@ std::string					read_fd( int fd );
 bool						usable_file( const std::string &name );
 std::vector<std::string>	split_str( std::string str );
 
-
 /* http */
 int http_get_response( Request &req, Response &res );
+
+
 
 #endif

@@ -83,8 +83,8 @@ std::string Request::try_url( Response & res ) {
 
 	res.set_status( 404, "Not Found" ); // fallback if 0 condition has been checked
 
-	std::map<std::string, std::string>::iterator redir = this->route->redirecitons.find( this->url );
-	if ( redir != this->route->redirecitons.end() ) // we have a redirection
+	std::map<std::string, std::string>::iterator redir = this->route->redirections.find( this->url );
+	if ( redir != this->route->redirections.end() ) // we have a redirection
 	{
 		res.set_status( 301, "Moved Permanently" );
 		res.add_header( "Location", redir->second );

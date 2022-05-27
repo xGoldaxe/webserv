@@ -1,5 +1,4 @@
 #include "route.hpp"
-#include "../webserv.hpp"
 
 Route::Route( std::string location, std::string root ) {
 
@@ -35,7 +34,7 @@ void	Route::add_error_page( int status_code, std::string error_message ) {
 
 void	Route::add_redirection( std::string url, std::string redirect_url ) {
 
-	std::pair<int, std::string> pair( url, redirect_url );
+	std::pair<std::string, std::string> pair( url, redirect_url );
 	this->redirections.insert( pair );
 }
 

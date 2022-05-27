@@ -2,20 +2,22 @@
 #	define REQUEST_HPP
 
 #include "response.hpp"
+#include "route.hpp"
+#include "webserv_conf.hpp"
 
 class Request
 {
 
 	private:
-		webserv_conf	&conf;
-		std::string		method;
-		std::string		url;
-		std::string		legacy_url;
+		webserv_conf							&conf;
+		std::string								method;
+		std::string								url;
+		std::string								legacy_url;
 		std::map<std::string, std::string>		headers;
-		std::string		body;
-		std::string		row_data;
-		std::string		version;
-		bool			request_validity;
+		std::string								body;
+		std::string								row_data;
+		std::string								version;
+		bool									request_validity;
 
 		Request( void );
 	public:

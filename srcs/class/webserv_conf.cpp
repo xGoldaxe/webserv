@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 15:45:26 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 16:22:46 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,17 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case INDEX:
 			break;
 		case METHODS:
+			if(!contextlocation)
+				throw Webserv_conf::SussyParsing();
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
+			{
+				it = it + 2;
+				while (it < words.size() && words[it].compare(";") != 0)
+				{
+					server.addMethods(words[it]);
+					it++;
+				}
+			}
 			break;
 		case ENABLE_CGI:
 			break;

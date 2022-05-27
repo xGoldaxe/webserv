@@ -35,6 +35,8 @@ class Server_conf
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);
+		void 							addMethods(std::string methods);
+
 };
 
 #endif

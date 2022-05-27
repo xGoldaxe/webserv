@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 13:17:32 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 13:59:00 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,12 @@ void Server_conf::addPort(int port)
 {
 	this->port.push_back(port);
 }
+
+void Server_conf::addMethods(std::string methods)
+{
+	this->routes.back().add_methods(methods);
+}
+
 void Server_conf::addRoute(Route route)
 {
 	this->routes.push_back(route);

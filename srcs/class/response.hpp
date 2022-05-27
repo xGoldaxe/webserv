@@ -1,8 +1,12 @@
 #ifndef RESPONSE_HPP
 #	define RESPONSE_HPP
 
+
 #include "request.hpp"
 #include "webserv_conf.hpp"
+
+class Request;
+struct Webserv_conf;
 
 class Response
 {

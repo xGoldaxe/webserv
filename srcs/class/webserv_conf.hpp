@@ -2,6 +2,7 @@
 #	define WEBSERV_CONF_HPP
 
 
+#include "server_conf.hpp"
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -9,7 +10,6 @@
 #include <list>
 #include <algorithm>
 #include <cstring>
-#include "server_conf.hpp"
 #include <limits>
 #include <cstdlib>
 
@@ -24,6 +24,8 @@
 #define CGI_EXTENSION 8
 #define BODY_MAX_SIZE 9
 #define SERVER 10
+
+class Server_conf;
 
 struct Webserv_conf
 {

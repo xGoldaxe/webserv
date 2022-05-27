@@ -16,6 +16,8 @@
 #include "route.hpp"
 #include <list>
 
+class Route;
+
 class Server_conf
 {
 

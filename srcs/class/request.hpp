@@ -1,9 +1,12 @@
 #ifndef REQUEST_HPP
 #	define REQUEST_HPP
 
+#include "webserv_conf.hpp"
 #include "response.hpp"
 #include "route.hpp"
-#include "webserv_conf.hpp"
+
+class Route;
+struct Webserv_conf;
 
 class Request
 {

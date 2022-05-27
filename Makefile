@@ -6,7 +6,6 @@ SRCS	=	main.cpp \
 			class/request.cpp \
 			class/response.cpp \
 			class/route.cpp \
-			class/webserv_conf.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \

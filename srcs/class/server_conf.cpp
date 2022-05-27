@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 16:51:59 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 17:03:49 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ Server_conf::Server_conf(void)
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 	this->body_max_size = 2048;
 	this->root = ".";
+	routes.at(0).add_redirection( "moved.html", "/sub" );
 }
 // empty
 Server_conf::Server_conf(int emp)

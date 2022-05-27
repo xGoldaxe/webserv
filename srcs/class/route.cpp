@@ -41,3 +41,8 @@ void Route::add_methods(std::string methods)
 {
 	this->methods.push_back(methods);
 }
+
+void Route::add_index( std::string index )
+{
+	this->index.push_back(index);
+}

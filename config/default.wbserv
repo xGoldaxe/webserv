@@ -15,7 +15,7 @@ server
 	location /php 
 	{ 
 		root ./php ;
-		index index.php ;
+		index = index.php ;
 		enable_cgi $CGI_PATH ; 
 		cgi_extension php ;
 	}

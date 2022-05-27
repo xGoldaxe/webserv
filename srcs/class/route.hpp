@@ -26,6 +26,7 @@ struct Route
 	void	enable_cgi( std::string path );
 	void	add_error_page( int status_code, std::string error_message );
 	void	add_methods( std::string methods );
+	void	add_index( std::string index );
 
 };
 

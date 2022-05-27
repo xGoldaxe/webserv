@@ -24,6 +24,7 @@
 #define ENABLE_CGI 7
 #define CGI_EXTENSION 8
 #define BODY_MAX_SIZE 9
+#define SERVER 10
 
 struct Webserv_conf
 {

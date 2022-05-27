@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 14:54:02 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 15:21:40 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@ Webserv_conf::Webserv_conf(void)
 static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;
-	std::string tab[10] = {"server_name", "listen",
+	std::string tab[11] = {"server_name", "listen",
 						   "error_page", "location",
 						   "root", "index",
 						   "methods", "enable_cgi",
-						   "cgi_extension", "body_max_size"};
-	while (i < 10)
+						   "cgi_extension", "body_max_size", "server"};
+	while (i < 11)
 	{
 		if (s.compare(tab[i]) == 0)
 			return i;
@@ -53,6 +53,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	int check = -1;
 	unsigned int it = 0;
 	unsigned int tmpit = 0;
+	int firstservswitch = 1;
 
 	file.open(filename.c_str(), std::ifstream::in);
 	if (!file.is_open())
@@ -80,7 +81,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 		check = return_type_parse(words[it]);
 		std::cout << words[it] << "|"
 				  << check << std::endl;
-		// TODO:switch depending on check
 		switch (check)
 		{
 		case SERVER_NAME:
@@ -145,6 +145,15 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case CGI_EXTENSION:
 			break;
 		case BODY_MAX_SIZE:
+			break;
+		case SERVER:
+			if (firstservswitch)
+			{
+				firstservswitch = 0;
+				break;
+			}
+			this->servers.push_back(server);
+			server = Server_conf(1);
 			break;
 		default:
 			break;

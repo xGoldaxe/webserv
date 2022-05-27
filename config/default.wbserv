@@ -16,7 +16,7 @@ server
 	{ 
 		root ./php ;
 		index index.php ;
-		enable_cgi $CGI_PATH ; # by default enable cgi is used on all files
-		cgi_extension php ; # only .php will be call with cgi
+		enable_cgi $CGI_PATH ; 
+		cgi_extension php ;
 	}
 }

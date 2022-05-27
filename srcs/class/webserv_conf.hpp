@@ -28,7 +28,6 @@
 
 struct Webserv_conf
 {
-	std::string 				root;
 	std::vector<Server_conf>	servers;
 	std::string 				http_version;
 

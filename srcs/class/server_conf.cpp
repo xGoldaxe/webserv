@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 15:28:12 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 15:45:35 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ Server_conf::Server_conf(void)
 	routes.back().enable_cgi("/usr/bin/php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 	this->body_max_size = 2048;
+	this->root = ".";
 }
 // empty
 Server_conf::Server_conf(int emp)
@@ -31,6 +32,8 @@ Server_conf::Server_conf(int emp)
 	(void)emp;
 	// default server name
 	this->server_name = "webserv (42) v0.1-dev";
+	// default root
+	this->root = ".";
 }
 
 std::list<short> Server_conf::getPort() const
@@ -54,6 +57,11 @@ std::vector<std::string> Server_conf::getIndex() const
 int Server_conf::getBodyMaxSize() const
 {
 	return this->body_max_size;
+}
+
+std::string Server_conf::getRoot() const
+{
+	return this->root;
 }
 
 void Server_conf::addPort(short port)
@@ -88,4 +96,10 @@ void Server_conf::addErrorPages(int error, std::string errorpage)
 void Server_conf::setBodyMaxSize(int body_max_size)
 {
 	this->body_max_size = body_max_size;
+}
+
+void Server_conf::setRoot(std::string root)
+{
+	this->root.clear();
+	this->root.append(root);
 }

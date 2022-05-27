@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 15:29:39 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 15:45:26 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 // default values
 Webserv_conf::Webserv_conf(void)
 {
-	root = ".";
 	http_version = "HTTP/1.1";
 	Server_conf server = Server_conf();
 	this->servers.push_back(server);
@@ -40,7 +39,6 @@ static int return_type_parse(std::string s)
 
 Webserv_conf::Webserv_conf(std::string filename)
 {
-	root = ".";
 	http_version = "HTTP/1.1";
 	Server_conf server = Server_conf(1);
 
@@ -54,6 +52,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	unsigned int it = 0;
 	unsigned int tmpit = 0;
 	int firstservswitch = 1;
+	int contextlocation = 0;
 
 	file.open(filename.c_str(), std::ifstream::in);
 	if (!file.is_open())
@@ -132,6 +131,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case LOCATION:
+			contextlocation = 1;
 			break;
 		case ROOT:
 			break;
@@ -160,6 +160,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				firstservswitch = 0;
 				break;
 			}
+			contextlocation = 0;
 			this->servers.push_back(server);
 			server = Server_conf(1);
 			break;

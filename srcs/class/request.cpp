@@ -34,7 +34,7 @@ Request::Request( std::string raw_data, Webserv_conf &conf ) : conf(conf) {
 	this->method = splitted_str[0];
 	this->legacy_url = splitted_str[1];
 	this->version = splitted_str[2];
-	//Had to edit v to take routes from first server, to edit for multi-server
+	//Edited v to take routes from first server, to edit for multi-server
 	this->url = find_route( &this->route, conf.servers[0].getRoutes(), this->legacy_url );
 	this->row_data = raw_data;
 	this->auto_index = false;
@@ -57,7 +57,8 @@ std::string Request::get_legacy_url(void) {
 }
 std::string Request::getRelativeUrl(void) {
 	std::cout << "out of date" << std::endl;
-	return (this->conf.root + url);
+//Edited v to take routes from first server, to edit for multi-server
+	return (this->conf.servers[0].getRoot() + url);
 }
 std::string Request::get_http_version(void) const {
 	std::cout << this->version << " size:" << this->version.size() << std::endl;

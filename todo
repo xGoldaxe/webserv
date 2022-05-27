@@ -4,7 +4,7 @@
 #datack
 redefine const with a filename in webserv_conf to parse our custom conf files
 
-request.cpp line 38 & line 108
+request.cpp line 38 & line 108 & line 61
 Edited to take routes from first server,
 to change for multi-server support
 

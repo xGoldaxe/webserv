@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 14:12:09 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 14:54:02 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;
 	std::string tab[10] = {"server_name", "listen",
-						 "error_page", "location",
-						 "root", "index",
-						 "methods", "enable_cgi",
-						 "cgi_extension", "body_max_size"};
+						   "error_page", "location",
+						   "root", "index",
+						   "methods", "enable_cgi",
+						   "cgi_extension", "body_max_size"};
 	while (i < 10)
 	{
 		if (s.compare(tab[i]) == 0)
@@ -48,9 +48,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 	std::string buffer;
 	std::stringstream s;
 	std::vector<std::string> words;
+	std::string tmperrorval;
 	size_t pos = 0;
 	int check = -1;
 	unsigned int it = 0;
+	unsigned int tmpit = 0;
 
 	file.open(filename.c_str(), std::ifstream::in);
 	if (!file.is_open())
@@ -73,7 +75,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		buffer.erase(0, pos + 1);
 	}
 	words.erase(std::remove(words.begin(), words.end(), ""), words.end());
-	while (it != words.size())
+	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
 		std::cout << words[it] << "|"
@@ -81,28 +83,71 @@ Webserv_conf::Webserv_conf(std::string filename)
 		// TODO:switch depending on check
 		switch (check)
 		{
-			case SERVER_NAME:
-				break;
-			case LISTEN:
-				break;
-			case ERROR_PAGE:
-				break;
-			case LOCATION:
-				break;
-			case ROOT:
-				break;
-			case INDEX:
-				break;
-			case METHODS:
-				break;
-			case ENABLE_CGI:
-				break;
-			case CGI_EXTENSION:
-				break;
-			case BODY_MAX_SIZE:
-				break;
-			default:
-				break;
+		case SERVER_NAME:
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.setName(words[it + 2]);
+				it = it + 3;
+			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
+			break;
+		case LISTEN:
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				int port = std::atoi(words[it + 2].c_str());
+				std::numeric_limits<short> range;
+				if (port < range.min() || port > range.max())
+					throw Webserv_conf::OutOfRangePort();
+				server.addPort(port);
+				it = it + 3;
+			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
+			break;
+		case ERROR_PAGE:
+			//assumes syntax error_page a b ... z = "blablabla" ;
+			// get value after =
+			tmpit = it;
+			while (it < words.size() && words[it].compare("=") != 0)
+				it++;
+			if (words[it].compare("=") == 0 && it + 2 < words.size()
+			&& words[it + 2].compare(";") == 0 && ((it - tmpit) > 1))
+			{
+				tmperrorval = words[it + 1];
+				tmpit++;
+				while (tmpit < it)
+				{
+					server.addErrorPages(std::atoi(words[tmpit].c_str()), tmperrorval);
+					tmpit++;
+				}
+				it = it + 2;
+			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
+			break;
+		case LOCATION:
+			break;
+		case ROOT:
+			break;
+		case INDEX:
+			break;
+		case METHODS:
+			break;
+		case ENABLE_CGI:
+			break;
+		case CGI_EXTENSION:
+			break;
+		case BODY_MAX_SIZE:
+			break;
+		default:
+			break;
 		}
 		it++;
 	}

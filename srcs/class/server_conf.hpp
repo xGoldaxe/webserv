@@ -20,7 +20,7 @@ class Server_conf
 {
 
 	private:
-		std::list<int>				port;
+		std::list<short>			port;
 		std::vector<Route>			routes;
 		std::string					server_name;
 		std::vector<std::string>	index;
@@ -28,16 +28,15 @@ class Server_conf
 		Server_conf(void);
 		Server_conf(int emp);
 
-		std::list<int>					getPort() const;
+		std::list<short>				getPort() const;
 		std::vector<Route>				getRoutes() const;
 		std::string						getName() const;
 		std::vector<std::string>		getIndex() const;
-		void							addPort(int port);
+		void							addPort(short port);
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);
 		void 							addMethods(std::string methods);
-
-};
+		void 							addErrorPages(int error, std::string errorpage);};
 
 #endif

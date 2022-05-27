@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 14:02:07 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 14:51:48 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,15 @@ Server_conf::Server_conf(void)
 	routes.back().enable_cgi("/usr/bin/php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
-//empty
+// empty
 Server_conf::Server_conf(int emp)
 {
 	(void)emp;
-	//default server name
+	// default server name
 	this->server_name = "webserv (42) v0.1-dev";
 }
 
-
-std::list<int> Server_conf::getPort() const
+std::list<short> Server_conf::getPort() const
 {
 	return this->port;
 }
@@ -51,7 +50,7 @@ std::vector<std::string> Server_conf::getIndex() const
 	return this->index;
 }
 
-void Server_conf::addPort(int port)
+void Server_conf::addPort(short port)
 {
 	this->port.push_back(port);
 }
@@ -73,4 +72,9 @@ void Server_conf::setName(std::string server_name)
 void Server_conf::addIndex(std::string index)
 {
 	this->index.push_back(index);
+}
+
+void Server_conf::addErrorPages(int error, std::string errorpage)
+{
+	this->routes.back().add_error_page(error, errorpage);
 }

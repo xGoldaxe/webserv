@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <cstring>
 #include "server_conf.hpp"
+#include <limits>
+#include <cstdlib>
 
 #define SERVER_NAME 0
 #define LISTEN 1
@@ -39,6 +41,18 @@ struct Webserv_conf
             public:
                 virtual const	char* what() const throw()	{
                     return ("Webserv_conf::Webserv_conf Couldn't open file");
+                }
+        };
+        class OutOfRangePort : public std::exception	{
+            public:
+                virtual const	char* what() const throw()	{
+                    return ("Webserv_conf::Webserv_conf Provided Port is outside range!");
+                }
+        };
+        class SussyParsing : public std::exception	{
+            public:
+                virtual const	char* what() const throw()	{
+                    return ("Webserv_conf::Webserv_conf Configuration file parsing error!");
                 }
         };
 

@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 15:21:40 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 15:29:39 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,13 +110,12 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case ERROR_PAGE:
-			//assumes syntax error_page a b ... z = "blablabla" ;
-			// get value after =
+			// assumes syntax error_page a b ... z = "blablabla" ;
+			//  get value after =
 			tmpit = it;
 			while (it < words.size() && words[it].compare("=") != 0)
 				it++;
-			if (words[it].compare("=") == 0 && it + 2 < words.size()
-			&& words[it + 2].compare(";") == 0 && ((it - tmpit) > 1))
+			if (words[it].compare("=") == 0 && it + 2 < words.size() && words[it + 2].compare(";") == 0 && ((it - tmpit) > 1))
 			{
 				tmperrorval = words[it + 1];
 				tmpit++;
@@ -145,6 +144,15 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case CGI_EXTENSION:
 			break;
 		case BODY_MAX_SIZE:
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.setBodyMaxSize(std::atoi(words[it+2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
 			break;
 		case SERVER:
 			if (firstservswitch)

@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 14:51:48 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 15:28:12 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Server_conf::Server_conf(void)
 	routes.push_back(route2);
 	routes.back().enable_cgi("/usr/bin/php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
+	this->body_max_size = 2048;
 }
 // empty
 Server_conf::Server_conf(int emp)
@@ -48,6 +49,11 @@ std::string Server_conf::getName() const
 std::vector<std::string> Server_conf::getIndex() const
 {
 	return this->index;
+}
+
+int Server_conf::getBodyMaxSize() const
+{
+	return this->body_max_size;
 }
 
 void Server_conf::addPort(short port)
@@ -77,4 +83,9 @@ void Server_conf::addIndex(std::string index)
 void Server_conf::addErrorPages(int error, std::string errorpage)
 {
 	this->routes.back().add_error_page(error, errorpage);
+}
+
+void Server_conf::setBodyMaxSize(int body_max_size)
+{
+	this->body_max_size = body_max_size;
 }

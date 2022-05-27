@@ -24,6 +24,7 @@ class Server_conf
 		std::vector<Route>			routes;
 		std::string					server_name;
 		std::vector<std::string>	index;
+		int							body_max_size;
 	public:
 		Server_conf(void);
 		Server_conf(int emp);
@@ -32,11 +33,13 @@ class Server_conf
 		std::vector<Route>				getRoutes() const;
 		std::string						getName() const;
 		std::vector<std::string>		getIndex() const;
+		int								getBodyMaxSize() const;
 		void							addPort(short port);
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);
 		void 							addMethods(std::string methods);
-		void 							addErrorPages(int error, std::string errorpage);};
-
+		void 							addErrorPages(int error, std::string errorpage);
+		void							setBodyMaxSize(int body_max_size);
+};
 #endif

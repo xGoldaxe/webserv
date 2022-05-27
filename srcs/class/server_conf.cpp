@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 17:03:49 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 17:23:53 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ Server_conf::Server_conf(void)
 	this->root = ".";
 	routes.at(0).add_redirection( "moved.html", "/sub" );
 }
+
 // empty
 Server_conf::Server_conf(int emp)
 {

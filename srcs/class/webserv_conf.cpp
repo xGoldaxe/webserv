@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 17:02:51 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 17:25:14 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,13 @@ Webserv_conf::Webserv_conf(void)
 static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;
-	std::string tab[11] = {"server_name", "listen",
+	std::string tab[12] = {"server_name", "listen",
 						   "error_page", "location",
 						   "root", "index",
 						   "methods", "enable_cgi",
-						   "cgi_extension", "body_max_size", "server"};
-	while (i < 11)
+						   "cgi_extension", "body_max_size", "server",
+						   "rewrite"};
+	while (i < 12)
 	{
 		if (s.compare(tab[i]) == 0)
 			return i;
@@ -132,6 +133,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case LOCATION:
 			contextlocation = 1;
+			//todo, cant test otherwise
 			break;
 		case ROOT:
 			break;
@@ -194,6 +196,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			contextlocation = 0;
 			this->servers.push_back(server);
 			server = Server_conf(1);
+			break;
+		case REWRITE:
 			break;
 		default:
 			break;

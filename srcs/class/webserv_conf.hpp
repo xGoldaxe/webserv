@@ -24,6 +24,7 @@
 #define CGI_EXTENSION 8
 #define BODY_MAX_SIZE 9
 #define SERVER 10
+#define REWRITE 11
 
 class Server_conf;
 

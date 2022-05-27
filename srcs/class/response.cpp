@@ -12,13 +12,10 @@ Response::Response( int client_socket, Webserv_conf &conf, Request const &req ) 
 	this->version = this->conf.http_version;
 	this->status_code = -1;
 
-	std::string	req_http_version = req.get_http_version();
-	std::cout << req_http_version << " size:" << req_http_version.size() << std::endl;
-	std::cout << this->version << "==" << req_http_version << " " << (this->version == req_http_version) << std::endl;
 	if ( req.is_request_valid() == false )
 		this->set_status( 400, "Bad Request" );
-	// else if ( this->version != req_http_version )
-	// 	this->set_status( 505, "HTTP Version Not Supported" );
+	else if ( this->version != req.get_http_version() )
+		this->set_status( 505, "HTTP Version Not Supported" );
 }
 
 Response::~Response( void ) {}
@@ -42,6 +39,9 @@ void	Response::set_status( int status_code, std::string msg ) {
 
 int	Response::send() {
 
+	/* add some headers */
+	http_header_content_length( this->req, *this );
+
 	std::string raw_response;
 
 	raw_response = this->version + " " + to_string( this->status_code ) + " " + this->status_message;
@@ -50,9 +50,12 @@ int	Response::send() {
 	raw_response += "\r\n\n";
 	raw_response += body;
 
+
 	// std::cout << raw_response << std::endl;
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
+
+
 	return (status);
 }
 
@@ -131,7 +134,6 @@ std::string & Response::error_body(void) {
 
 std::string error_template(std::string error_code, std::string message) {
 
-	message = "zz";
 	return std::string( std::string("<!DOCTYPE html>\
 	<html lang=\"en\">\
 	<head>\

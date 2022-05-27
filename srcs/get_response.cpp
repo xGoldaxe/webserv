@@ -13,7 +13,7 @@
 
 int http_GET( Request &req, Response &res ) {
 	
-	req.try_url( &(res.status_code), &(res.status_message) );
+	req.try_url( res );
 	if ( res.status_code == 200 )
 	{
 		res.load_body( req );
@@ -33,9 +33,9 @@ bool verify_method( const Request &req, std::string method ) {
 
 int http_get_response( Request &req, Response &res ) {
 
-	if ( res.status_code >= 400 )
+	if ( res.status_code >= 400 ) /* if an error occure before executing the requst e.g invalid request */
 	{
-		// res.error_body();
+		res.error_body();
 		res.send();
 		close( res.client_socket );
 		return 1;
@@ -44,13 +44,16 @@ int http_get_response( Request &req, Response &res ) {
 	{
 		if ( verify_method( req, "GET" ) )
 			http_GET(req, res);
+		else if ( verify_method( req, "POST" ) )
+			http_GET(req, res);
+		else if ( verify_method( req, "DELETE" ) )
+			http_GET(req, res);
 		else
 		{
 			res.set_status( 405, "Method Not Allowed" );
 			res.error_body();
 		}
 		/* generic headers */
-		http_header_content_length(req, res);
 		http_header_date(req, res);
 		http_header_server(req, res);
 		res.add_header( "Connection", "keep-alive" );

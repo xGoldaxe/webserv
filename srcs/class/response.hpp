@@ -1,7 +1,8 @@
 #ifndef RESPONSE_HPP
 #	define RESPONSE_HPP
 
-#include "../webserv.hpp"
+#include "request.hpp"
+#include "webserv_conf.hpp"
 
 class Response
 {
@@ -37,6 +38,5 @@ class Response
 		int	send(void);
 		const Webserv_conf &get_conf() const { return conf; };
 };
-
 
 #endif

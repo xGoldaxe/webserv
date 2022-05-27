@@ -1,8 +1,7 @@
 #ifndef WEBSERV_CONF_HPP
 #	define WEBSERV_CONF_HPP
 
-#include <iostream>
-#include <string>
+
 #include <vector>
 #include <fstream>
 #include <sstream>

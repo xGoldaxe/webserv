@@ -1,5 +1,4 @@
 #include "route.hpp"
-#include "../webserv.hpp"
 
 Route::Route(std::string location, std::string root)
 {
@@ -46,3 +45,10 @@ void Route::add_index( std::string index )
 {
 	this->index.push_back(index);
 }
+
+void	Route::add_redirection( std::string url, std::string redirect_url ) {
+
+	std::pair<std::string, std::string> pair( url, redirect_url );
+	this->redirections.insert( pair );
+}
+

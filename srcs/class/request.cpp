@@ -83,13 +83,20 @@ std::string Request::try_url( Response & res ) {
 
 	res.set_status( 404, "Not Found" ); // fallback if 0 condition has been checked
 
-	std::map<std::string, std::string>::iterator redir = this->route->redirections.find( this->url );
-	if ( redir != this->route->redirections.end() ) // we have a redirection
+	try
 	{
+		std::string	redir = this->route->redirections.at( 
+			this->get_legacy_url() );
+
 		res.set_status( 301, "Moved Permanently" );
-		res.add_header( "Location", redir->second );
+		res.add_header( "Location", redir );
+		return ( this->url );
 	}
-	else if ( this->route->auto_index && is_file( this->url.c_str() ) == 0 ) // this is a folder
+	catch(const std::exception& e) {
+		std::cout << "catched" << std::endl;
+	}
+
+	if ( this->route->auto_index && is_file( this->url.c_str() ) == 0 ) // this is a folder
 	{
 		res.set_status( 200, "OK" );
 		this->auto_index = true;

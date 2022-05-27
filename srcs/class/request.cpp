@@ -34,8 +34,8 @@ Request::Request( std::string raw_data, Webserv_conf &conf ) : conf(conf) {
 	this->method = splitted_str[0];
 	this->legacy_url = splitted_str[1];
 	this->version = splitted_str[2];
-
-	this->url = find_route( &this->route, conf.routes, this->legacy_url );
+	//Had to edit v to take routes from first server, to edit for multi-server
+	this->url = find_route( &this->route, conf.servers[0].getRoutes(), this->legacy_url );
 	this->row_data = raw_data;
 	this->auto_index = false;
 };
@@ -103,9 +103,11 @@ std::string Request::try_url( int *status, std::string *message ) {
 	{
 
 		std::string test_url = finish_by_only_one( this->url, '/' );
-
-		for ( std::vector<std::string>::iterator it = this->conf.index.begin();
-			it != this->conf.index.end() ; ++it )
+	//Had to edit v to take routes from first server, to edit for multi-server
+	//tempPtr is to prevent dangling temporary variable
+		std::vector<std::string> tempPtr = this->conf.servers[0].getIndex();
+		for ( std::vector<std::string>::iterator it = tempPtr.begin();
+			it != this->conf.servers[0].getIndex().end() ; ++it )
 		{
 			test_url += *it;
 

@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 16:24:19 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 13:17:32 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,20 +25,20 @@ Server_conf::Server_conf(void)
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
-std::list<int> Server_conf::getPort()
+std::list<int> Server_conf::getPort() const
 {
 	return this->port;
 }
-std::vector<Route> Server_conf::getRoutes()
+std::vector<Route> Server_conf::getRoutes() const
 {
 	return this->routes;
 }
-std::string Server_conf::getName()
+std::string Server_conf::getName() const
 {
 	return this->server_name;
 }
 
-std::vector<std::string> Server_conf::getIndex()
+std::vector<std::string> Server_conf::getIndex() const
 {
 	return this->index;
 }

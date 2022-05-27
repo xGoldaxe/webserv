@@ -27,14 +27,14 @@ class Server_conf
 	public:
 		Server_conf(void);
 		
-		std::list<int>				getPort();
-		std::vector<Route>			getRoutes();
-		std::string					getName();
-		std::vector<std::string>	getIndex();
-		void						addPort(int port);
-		void 						addRoute(Route route);
-		void 						setName(std::string server_name);
-		void						addIndex(std::string index);
+		std::list<int>					getPort() const;
+		std::vector<Route>				getRoutes() const;
+		std::string						getName() const;
+		std::vector<std::string>		getIndex() const;
+		void							addPort(int port);
+		void 							addRoute(Route route);
+		void 							setName(std::string server_name);
+		void							addIndex(std::string index);
 };
 
 #endif

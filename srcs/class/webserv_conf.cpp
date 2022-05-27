@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/26 17:55:09 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 14:12:09 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 {
 	root = ".";
 	http_version = "HTTP/1.1";
-	Server_conf server = Server_conf();
-	this->servers.push_back(server);
+	Server_conf server = Server_conf(1);
 
 	std::ifstream file;
 	std::string buffer;
@@ -80,8 +79,34 @@ Webserv_conf::Webserv_conf(std::string filename)
 		std::cout << words[it] << "|"
 				  << check << std::endl;
 		// TODO:switch depending on check
+		switch (check)
+		{
+			case SERVER_NAME:
+				break;
+			case LISTEN:
+				break;
+			case ERROR_PAGE:
+				break;
+			case LOCATION:
+				break;
+			case ROOT:
+				break;
+			case INDEX:
+				break;
+			case METHODS:
+				break;
+			case ENABLE_CGI:
+				break;
+			case CGI_EXTENSION:
+				break;
+			case BODY_MAX_SIZE:
+				break;
+			default:
+				break;
+		}
 		it++;
 	}
+	this->servers.push_back(server);
 };
 /*
 void Webserv_conf::print_conf(void)

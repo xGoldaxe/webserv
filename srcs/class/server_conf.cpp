@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 13:59:00 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/27 14:02:07 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,14 @@ Server_conf::Server_conf(void)
 	routes.back().enable_cgi("/usr/bin/php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
+//empty
+Server_conf::Server_conf(int emp)
+{
+	(void)emp;
+	//default server name
+	this->server_name = "webserv (42) v0.1-dev";
+}
+
 
 std::list<int> Server_conf::getPort() const
 {

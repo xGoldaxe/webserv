@@ -26,7 +26,8 @@ class Server_conf
 		std::vector<std::string>	index;
 	public:
 		Server_conf(void);
-		
+		Server_conf(int emp);
+
 		std::list<int>					getPort() const;
 		std::vector<Route>				getRoutes() const;
 		std::string						getName() const;

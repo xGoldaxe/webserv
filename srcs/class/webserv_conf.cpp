@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/30 14:01:15 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/30 18:25:04 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	unsigned int tmpit = 0;
 	int firstservswitch = 1;
 	int contextlocation = 0;
+	int error;
 
 	file.open(filename.c_str(), std::ifstream::in);
 	if (!file.is_open())
@@ -117,14 +118,17 @@ Webserv_conf::Webserv_conf(std::string filename)
 				it++;
 			if (words[it].compare("=") == 0 && it + 2 < words.size() && words[it + 2].compare(";") == 0 && ((it - tmpit) > 1))
 			{
-				tmperrorval = words[it + 1];
+				tmperrorval = words[it + 1].c_str();
 				tmpit++;
 				while (tmpit < it)
 				{
+					error = std::atoi(words[tmpit].c_str());
 					if (contextlocation == 0)
-						server.addErrorPages(std::atoi(words[tmpit].c_str()), tmperrorval);
-					else
-						server.addLastRouteErrorPages(std::atoi(words[tmpit].c_str()), tmperrorval);
+						server.addErrorPages(error, tmperrorval);
+					else{ 	
+						server.addLastRouteErrorPages(error, tmperrorval);
+						//routes errorpage map out of scope for some reason???
+					}
 					tmpit++;
 				}
 				it = it + 2;
@@ -139,7 +143,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			// todo, cant test otherwise
 			if ((it + 3) < words.size() && words[it + 2].compare("root") == 0)
 			{
-				server.addRoute(Route(words[it + 1], words[it + 3]));
+				server.addRoute(Route(words[it + 1], words[it + 3], 1));
 			}
 			else
 			{
@@ -175,6 +179,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				while (it < words.size() && words[it].compare(";") != 0)
 				{
 					server.addMethods(words[it]);
+					std::cout << "current:" << words[it] << std::endl;
+					server.getRoutes().back().printMethods();
 					it++;
 				}
 			}

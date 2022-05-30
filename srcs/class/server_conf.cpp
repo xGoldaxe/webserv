@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/30 15:02:55 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/30 17:24:29 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,41 +129,40 @@ void Server_conf::printServer()
 
 	std::cout << "********Server********" << std::endl;
 
-
 	std::cout << "Server name : " << this->server_name << std::endl;
 	std::cout << "Body Max Size : " << this->body_max_size << std::endl;
 	std::cout << "root : " << this->root << std::endl;
-	std::cout << "Ports : ";
 
-
-	for(itp = this->port.begin(); itp != this->port.end(); itp++)
+	if ((!this->port.empty()))
 	{
-		std::cout << *itp;
+		std::cout << "Ports : ";
+		for (itp = this->port.begin(); itp != this->port.end(); itp++)
+		{
+			std::cout << *itp;
+		}
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 
 	std::cout << "Index : ";
 
-
-	for(iti = this->index.begin(); iti != this->index.end(); iti++)
+	for (iti = this->index.begin(); iti != this->index.end(); iti++)
 	{
 		std::cout << *iti;
 	}
 	std::cout << std::endl;
 
-	std::cout << "Error Pages : ";
-	for(ite = this->error_pages.begin(); ite != this->error_pages.end(); ite++)
+	std::cout << "Error Pages : " << std::endl;
+	for (ite = this->error_pages.begin(); ite != this->error_pages.end(); ite++)
 	{
-		std::cout << *iti;
+		std::cout << ite->first << " " << ite->second << std::endl;
 	}
-	std::cout << std::endl;	
+	std::cout << std::endl;
 
 	std::cout << "Routes : ";
-	while(itr < this->routes.size())
+	while (itr < this->routes.size())
 	{
 		this->routes[itr].printRoute();
 		itr++;
 	}
-	std::cout << std::endl;	
-
+	std::cout << std::endl;
 }

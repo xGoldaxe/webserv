@@ -19,6 +19,7 @@ class Route
 		std::string							cgi_extension;
 
 		Route( std::string location, std::string root );
+		Route( std::string location, std::string root, int notdefault);
 		Route( const Route &rhs );
 		~Route(void);
 
@@ -28,7 +29,7 @@ class Route
 	void	add_index( std::string index );
 	void	add_redirection( std::string url, std::string redirect_url );
 	void	printRoute();
-
+	void	printMethods();
 };
 
 

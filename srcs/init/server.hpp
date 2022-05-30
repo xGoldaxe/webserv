@@ -32,12 +32,18 @@ class Server {
     public:
         Server();
         ~Server();
+        void    init_connection();
+        void    handle_client();
+
+        // Getters
         int     get_socket() const;
+        int     get_poll_fd() const;
 
     private:
         short               _port;
         s_server_addr_in    _addr;
         int                 _socket_fd;
+        int                 _poll_fd;
 
         short    _select_port();
         void     _report(s_server_addr_in *server_addr);

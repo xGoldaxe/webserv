@@ -51,7 +51,11 @@ int	Response::send() {
 	raw_response += body;
 
 
-	// std::cout << raw_response << std::endl;
+	#ifdef PRINT_REQ
+		std::cout << "<====>" << std::endl;
+		std::cout << raw_response << std::endl;
+		std::cout << "<====>" << std::endl;
+	#endif
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
 
@@ -111,7 +115,6 @@ std::string Response::load_body( Request &req ) {
 std::string error_template(std::string error_code, std::string message);
 
 std::string & Response::error_body(void) {
-	std::cout << this->req.route.error_pages.begin()->second << std::endl;
 
 	this->add_header("Content-Type", "text/html");
 	try

@@ -14,7 +14,6 @@ class Request
 		std::string								legacy_url;
 		std::map<std::string, std::string>		headers;
 		std::string								body;
-		std::string								row_data;
 		std::string								version;
 		bool									request_validity;
 
@@ -25,7 +24,7 @@ class Request
 		char			**env;
 
 		/* coplien */
-		Request( std::string raw_data, webserv_conf &conf );
+		Request( int socket_data, webserv_conf &conf );
 		Request( Request const &src );
 		~Request( void );
 

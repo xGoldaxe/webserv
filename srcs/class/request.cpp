@@ -1,6 +1,9 @@
 #include "../webserv.hpp"
 #include <algorithm>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 Route find_route( std::vector<Route> routes, std::string url ) {
 
@@ -18,10 +21,33 @@ Route find_route( std::vector<Route> routes, std::string url ) {
 	return route;
 }
 
-Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
+std::string get_line_req( int fd )
+{
+	char 			buffer[256];
+	std::string		res;
 
-	std::string line = raw_data.substr( 0, raw_data.find("\r") );
-	std::vector<std::string> splitted_str = split_str( line );
+	bzero(buffer,256);
+	int n = 1;
+	while ( n == 1 )
+	{
+		bzero(buffer,255);
+		n = recv( fd, buffer, 1, 0 );
+		buffer[n] = '\0';
+		res += buffer;
+		if ( res.size() >= 2 && res[ res.size() - 1 ] == '\n' && res[ res.size() - 2] == '\r' )
+		{
+			res = res.substr( 0, res.size() - 2 );
+			break ;
+		}
+	}
+
+	return res;
+}
+
+Request::Request( int socket_data, webserv_conf &conf ) : conf(conf) {
+
+	std::vector<std::string> splitted_str = split_str( get_line_req( socket_data ) );
+
 
 	this->route = conf.routes[0]; // using the default fallback route
 	
@@ -38,6 +64,7 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	this->legacy_url = splitted_str[1];
 	this->version = splitted_str[2];
 		
+
 	// this->url = find_route( &this->route, conf.routes, this->legacy_url );
 	this->route = find_route( conf.routes, this->legacy_url );
 
@@ -45,9 +72,13 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 				+ this->legacy_url.substr( this->legacy_url.find_first_of( this->route.location ) + this->route.location.size() );
 	this->url = this->url.substr( 0, this->url.size() );
 
-	std::cout << this->url << std::endl;
+	std::string line = get_line_req( socket_data );
+	while ( line.size() > 2 )
+	{
+		this->headers[ line ] = line;
+		line = get_line_req( socket_data );
+	}
 
-	this->row_data = raw_data;
 	this->auto_index = false;
 };
 

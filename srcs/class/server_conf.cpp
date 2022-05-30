@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/30 14:14:35 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/30 15:02:55 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,13 +121,49 @@ void Server_conf::setRoot(std::string root)
 
 void Server_conf::printServer()
 {
-		/*std::list<short>					port;
-		std::vector<Route>					routes;
-		std::string							server_name;
-		std::vector<std::string>			index;
-		int									body_max_size;
-		std::string 						root;
-		std::map<int, std::string>			error_pages;
-*/
+
+	std::list<short>::iterator itp;
+	std::vector<std::string>::iterator iti;
+	std::map<int, std::string>::iterator ite;
+	unsigned int itr = 0;
+
+	std::cout << "********Server********" << std::endl;
+
+
 	std::cout << "Server name : " << this->server_name << std::endl;
+	std::cout << "Body Max Size : " << this->body_max_size << std::endl;
+	std::cout << "root : " << this->root << std::endl;
+	std::cout << "Ports : ";
+
+
+	for(itp = this->port.begin(); itp != this->port.end(); itp++)
+	{
+		std::cout << *itp;
+	}
+	std::cout << std::endl;
+
+	std::cout << "Index : ";
+
+
+	for(iti = this->index.begin(); iti != this->index.end(); iti++)
+	{
+		std::cout << *iti;
+	}
+	std::cout << std::endl;
+
+	std::cout << "Error Pages : ";
+	for(ite = this->error_pages.begin(); ite != this->error_pages.end(); ite++)
+	{
+		std::cout << *iti;
+	}
+	std::cout << std::endl;	
+
+	std::cout << "Routes : ";
+	while(itr < this->routes.size())
+	{
+		this->routes[itr].printRoute();
+		itr++;
+	}
+	std::cout << std::endl;	
+
 }

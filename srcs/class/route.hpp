@@ -27,6 +27,7 @@ class Route
 	void	add_methods( std::string methods );
 	void	add_index( std::string index );
 	void	add_redirection( std::string url, std::string redirect_url );
+	void	printRoute();
 
 };
 

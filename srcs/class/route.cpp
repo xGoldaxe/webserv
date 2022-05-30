@@ -52,3 +52,47 @@ void	Route::add_redirection( std::string url, std::string redirect_url ) {
 	this->redirections.insert( pair );
 }
 
+void	Route::printRoute()
+{
+/*
+
+		std::map<int, std::string>			error_pages;
+		std::map<std::string, std::string>	redirections;
+		bool								auto_index;
+
+		bool								cgi_enable;
+		std::string							cgi_path;
+		std::string							cgi_extension;
+*/
+	std::vector<std::string>::iterator itp;
+	std::vector<std::string>::iterator iti;
+	std::map<int, std::string>::iterator ite;
+
+	std::cout << "***Route***" << std::endl;
+
+	std::cout << "Location : " << this->location << std::endl;
+
+	std::cout << "root : " << this->root << std::endl;
+
+	std::cout << "Methods : ";
+	for(itp = this->methods.begin(); itp != this->methods.end(); itp++)
+	{
+		std::cout << *itp;
+	}
+	std::cout << std::endl;
+
+	std::cout << "Index : ";
+	for(iti = this->index.begin(); iti != this->index.end(); iti++)
+	{
+		std::cout << *iti;
+	}
+	std::cout << std::endl;
+
+	std::cout << "Error Pages : ";
+	for(ite = this->error_pages.begin(); ite != this->error_pages.end(); ite++)
+	{
+		std::cout << *iti;
+	}
+	std::cout << std::endl;	
+
+}

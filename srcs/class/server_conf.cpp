@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 17:23:53 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/30 14:14:35 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,16 @@ Server_conf::Server_conf(void)
 	this->index.push_back("index.html");
 	Route route1("/", "./www");
 	Route route2("/php", "./cgi");
+	route1.add_redirection("/moved.html", "/sub/index.html");
 	routes.push_back(route1);
 	routes.push_back(route2);
 	routes.back().enable_cgi("/usr/bin/php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 	this->body_max_size = 2048;
 	this->root = ".";
-	routes.at(0).add_redirection( "moved.html", "/sub" );
 }
+
+Server_conf::~Server_conf(void){};
 
 // empty
 Server_conf::Server_conf(int emp)
@@ -95,9 +97,15 @@ void Server_conf::addIndexRoute(std::string index)
 	this->routes.back().add_index(index);
 }
 
-void Server_conf::addErrorPages(int error, std::string errorpage)
+void Server_conf::addLastRouteErrorPages(int error, std::string errorpage)
 {
 	this->routes.back().add_error_page(error, errorpage);
+}
+
+void Server_conf::addErrorPages(int status_code, std::string error_message)
+{
+	std::pair<int, std::string> pair(status_code, error_message);
+	this->error_pages.insert(pair);
 }
 
 void Server_conf::setBodyMaxSize(int body_max_size)
@@ -109,4 +117,17 @@ void Server_conf::setRoot(std::string root)
 {
 	this->root.clear();
 	this->root.append(root);
+}
+
+void Server_conf::printServer()
+{
+		/*std::list<short>					port;
+		std::vector<Route>					routes;
+		std::string							server_name;
+		std::vector<std::string>			index;
+		int									body_max_size;
+		std::string 						root;
+		std::map<int, std::string>			error_pages;
+*/
+	std::cout << "Server name : " << this->server_name << std::endl;
 }

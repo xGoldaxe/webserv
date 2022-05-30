@@ -22,14 +22,17 @@ class Server_conf
 {
 
 	private:
-		std::list<short>			port;
-		std::vector<Route>			routes;
-		std::string					server_name;
-		std::vector<std::string>	index;
-		int							body_max_size;
-		std::string 				root;
+		std::list<short>					port;
+		std::vector<Route>					routes;
+		std::string							server_name;
+		std::vector<std::string>			index;
+		int									body_max_size;
+		std::string 						root;
+		std::map<int, std::string>			error_pages;
+
 	public:
 		Server_conf(void);
+		~Server_conf(void);
 		Server_conf(int emp);
 
 		std::list<short>				getPort() const;
@@ -45,8 +48,11 @@ class Server_conf
 		void							addIndexRoute(std::string index);
 		void 							addMethods(std::string methods);
 		void 							addErrorPages(int error, std::string errorpage);
+		void 							addLastRouteErrorPages(int error, std::string errorpage);
 		void							setBodyMaxSize(int body_max_size);
 		void							setRoot(std::string root);
+		void							printServer();
+
 
 
 };

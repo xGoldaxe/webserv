@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/27 17:25:14 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/30 14:01:15 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 				tmpit++;
 				while (tmpit < it)
 				{
-					server.addErrorPages(std::atoi(words[tmpit].c_str()), tmperrorval);
+					if (contextlocation == 0)
+						server.addErrorPages(std::atoi(words[tmpit].c_str()), tmperrorval);
+					else
+						server.addLastRouteErrorPages(std::atoi(words[tmpit].c_str()), tmperrorval);
 					tmpit++;
 				}
 				it = it + 2;
@@ -133,7 +136,15 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case LOCATION:
 			contextlocation = 1;
-			//todo, cant test otherwise
+			// todo, cant test otherwise
+			if ((it + 3) < words.size() && words[it + 2].compare("root") == 0)
+			{
+				server.addRoute(Route(words[it + 1], words[it + 3]));
+			}
+			else
+			{
+				throw Webserv_conf::SussyParsing();
+			}
 			break;
 		case ROOT:
 			break;

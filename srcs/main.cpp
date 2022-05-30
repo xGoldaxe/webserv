@@ -1,49 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <netdb.h> // for getnameinfo()
-#include <fcntl.h>
+#include "init/server.hpp"
 
-// Usual socket headers
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-#include <netinet/tcp.h>   /* TCP_KEEPIDLE, etc. */
-#include <arpa/inet.h>
-
-#include <iostream>
-#include <fstream>
-#include <string>
-
-#include <sys/epoll.h>
+#include <strings.h>
 
 #include "webserv.hpp"
 
 #define SIZE 1024
-#define BACKLOG 10 //passed to listen
-
-void report(struct sockaddr_in *server_addr)
-{
-	char host_buffer[INET6_ADDRSTRLEN];
-	char service_buffer[NI_MAXSERV];
-	socklen_t addr_len = sizeof(*server_addr);
-	int err = getnameinfo(
-        (struct sockaddr *) server_addr,
-        addr_len,
-        host_buffer,
-        sizeof(host_buffer),
-        service_buffer,
-        sizeof(host_buffer),
-        NI_NUMERICHOST
-    );
-	if (err != 0) {
-		std::cout << "It's not working!" << std::endl;
-	}
-	std::cout << "\n\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
-}
 
 void process_request(int client_socket, char **env)
 {
@@ -92,47 +53,18 @@ int main(int argc, char **argv, char **env)
 	(void) argv;
 	(void) env;
 
-	int server_socket = socket(
-		AF_INET,
-		SOCK_STREAM,
-		0
-	);
-
-	short port = 3000;
-
-	struct sockaddr_in	server_addr, cli_addr;
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(port);
-	server_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-
-	while ( bind(
-		server_socket,
-		(struct sockaddr *) &server_addr,
-		sizeof(server_addr)
-	) == -1 )
-	{
-		++port;
-		server_addr.sin_port = htons(port);
-		std::cout << port << std::endl;
-	}
-
-	int listening = listen(server_socket, BACKLOG);
-	if (listening < 0){
-		printf("Error: The server is not listening.\n");
-		return 1;
-	}
-	report(&server_addr);
-	int client_socket;
+	Server serv = Server();
+	struct sockaddr_in cli_addr;
 
 	///////////////////////////////
 	int epfd = epoll_create1(O_CLOEXEC);
-	fcntl(server_socket, F_SETFL, O_NONBLOCK);
+	fcntl(serv.get_socket(), F_SETFL, O_NONBLOCK);
 	while(1) {
 		// we accept some new request
 		while (1)
 		{
 			socklen_t clilen = sizeof(cli_addr);
-			client_socket = accept( server_socket, (struct sockaddr *) &cli_addr, &clilen );
+			int client_socket = accept(serv.get_socket(), (struct sockaddr *)&cli_addr, &clilen);
 			if (client_socket == -1)
 				break;
 

@@ -1,6 +1,4 @@
-#ifndef WEBSERV_CONF_HPP
-#	define WEBSERV_CONF_HPP
-
+#pragma once
 
 #include <vector>
 #include <string>
@@ -18,6 +16,3 @@ struct webserv_conf
 	webserv_conf( webserv_conf &rhs );
 	~webserv_conf(void) {};
 };
-
-
-#endif

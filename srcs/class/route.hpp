@@ -1,5 +1,4 @@
-#ifndef ROUTE_HPP
-#	define ROUTE_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -29,6 +28,3 @@ class Route
 		void	add_error_page( int status_code, std::string error_message );
 		void	add_redirection( std::string url, std::string redirect_url );
 };
-
-
-#endif

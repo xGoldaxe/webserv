@@ -1,6 +1,8 @@
 SRCS	=	main.cpp \
 			get_response.cpp \
 			utils.cpp \
+			init/server.cpp \
+			init/exception_server_not_listening.cpp \
 			class/request.cpp \
 			class/response.cpp \
 			class/route.cpp \
@@ -14,7 +16,7 @@ OBJS	=	${SRCS:%.cpp=./.build/%.o}
 
 NAME	=	webserv
 
-CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98
+CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG
 
 RM		=	rm -rf
 

@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-
 /* class */
 class Response;
 class Route;

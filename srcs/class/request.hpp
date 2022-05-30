@@ -1,5 +1,4 @@
-#ifndef REQUEST_HPP
-#	define REQUEST_HPP
+#pragma once
 
 #include "route.hpp"
 #include "response.hpp"
@@ -51,6 +50,3 @@ class Request
                 }
         };
 };
-
-
-#endif

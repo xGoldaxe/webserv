@@ -11,15 +11,11 @@ webserv_conf::webserv_conf(void)	{
 	Route route2( "/php", "./cgi" );
 
 	route1.add_error_page( 404, "defaultPages/404.html");
-	route1.add_redirection( "/moved.html", "/sub" );
-
-	std::cout << "cwc:" << route1.error_pages.size() << std::endl;
+	route1.add_redirection( "/moved.html", "/sub/index.html" );
 
 	routes.push_back( route1 );
 	routes.push_back( route2 );
 	routes.back().enable_cgi( "/usr/bin/php" );
-
-	std::cout << "cwc:" << route1.error_pages.size() << std::endl;
 }
 
 webserv_conf::webserv_conf( webserv_conf &rhs ) : root(rhs.root) {};

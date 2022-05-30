@@ -1,4 +1,5 @@
 #include "route.hpp"
+#include "../webserv.hpp"
 
 Route::Route( std::string location, std::string root ) {
 
@@ -8,12 +9,24 @@ Route::Route( std::string location, std::string root ) {
 	methods.push_back("GET");
 };
 
+Route::Route( void ) {
+
+	this->auto_index = true;
+	this->cgi_enable = false;
+	index.push_back("index.html");
+	methods.push_back("GET");
+}
+
 Route::Route( const Route &rhs ) {
 
 	this->root = finish_by_only_one( rhs.root, '/' );
 	this->location = finish_by_only_one( rhs.location, '/' );
 	this->auto_index = true;
 	this->cgi_enable = false;
+	this->cgi_path = rhs.cgi_path;
+	this->cgi_extension = rhs.cgi_extension;
+	this->error_pages = rhs.error_pages;
+	this->redirections = rhs.redirections;
 	index.push_back("index.html");
 	methods.push_back("GET");
 };

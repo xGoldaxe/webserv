@@ -37,13 +37,15 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	this->method = splitted_str[0];
 	this->legacy_url = splitted_str[1];
 	this->version = splitted_str[2];
-
+		
 	// this->url = find_route( &this->route, conf.routes, this->legacy_url );
 	this->route = find_route( conf.routes, this->legacy_url );
 
 	this->url = this->route.root
 				+ this->legacy_url.substr( this->legacy_url.find_first_of( this->route.location ) + this->route.location.size() );
-	this->url = this->url.substr(0, this->url.size()-1);
+	this->url = this->url.substr( 0, this->url.size() );
+
+	std::cout << this->url << std::endl;
 
 	this->row_data = raw_data;
 	this->auto_index = false;
@@ -97,8 +99,7 @@ std::string Request::try_url( Response & res ) {
 		res.add_header( "Location", redir );
 		return ( this->url );
 	}
-	catch(const std::exception& e) {
-	}
+	catch( const std::exception& e ) {}
 
 	if ( this->route.auto_index && is_file( this->url.c_str() ) == 0 ) // this is a folder
 	{

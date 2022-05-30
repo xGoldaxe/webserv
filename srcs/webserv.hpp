@@ -6,7 +6,6 @@
 #include <map>
 #include <vector>
 #include <sstream>
-#include <filesystem>
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -43,6 +42,6 @@ std::vector<std::string>	split_str( std::string str );
 /* http */
 int http_get_response( Request &req, Response &res );
 
-
+#define PRINT_RES true
 
 #endif

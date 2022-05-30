@@ -6,6 +6,8 @@
 
 #define SIZE 1024
 
+/* throw a server exeption in case of failure */
+
 void process_request(int client_socket, char **env)
 {
 	std::string req_raw_data;
@@ -20,22 +22,13 @@ void process_request(int client_socket, char **env)
 
 	bzero(buffer,256);
 	int n = 255;
-	while ( n > 0 )
+	while ( n == 255 )
 	{
 		bzero(buffer,256);
 		n = read(client_socket, buffer, 255);
 		buffer[n] = '\0';
 		req_raw_data += buffer;
-		if ( req_raw_data.size() < 2 ||
-				( req_raw_data.at( req_raw_data.size() - 2 ) == '\r' &&
-					req_raw_data.at( req_raw_data.size() - 1 ) == '\n' ) 
-			)
-			break ;
 	}
-
-	// std::cout << "<-----------{top}----------->" << std::endl;
-	// std::cout << req_raw_data << std::endl;
-	// std::cout << "<-----------{bottom}----------->" << std::endl;
 	/* we will need further verification */
 	webserv_conf	conf; 
 	

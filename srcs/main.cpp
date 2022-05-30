@@ -49,6 +49,14 @@ void process_request(int client_socket, char **env)
 {
 	std::string req_raw_data;
 	char buffer[256];
+	/* with MSG_PEEK, no data will be ride of the socket */
+	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	{
+		std::cout << "Client close remote: " << client_socket << std::endl;
+		close( client_socket );
+		return ;
+	}
+
 	bzero(buffer,256);
 	int n = 255;
 	while ( n > 0 )
@@ -68,9 +76,6 @@ void process_request(int client_socket, char **env)
 	// std::cout << req_raw_data << std::endl;
 	// std::cout << "<-----------{bottom}----------->" << std::endl;
 	/* we will need further verification */
-	if (req_raw_data.size() == 0)
-		return ;
-
 	webserv_conf	conf; 
 	
 	Request req( req_raw_data, conf );
@@ -132,9 +137,9 @@ int main(int argc, char **argv, char **env)
 				break;
 
 			int swtch = 1;	/* 1=KeepAlive On, 0=KeepAlive Off. */
-			int idle = 1;	/* Number of idle seconds before sending a KeepAlive probe. */
-			int interval= 1;	/* How often in seconds to resend an unacked KeepAlive probe. */
-			int count = 1;	/* How many times to resend a KA probe if previous probe was unacked. */
+			int idle = 7200;	/* Number of idle seconds before sending a KeepAlive probe. */
+			int interval= 75;	/* How often in seconds to resend an unacked KeepAlive probe. */
+			int count = 9;	/* How many times to resend a KA probe if previous probe was unacked. */
 
 			/* Switch KeepAlive on or off for this side of the socket. */
 			setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));

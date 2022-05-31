@@ -1,4 +1,4 @@
-# Testing only request parsing, from stding
+# Testing request parsing
 
 In this section, we will read from STDIN and consider it like a socket.
 Used for tests, we just have to provide a file in entry and read it, or
@@ -11,16 +11,18 @@ __Run all tests__
 bash runtest.sh
 ```
 __Run 1 test in debug mode__
+
 ```
 bash runtest.sh script_name
 ```
 Where script_name is the path of the file, started from **./tests**.
 
 __Write additional tests__
+
 In folder **./tests**, add your own script.
 Your script must follow 2 rules :
-1. Must output on stdin the data that will be send to the program.
-2. Output in file provide in first argument, the expected result.
+1. Output the data that will be send to the program on stdin.
+2. Output the expected result in file provided in first argument.
 
 __Understand the result__
 First there is the first_line, with method, path and version.

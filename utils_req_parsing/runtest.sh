@@ -5,18 +5,20 @@ make
 mkdir -p ./tests/res
 mkdir -p ./tests/diff
 
+TEMPFILE=./tests/data.out
+
 TESTPATH=tests
 FILES=`find ${TESTPATH} -name "*.sh"`
 
 if [[ "$1" != "" ]] ; then
 	# do only one, in debug mode
 	
-	bash $1 "./tests/res/`basename "$1"`.excepted" > data.out
+	bash "./tests/$1" "./tests/res/`basename "$1"`.excepted" > $TEMPFILE
 	echo "RUNNING TEST: "
-	cat data.out
+	cat $TEMPFILE
 	echo "<==========>"
 	printf "\033[1;35m"
-	./reqparser < data.out
+	./reqparser < $TEMPFILE
 	printf "\033[0m"
 	echo "<==========>"
 	
@@ -30,8 +32,8 @@ else
 		DIFFPATH="./tests/diff/`basename "$TEST"`.diff"
 
 		#run
-		bash $TEST $EXCEPTED > data.out
-		./reqparser < data.out > $OUTPUT
+		bash $TEST $EXCEPTED > $TEMPFILE
+		./reqparser < $TEMPFILE > $OUTPUT
 		
 		#compare
 		diff $EXCEPTED $OUTPUT > $DIFFPATH

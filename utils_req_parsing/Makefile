@@ -1,4 +1,5 @@
 SRCS	=	main.cpp \
+			print_or_store.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 

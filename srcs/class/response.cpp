@@ -51,7 +51,11 @@ int	Response::send() {
 	raw_response += body;
 
 
-	// std::cout << raw_response << std::endl;
+	#ifdef PRINT_REQ
+		std::cout << "<====>" << std::endl;
+		std::cout << raw_response << std::endl;
+		std::cout << "<====>" << std::endl;
+	#endif
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
 
@@ -68,8 +72,8 @@ std::string Response::load_body( Request &req ) {
 		this->add_header("Content-Type", "text/html");
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
 	}
-	else if ( req.get_route()->cgi_enable == true 
-		&& get_extension( req.getUrl().c_str() ) == req.get_route()->cgi_extension ) {
+	else if ( req.get_route().cgi_enable == true 
+		&& get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension ) {
 
 		int pipe_fd[2];
 		pipe( pipe_fd );
@@ -79,10 +83,10 @@ std::string Response::load_body( Request &req ) {
 			close( pipe_fd[0] );
 			dup2( pipe_fd[1], STDOUT_FILENO );
 			char *args[3];
-			args[0] = const_cast<char *> ( req.get_route()->cgi_path.c_str() );
+			args[0] = const_cast<char *> ( req.get_route().cgi_path.c_str() );
 			args[1] = const_cast<char *> ( req.getUrl().c_str() );
 			args[2] = NULL;
-			execve( req.get_route()->cgi_path.c_str(), args, req.env );
+			execve( req.get_route().cgi_path.c_str(), args, req.env );
 			exit(2);
 		}
 		close( pipe_fd[1] );
@@ -115,7 +119,8 @@ std::string & Response::error_body(void) {
 	this->add_header("Content-Type", "text/html");
 	try
 	{
-		std::string filename = this->req.route->error_pages.at( this->status_code );
+		//this line throw an error if page not find
+		std::string filename = this->req.route.error_pages.at( this->status_code );
 		if ( usable_file( filename ) )
 			this->body = read_binary( filename );
 		else

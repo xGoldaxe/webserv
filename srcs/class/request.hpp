@@ -1,5 +1,4 @@
-#ifndef REQUEST_HPP
-#	define REQUEST_HPP
+#pragma once
 
 #include "webserv_conf.hpp"
 #include "response.hpp"
@@ -25,7 +24,7 @@ class Request
 		Request( void );
 	public:
 		bool			auto_index;
-		Route			*route;
+		Route			route;
 		char			**env;
 
 		/* coplien */
@@ -42,7 +41,7 @@ class Request
 		std::string get_legacy_url(void);
 		std::string getRelativeUrl(void);
 		std::string try_url( Response & res );
-		Route		*get_route(void);
+		Route		get_route(void);
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
 
@@ -54,6 +53,3 @@ class Request
                 }
         };
 };
-
-
-#endif

@@ -1,4 +1,13 @@
 #include "route.hpp"
+#include "../webserv.hpp"
+
+Route::Route( void ) {
+
+	this->auto_index = true;
+	this->cgi_enable = false;
+	index.push_back("index.html");
+	methods.push_back("GET");
+}
 
 // default route
 Route::Route(std::string location, std::string root)

@@ -6,7 +6,6 @@
 #include <map>
 #include <vector>
 #include <sstream>
-#include <filesystem>
 
 #include <sys/types.h>
 #include <dirent.h>
@@ -19,7 +18,6 @@
 #include "class/server_conf.hpp"
 #include "class/request.hpp"
 #include "class/response.hpp"
-#include "class/webserv_conf.hpp"
 
 #include "http_header/http_header.hpp"
 
@@ -39,6 +37,6 @@ std::vector<std::string>	split_str( std::string str );
 /* http */
 int http_get_response( Request &req, Response &res );
 
-
+#define PRINT_RES true
 
 #endif

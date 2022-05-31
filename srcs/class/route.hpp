@@ -1,8 +1,7 @@
-#pragma once
+#ifndef ROUTE_HPP
+#	define ROUTE_HPP
 
-#include <string>
-#include <vector>
-#include <map>
+#include "../webserv.hpp"
 
 class Route
 {
@@ -19,7 +18,6 @@ class Route
 		std::string							cgi_path;
 		std::string							cgi_extension;
 
-		Route(void);
 		Route( std::string location, std::string root );
 		Route( std::string location, std::string root, int notdefault);
 		Route( const Route &rhs );
@@ -33,3 +31,6 @@ class Route
 	void	printRoute();
 	void	printMethods();
 };
+
+
+#endif

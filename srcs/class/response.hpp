@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RESPONSE_HPP
+#	define RESPONSE_HPP
 
 
 #include "request.hpp"
@@ -41,3 +42,5 @@ class Response
 		int	send(void);
 		const Webserv_conf &get_conf() const { return conf; };
 };
+
+#endif

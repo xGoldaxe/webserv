@@ -1,4 +1,6 @@
-#pragma once
+#ifndef WEBSERV_CONF_HPP
+#	define WEBSERV_CONF_HPP
+
 
 #include "server_conf.hpp"
 #include <vector>
@@ -57,3 +59,6 @@ struct Webserv_conf
         };
 
 };
+
+
+#endif

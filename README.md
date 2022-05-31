@@ -13,6 +13,7 @@ Pour utiliser les tests:
 
 ### Syntaxe Fichier Config
 
+```
 server
 {
 	error_page 404 403 = error.html ;
@@ -28,3 +29,4 @@ server
 	}
 	...
 }
+```

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <iostream>
 #include <algorithm>
 #include <cctype>
@@ -50,7 +51,6 @@ public:
     void parseHTTP(std::string req);
 
     void addMimeType(const std::string type, const std::string name, const std::string extension);
-    void addMimeType(const std::string type, const std::string name, const char *extensions[]);
 
     MimeType getMimeForExtension(std::string extension);
 

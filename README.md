@@ -10,3 +10,21 @@ Pour utiliser les tests:
  4. (*optionnel*) Uniquement les logs du client sont sauvegardées (cf. Dossier `logs/`).
 
 /!\ Pensez à couper votre serveur après des tests pour éviter les collisions /!\
+
+### Syntaxe Fichier Config
+
+server
+{
+	error_page 404 403 = error.html ;
+	body_max_size = 2048 ;
+	...
+	location /
+	{
+		root ./ ;
+		index = index.html index.htm ;
+		error_page 404 = 404.html ;
+		methods = POST GET DELETE ;
+		...
+	}
+	...
+}

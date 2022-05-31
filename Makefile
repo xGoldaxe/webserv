@@ -1,11 +1,13 @@
 SRCS	=	main.cpp \
 			get_response.cpp \
 			utils.cpp \
-			class/server_conf.cpp \
-			class/webserv_conf.cpp \
+			init/server.cpp \
+			init/exception_server_not_listening.cpp \
 			class/request.cpp \
 			class/response.cpp \
 			class/route.cpp \
+			class/webserv_conf.cpp \
+			class/server_conf.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \

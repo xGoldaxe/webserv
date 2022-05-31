@@ -7,12 +7,14 @@
 #include <cctype>
 #include <exception>
 
-#include "../webserv.hpp"
 #include "exception_content_type.hpp"
 
 class ExceptionUnknownMimeType : virtual public std::exception
 {
-    const char *what() const throw();
+    const char *what() const throw()
+    {
+        return "extension inconnue.";
+    };
 };
 
 class MimeType {
@@ -21,6 +23,9 @@ public:
     MimeType(const MimeType &cpy);
 
     MimeType &operator=(MimeType &cpy);
+
+    std::string getContentType(void);
+
     friend std::ostream &operator<<(std::ostream &os, const MimeType &dt);
 
 private:

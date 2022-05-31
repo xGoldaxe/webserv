@@ -40,13 +40,13 @@ void process_request(int client_socket, char **env)
 	http_get_response(req, res);
 }
 
+MimeTypes mimes;
+
 int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
-	(void) env;
 
-	MimeTypes mimes;
 	mimes.setDefault();
 
 	/************************************************************************

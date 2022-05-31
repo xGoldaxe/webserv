@@ -19,6 +19,8 @@ class Response;
 class Route;
 struct webserv_conf;
 
+#include "internal/mime_types.hpp"
+
 #include "class/route.hpp"
 #include "class/response.hpp"
 #include "class/request.hpp"
@@ -26,8 +28,7 @@ struct webserv_conf;
 
 #include "http_header/http_header.hpp"
 
-#include "internal/mime_types.hpp"
-
+extern MimeTypes mimes;
 
 /* utils */
 int							is_file(const char* name);
@@ -40,10 +41,6 @@ std::string					finish_by_only_one( std::string str, char c );
 std::string					read_fd( int fd );
 bool						usable_file( const std::string &name );
 std::vector<std::string>	split_str( std::string str );
-
-std::string                 ltrim(std::string s);
-std::string                 rtrim(std::string s);
-std::string                 trim(std::string s);
 
 /* http */
 int http_get_response( Request &req, Response &res );

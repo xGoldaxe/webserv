@@ -1,5 +1,30 @@
 #include "mime_types.hpp"
 
+// trim from start
+inline static std::string ltrim(std::string s)
+{
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+									std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
+}
+
+// trim from end
+inline static std::string rtrim(std::string s)
+{
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+						 std::not1(std::ptr_fun<int, int>(std::isspace)))
+				.base(),
+			s.end());
+	return s;
+}
+
+// trim from both ends
+// inline static std::string trim(std::string s)
+// {
+// 	return ltrim(rtrim(s));
+// }
+
+
 MimeType::MimeType(const std::string name, const std::string extension, const std::string types) : _name(name), _extension(extension), _types(types)
 {}
 
@@ -145,7 +170,7 @@ static char asciitolower(char in) {
 void MimeTypes::parseHTTP(std::string req)
 {
     if (req.find("Content-Type = ") > 0)
-        throw new ExceptionContentType;
+        throw ExceptionContentType();
 
     std::string content_type = req.substr(std::string("Content-Type = ").length(), req.length());
     std::string media_type = rtrim(content_type.substr(0, content_type.find(";")));
@@ -167,9 +192,9 @@ void MimeTypes::parseHTTP(std::string req)
     }
 }
 
-const char *ExceptionUnknownMimeType::what() const throw()
+std::string MimeType::getContentType(void)
 {
-    return "Extension not found in mime types.";
+    return this->_types + "/" + this->_name + "; charset=utf-8";
 }
 
 /**
@@ -181,7 +206,7 @@ const char *ExceptionUnknownMimeType::what() const throw()
 MimeType MimeTypes::getMimeForExtension(std::string extension)
 {
     if (this->_map_extensions.find(extension) == this->_map_extensions.end())
-        throw new ExceptionUnknownMimeType;
+        throw new ExceptionUnknownMimeType();
 
     return MimeType(this->_map_extensions.at(extension));
 }

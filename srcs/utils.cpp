@@ -94,9 +94,6 @@ std::vector<std::string>	split_str( std::string str ) {
 	std::stringstream stream_str( str );
 	std::string buffer_str;
 	while ( std::getline(stream_str, buffer_str, ' ') )
-	{
 		splitted_str.push_back(buffer_str);
-		// std::cout << str;
-	}
 	return	splitted_str;
 }

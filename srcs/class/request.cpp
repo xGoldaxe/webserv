@@ -11,7 +11,7 @@ std::string find_route(Route **route, std::vector<Route> routes, std::string url
 		std::string test_url = finish_by_only_one(url, '/');
 		if (strncmp(test_url.c_str(), it->location.c_str(), it->location.size() - 1) == 0)
 		{
-			**route = Route(*it, 1); //invalid reads mais ça tourne
+			**route = Route(*it, 1);
 			tmp_url = (*route)->root + test_url.substr(test_url.find_first_of(it->location) + it->location.size());
 			tmp_url = tmp_url.substr(0, tmp_url.size() - 1);
 		}

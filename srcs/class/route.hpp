@@ -21,6 +21,8 @@ class Route
 		Route( std::string location, std::string root );
 		Route( std::string location, std::string root, int notdefault);
 		Route( const Route &rhs );
+		Route(Route rhs, int notcopy);
+		
 		~Route(void);
 
 		Route& operator=(const Route& other);

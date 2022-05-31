@@ -12,6 +12,17 @@ Route::Route(std::string location, std::string root)
 	this->cgi_enable = false;
 };
 
+Route::Route(Route rhs, int notcopy)
+{
+	(void)notcopy;
+	this->root = finish_by_only_one(rhs.root, '/');
+	this->location = finish_by_only_one(rhs.location, '/');
+	this->auto_index = true;
+	this->cgi_enable = false;
+	index.push_back("index.html");
+	methods.push_back("GET");	
+};
+
 Route::Route(std::string location, std::string root, int notdefault)
 {
 	(void)notdefault;
@@ -21,13 +32,6 @@ Route::Route(std::string location, std::string root, int notdefault)
 
 Route::Route(const Route &rhs)
 {
-		this->root = finish_by_only_one(rhs.root, '/');
-	this->location = finish_by_only_one(rhs.location, '/');
-	this->auto_index = true;
-	this->cgi_enable = false;
-	index.push_back("index.html");
-	methods.push_back("GET");
-	/*
 	this->root = rhs.root;
 	this->location = rhs.location;
 	this->auto_index = rhs.auto_index;
@@ -39,8 +43,8 @@ Route::Route(const Route &rhs)
 	this->methods = rhs.methods;
 	this->error_pages = rhs.error_pages;
 	this->redirections = rhs.redirections;
-	*/
 };
+
 
 Route& Route::operator=(const Route& rhs)
 {

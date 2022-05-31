@@ -11,6 +11,8 @@ SRCS	=	main.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \
 			http_header/Content-Type.cpp \
+			internal/mime_types.cpp \
+			internal/exception_content_type.cpp
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 

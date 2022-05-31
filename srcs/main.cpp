@@ -46,8 +46,27 @@ int main(int argc, char **argv, char **env)
 	(void) argv;
 	(void) env;
 
-	Server serv = Server();
+	MimeTypes mimes;
+	mimes.setDefault();
 
+	/************************************************************************
+	 * Example of working mimes parsing                                     */
+	std::cout << mimes.getMimeForExtension("html") << std::endl;
+	try {
+		std::cout << mimes.getMimeForExtension("inconnu") << std::endl;
+	} catch (std::exception *e) {
+		std::cout << e->what() << std::endl;
+	}
+
+	mimes.parseHTTP("Content-Type = text/html");
+	mimes.parseHTTP("Content-Type = text/html; charset=utf-8");
+	mimes.parseHTTP("Content-Type = text/html ;Charset=utf-8");
+	mimes.parseHTTP("Content-Type = text/html ; charset=utf-8");
+
+	/* End of Example                                                       *
+	*************************************************************************/
+
+	Server serv = Server();
 	serv.init_connection();
 
 	while (true) {

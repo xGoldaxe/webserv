@@ -19,28 +19,17 @@ Route::Route(std::string location, std::string root, int notdefault)
 
 Route::Route(const Route &rhs)
 {
+	this->root = rhs.root;
+	this->location = rhs.location;
+	this->auto_index = rhs.auto_index;
+	this->cgi_enable = rhs.cgi_enable;
+	this->cgi_extension = rhs.cgi_extension;
+	this->cgi_path = rhs.cgi_path;
 
-	/*		std::string 						root;
-		std::string							location;
-		std::vector<std::string>			index;
-		std::vector<std::string>			methods;
-		std::map<int, std::string>			error_pages;
-		std::map<std::string, std::string>	redirections;
-		bool								auto_index;
-
-		bool								cgi_enable;
-		std::string							cgi_path;
-		std::string							cgi_extension;
-	*/
-
-//PROBLEM WAS HERE, implement real copy!!
-
-	this->root = finish_by_only_one(rhs.root, '/');
-	this->location = finish_by_only_one(rhs.location, '/');
-	this->auto_index = true;
-	this->cgi_enable = false;
-	index.push_back("index.html");
-	methods.push_back("GET");
+	this->index = rhs.index;
+	this->methods = rhs.methods;
+	this->error_pages = rhs.error_pages;
+	this->redirections = rhs.redirections;
 };
 
 Route::~Route(void){};

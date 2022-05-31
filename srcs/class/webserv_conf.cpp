@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/25 16:05:17 by datack            #+#    #+#             */
-/*   Updated: 2022/05/30 18:25:04 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/31 13:16:11 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
-		std::cout << words[it] << "|"
-				  << check << std::endl;
+//		std::cout << words[it] << "|"
+//				  << check << std::endl;
 		switch (check)
 		{
 		case SERVER_NAME:
@@ -127,7 +127,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 						server.addErrorPages(error, tmperrorval);
 					else{ 	
 						server.addLastRouteErrorPages(error, tmperrorval);
-						//routes errorpage map out of scope for some reason???
 					}
 					tmpit++;
 				}
@@ -179,8 +178,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 				while (it < words.size() && words[it].compare(";") != 0)
 				{
 					server.addMethods(words[it]);
-					std::cout << "current:" << words[it] << std::endl;
-					server.getRoutes().back().printMethods();
 					it++;
 				}
 			}

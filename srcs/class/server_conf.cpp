@@ -6,7 +6,7 @@
 /*   By: datack <datack@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 14:47:13 by datack            #+#    #+#             */
-/*   Updated: 2022/05/30 17:24:29 by datack           ###   ########.fr       */
+/*   Updated: 2022/05/31 13:13:49 by datack           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,7 @@ void Server_conf::printServer()
 	std::cout << std::endl;
 
 	std::cout << "Routes : ";
+	std::cout << std::endl;
 	while (itr < this->routes.size())
 	{
 		this->routes[itr].printRoute();

@@ -1,6 +1,6 @@
 #include "route.hpp"
 
-//default route
+// default route
 Route::Route(std::string location, std::string root)
 {
 
@@ -47,7 +47,6 @@ void Route::add_error_page(int status_code, std::string error_message)
 	this->error_pages.insert(pair);
 }
 
-
 void Route::add_methods(std::string methods)
 {
 	this->methods.push_back(methods);
@@ -67,14 +66,14 @@ void Route::add_redirection(std::string url, std::string redirect_url)
 
 void Route::printMethods()
 {
-		std::cout << std::endl;
-		unsigned int itp = 0;
+	std::cout << std::endl;
+	unsigned int itp = 0;
 
-		while(itp < this->methods.size())
-		{
-			std::cout << this->methods[itp];
-			itp++;
-		}
+	while (itp < this->methods.size())
+	{
+		std::cout << this->methods[itp];
+		itp++;
+	}
 }
 
 void Route::printRoute()
@@ -104,8 +103,12 @@ void Route::printRoute()
 	{
 		for (itp = this->methods.begin(); itp != this->methods.end(); itp++)
 		{
-			std::cout << *itp;
+			std::cout << *itp << " ";
 		}
+	}
+	else
+	{
+		std::cout << "None";
 	}
 	std::cout << std::endl;
 
@@ -114,8 +117,12 @@ void Route::printRoute()
 	{
 		for (iti = this->index.begin(); iti != this->index.end(); iti++)
 		{
-			std::cout << *iti;
+			std::cout << *iti << " ";
 		}
+	}
+	else
+	{
+		std::cout << "None";
 	}
 	std::cout << std::endl;
 
@@ -126,6 +133,10 @@ void Route::printRoute()
 		{
 			std::cout << ite->first << " " << ite->second << std::endl;
 		}
+	}
+	else
+	{
+		std::cout << "None";
 	}
 	std::cout << std::endl;
 }

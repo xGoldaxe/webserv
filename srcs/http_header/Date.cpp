@@ -16,8 +16,9 @@ static inline std::string get_formatted_datetime()
 	return buffer;
 }
 
-int	http_header_date(Response &res)
+int	http_header_date(Request &req, Response &res)
 {
+	(void)req;
 	res.add_header("Date", get_formatted_datetime());
 	return (1);
 }

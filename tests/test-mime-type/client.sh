@@ -28,5 +28,11 @@ testMimeType "js" "fichier.js"
 echo "====================================== Test avec un fichier CSS"
 testMimeType "css" "fichier.css"
 
+echo "====================================== Test avec un fichier sans extension"
+testMimeType "sans-extension" "pasdextension"
+
 echo "====================================== Test avec une requete autoindex"
 testMimeType "folder" ""
+
+echo "====================================== Test avec une requete d'erreur"
+testMimeType "erreur" "nexistepas"

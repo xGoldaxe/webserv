@@ -1,6 +1,6 @@
 #include "init/server.hpp"
 
-#include <strings.h> 
+#include <strings.h>
 
 #include "webserv.hpp"
 

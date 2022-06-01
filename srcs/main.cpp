@@ -40,14 +40,33 @@ void process_request(int client_socket, char **env)
 	http_get_response(req, res);
 }
 
+MimeTypes mimes;
+
 int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
-	(void) env;
+
+	mimes.setDefault();
+
+	/************************************************************************
+	 * Example of working mimes parsing                                     */
+	std::cout << mimes.getMimeForExtension("html") << std::endl;
+	try {
+		std::cout << mimes.getMimeForExtension("inconnu") << std::endl;
+	} catch (MimeType::ExceptionUnknownMimeType *e) {
+		std::cout << e->what() << std::endl;
+	}
+
+	mimes.parseHTTP("Content-Type = text/html");
+	mimes.parseHTTP("Content-Type = text/html; charset=utf-8");
+	mimes.parseHTTP("Content-Type = text/html ;Charset=utf-8");
+	mimes.parseHTTP("Content-Type = text/html ; charset=utf-8");
+
+	/* End of Example                                                       *
+	*************************************************************************/
 
 	Server serv = Server();
-
 	serv.init_connection();
 
 	while (true) {

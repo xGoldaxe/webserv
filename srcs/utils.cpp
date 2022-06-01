@@ -2,6 +2,10 @@
 #include <fstream>
 #include <unistd.h>
 #include <strings.h>
+#include <algorithm>
+#include <functional>
+#include <cctype>
+#include <locale>
 
 std::string to_string( int number ) {
 

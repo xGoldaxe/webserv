@@ -19,6 +19,8 @@ class Response;
 class Route;
 struct webserv_conf;
 
+#include "internal/mime_types.hpp"
+
 #include "class/route.hpp"
 #include "class/response.hpp"
 #include "class/request.hpp"
@@ -26,6 +28,7 @@ struct webserv_conf;
 
 #include "http_header/http_header.hpp"
 
+extern MimeTypes mimes;
 
 /* utils */
 int							is_file(const char* name);

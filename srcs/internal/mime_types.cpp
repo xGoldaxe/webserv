@@ -216,7 +216,7 @@ void MimeTypes::parseHTTP(std::string req)
 
 std::string MimeType::getContentType(void)
 {
-    return this->_types + "/" + this->_name + "; charset=utf-8";
+    return this->_types + "/" + this->_name;
 }
 
 /**

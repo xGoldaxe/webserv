@@ -51,7 +51,7 @@ int	Response::send() {
 	raw_response += body;
 
 
-	#ifdefine DEBUG
+	#ifndef DEBUG
 		std::cout << raw_response << std::endl;
 	#endif
 

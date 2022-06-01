@@ -10,7 +10,7 @@ Route find_route( std::vector<Route> routes, std::string url ) {
 		std::string test_url = finish_by_only_one( url, '/' );
 		if (strncmp(test_url.c_str(), it->get_location().c_str(), it->get_location().size() - 1) == 0)
 		{
-			route = *it;
+			route = Route(*it, 1);
 		}
 	}
 	// std::cout << "const " << (*route)->error_pages.begin()->second << std::endl;

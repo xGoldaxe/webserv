@@ -8,7 +8,7 @@ Route find_route( std::vector<Route> routes, std::string url ) {
 	for ( std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it )
 	{
 		std::string test_url = finish_by_only_one( url, '/' );
-		if ( strncmp( test_url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
+		if (strncmp(test_url.c_str(), it->get_location().c_str(), it->get_location().size() - 1) == 0)
 		{
 			route = *it;
 		}
@@ -18,12 +18,12 @@ Route find_route( std::vector<Route> routes, std::string url ) {
 	return route;
 }
 
-Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
+Request::Request( std::string raw_data, Webserv_conf &conf ) : conf(conf) {
 
 	std::string line = raw_data.substr( 0, raw_data.find("\r") );
 	std::vector<std::string> splitted_str = split_str( line );
 
-	this->route = conf.routes[0]; // using the default fallback route
+	this->route = conf.servers[0].getRoutes()[0]; // using the default fallback route
 	
 	/* need further verifications */
 	if ( splitted_str.size() != 3 )
@@ -39,10 +39,10 @@ Request::Request( std::string raw_data, webserv_conf &conf ) : conf(conf) {
 	this->version = splitted_str[2];
 		
 	// this->url = find_route( &this->route, conf.routes, this->legacy_url );
-	this->route = find_route( conf.routes, this->legacy_url );
+	this->route = find_route( conf.servers[0].getRoutes(), this->legacy_url );
 
-	this->url = this->route.root
-				+ this->legacy_url.substr( this->legacy_url.find_first_of( this->route.location ) + this->route.location.size() );
+	this->url = this->route.get_root()
+				+ this->legacy_url.substr( this->legacy_url.find_first_of( this->route.get_location() ) + this->route.get_location().size() );
 	this->url = this->url.substr( 0, this->url.size() );
 
 	std::cout << this->url << std::endl;
@@ -68,7 +68,7 @@ std::string Request::get_legacy_url(void) {
 }
 std::string Request::getRelativeUrl(void) {
 	std::cout << "out of date" << std::endl;
-	return (this->conf.root + url);
+	return (this->conf.servers[0].getRoot() + url);
 }
 std::string Request::get_http_version(void) const {
 	return this->version;
@@ -83,8 +83,8 @@ bool	Request::is_request_valid(void) const {
 
 bool	Request::is_allowed_method( const std::string &method ) const {
 
-	return ( std::find( this->route.methods.begin(), this->route.methods.end(), method) != this->route.methods.end() );
-}
+	return ( std::find( this->route.get_methods().begin(), this->route.get_methods().end(), method) != this->route.get_methods().end() );
+} 
 
 std::string Request::try_url( Response & res ) {
 
@@ -92,7 +92,7 @@ std::string Request::try_url( Response & res ) {
 
 	try
 	{
-		std::string	redir = this->route.redirections.at( 
+		std::string	redir = this->route.get_redirections().at( 
 			this->get_legacy_url() );
 
 		res.set_status( 301, "Moved Permanently" );
@@ -101,7 +101,7 @@ std::string Request::try_url( Response & res ) {
 	}
 	catch( const std::exception& e ) {}
 
-	if ( this->route.auto_index && is_file( this->url.c_str() ) == 0 ) // this is a folder
+	if ( this->route.get_auto_index() && is_file( this->url.c_str() ) == 0 ) // this is a folder
 	{
 		res.set_status( 200, "OK" );
 		this->auto_index = true;
@@ -117,9 +117,9 @@ std::string Request::try_url( Response & res ) {
 	{
 
 		std::string test_url = finish_by_only_one( this->url, '/' );
-
-		for ( std::vector<std::string>::iterator it = this->conf.index.begin();
-			it != this->conf.index.end() ; ++it )
+		std::vector<std::string> tempPtr = this->conf.servers[0].getIndex();
+		for ( std::vector<std::string>::iterator it = tempPtr.begin();
+			it != tempPtr.end() ; ++it )
 		{
 			test_url += *it;
 

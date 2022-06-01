@@ -11,6 +11,7 @@ webserv_conf::webserv_conf(void)	{
 	Route route2( "/php", "./cgi" );
 
 	route1.add_error_page( 404, "defaultPages/404.html");
+	route1.add_error_page( 500, "defaultPages/404.html");
 	route1.add_redirection( "/moved.html", "/sub/index.html" );
 
 	routes.push_back( route1 );

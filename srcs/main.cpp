@@ -66,6 +66,15 @@ int main(int argc, char **argv, char **env)
 	/* End of Example                                                       *
 	*************************************************************************/
 
+	/*************************************************************************
+	 * Example CGI Manager usage											 */
+	// std::vector<MimeType> cgi_mimes;
+	// cgi_mimes.push_back(mimes.getMimeForExtension("php"));
+	// CGIManager cgi(cgi_mimes);
+	/* End of CGI Example                                                    *
+	*************************************************************************/
+	
+
 	Server serv = Server();
 	serv.init_connection();
 

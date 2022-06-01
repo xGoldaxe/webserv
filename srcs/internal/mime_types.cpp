@@ -25,15 +25,20 @@ inline static std::string rtrim(std::string s)
 // }
 
 
-MimeType::MimeType(const std::string name, const std::string extension, const std::string types) : _name(name), _extension(extension), _types(types)
+MimeType::MimeType(const std::string name, const std::string extension, const std::string types, const bool cgi_needed) : _name(name), _extension(extension), _types(types), _cgi(cgi_needed)
 {}
 
-MimeType::MimeType(const MimeType &cpy) : _name(cpy._name), _extension(cpy._extension), _types(cpy._types)
+MimeType::MimeType(const MimeType &cpy) : _name(cpy._name), _extension(cpy._extension), _types(cpy._types), _cgi(cpy._cgi)
 {}
 
 std::ostream &operator<<(std::ostream &os, const MimeType &dt)
 {
     return (os << (dt._types + "/" + dt._name + " " + dt._extension));
+}
+
+bool MimeType::needCGI(void)
+{
+    return this->_cgi;
 }
 
 MimeTypes::MimeTypes() : _map_extensions()
@@ -45,6 +50,7 @@ void MimeTypes::setDefault()
     this->addMimeType("text", "html", "htm");
     this->addMimeType("text", "html", "shtml");
     this->addMimeType("text", "css", "css");
+    this->addMimeType("application", "x-httpd-php", "php", true);
     this->addMimeType("text", "xml", "xml");
     this->addMimeType("image", "gif", "gif");
     this->addMimeType("image", "jpeg", "jpeg");
@@ -233,7 +239,7 @@ MimeType MimeTypes::getMimeForExtension(std::string extension)
     return MimeType(this->_map_extensions.at(extension));
 }
 
-void MimeTypes::addMimeType(const std::string type, const std::string name, const std::string extension)
+void MimeTypes::addMimeType(const std::string type, const std::string name, const std::string extension, const bool need_cgi)
 {
-    this->_map_extensions.insert(std::make_pair(extension, MimeType(name, extension, type)));
+    this->_map_extensions.insert(std::make_pair(extension, MimeType(name, extension, type, need_cgi)));
 }

@@ -3,6 +3,8 @@
 #include "request.hpp"
 #include "webserv_conf.hpp"
 
+class Request;
+
 class Response
 {
 

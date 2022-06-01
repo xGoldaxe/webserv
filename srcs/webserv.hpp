@@ -25,6 +25,7 @@ struct webserv_conf;
 #include "class/response.hpp"
 #include "class/request.hpp"
 #include "class/webserv_conf.hpp"
+#include "cgi/cgi_manager.hpp"
 
 #include "http_header/http_header.hpp"
 

@@ -1,5 +1,4 @@
-#ifndef WEBSERV_HPP
-#	define WEBSERV_HPP
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -15,14 +14,15 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
+#include "class/route.hpp"
 #include "class/webserv_conf.hpp"
 #include "class/server_conf.hpp"
 #include "class/request.hpp"
 #include "class/response.hpp"
-#include "class/webserv_conf.hpp"
 
 #include "http_header/http_header.hpp"
 
+class Response;
 
 /* utils */
 int							is_file(const char* name);
@@ -40,5 +40,3 @@ std::vector<std::string>	split_str( std::string str );
 int http_get_response( Request &req, Response &res );
 
 
-
-#endif

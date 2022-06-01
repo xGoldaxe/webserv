@@ -1,12 +1,10 @@
-#ifndef RESPONSE_HPP
-#	define RESPONSE_HPP
-
+#pragma once
 
 #include "request.hpp"
 #include "webserv_conf.hpp"
 
-class Request;
 struct Webserv_conf;
+class Request;
 
 class Response
 {
@@ -43,4 +41,3 @@ class Response
 		const Webserv_conf &get_conf() const { return conf; };
 };
 
-#endif

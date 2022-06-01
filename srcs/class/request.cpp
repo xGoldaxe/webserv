@@ -9,10 +9,10 @@ std::string find_route(Route **route, std::vector<Route> routes, std::string url
 	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
 	{
 		std::string test_url = finish_by_only_one(url, '/');
-		if (strncmp(test_url.c_str(), it->location.c_str(), it->location.size() - 1) == 0)
+		if (strncmp(test_url.c_str(), it->get_location().c_str(), it->get_location().size() - 1) == 0)
 		{
 			**route = Route(*it, 1);
-			tmp_url = (*route)->root + test_url.substr(test_url.find_first_of(it->location) + it->location.size());
+			tmp_url = (*route)->get_root() + test_url.substr(test_url.find_first_of(it->get_location()) + it->get_location().size());
 			tmp_url = tmp_url.substr(0, tmp_url.size() - 1);
 		}
 	}
@@ -87,7 +87,7 @@ bool Request::is_request_valid(void) const
 bool Request::is_allowed_method(const std::string &method) const
 {
 
-	return (std::find(this->route->methods.begin(), this->route->methods.end(), method) != this->route->methods.end());
+	return (std::find(this->route->get_methods().begin(), this->route->get_methods().end(), method) != this->route->get_methods().end());
 }
 
 std::string Request::try_url(Response &res)
@@ -95,13 +95,13 @@ std::string Request::try_url(Response &res)
 
 	res.set_status(404, "Not Found"); // fallback if 0 condition has been checked
 
-	std::map<std::string, std::string>::iterator redir = this->route->redirections.find(this->url);
-	if (redir != this->route->redirections.end()) // we have a redirection
+	std::map<std::string, std::string>::iterator redir = this->route->get_redirections().find(this->url);
+	if (redir != this->route->get_redirections().end()) // we have a redirection
 	{
 		res.set_status(301, "Moved Permanently");
 		res.add_header("Location", redir->second);
 	}
-	else if (this->route->auto_index && is_file(this->url.c_str()) == 0) // this is a folder
+	else if (this->route->get_auto_index() && is_file(this->url.c_str()) == 0) // this is a folder
 	{
 		res.set_status(200, "OK");
 		this->auto_index = true;

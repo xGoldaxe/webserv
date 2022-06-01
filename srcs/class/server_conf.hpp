@@ -1,5 +1,4 @@
-#ifndef SERVER_CONF_HPP
-# define SERVER_CONF_HPP
+#pragma once
 
 #include "route.hpp"
 #include <list>
@@ -44,4 +43,3 @@ class Server_conf
 
 
 };
-#endif

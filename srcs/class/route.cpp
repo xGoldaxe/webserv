@@ -20,7 +20,7 @@ Route::Route(Route rhs, int notcopy)
 	this->auto_index = true;
 	this->cgi_enable = false;
 	index.push_back("index.html");
-	methods.push_back("GET");	
+	methods.push_back("GET");
 };
 
 Route::Route(std::string location, std::string root, int notdefault)
@@ -45,8 +45,7 @@ Route::Route(const Route &rhs)
 	this->redirections = rhs.redirections;
 };
 
-
-Route& Route::operator=(const Route& rhs)
+Route &Route::operator=(const Route &rhs)
 {
 	this->root = rhs.root;
 	this->location = rhs.location;
@@ -62,8 +61,49 @@ Route& Route::operator=(const Route& rhs)
 	return (*this);
 }
 
-
 Route::~Route(void){};
+
+bool Route::get_auto_index(void)
+{
+	return this->auto_index;
+}
+
+std::string Route::get_location(void)
+{
+	return this->location;
+}
+std::string Route::get_root(void)
+{
+	return this->root;
+}
+std::vector<std::string> Route::get_methods(void)
+{
+	return this->methods;
+}
+std::map<std::string, std::string> &Route::get_redirections(void)
+{
+	return this->redirections;
+}
+
+bool Route::get_cgi_enable(void)
+{
+	return this->cgi_enable;
+}
+
+std::string Route::get_cgi_extension(void)
+{
+	return this->cgi_extension;
+}
+
+std::string Route::get_cgi_path(void)
+{
+	return this->cgi_path;
+}
+
+std::map<int, std::string> Route::get_error_pages(void)
+{
+	return this->error_pages;
+}
 
 void Route::enable_cgi(std::string path)
 {

@@ -1,5 +1,4 @@
-#ifndef REQUEST_HPP
-#	define REQUEST_HPP
+#pragma once
 
 #include "webserv_conf.hpp"
 #include "response.hpp"
@@ -54,6 +53,3 @@ class Request
                 }
         };
 };
-
-
-#endif

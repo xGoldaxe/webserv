@@ -1,8 +1,5 @@
-#ifndef WEBSERV_CONF_HPP
-#	define WEBSERV_CONF_HPP
+#pragma once
 
-
-#include "server_conf.hpp"
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -12,7 +9,9 @@
 #include <cstring>
 #include <limits>
 #include <cstdlib>
+#include "server_conf.hpp"
 
+class Server_conf;
 
 #define SERVER_NAME 0
 #define LISTEN 1
@@ -26,8 +25,6 @@
 #define BODY_MAX_SIZE 9
 #define SERVER 10
 #define REWRITE 11
-
-class Server_conf;
 
 struct Webserv_conf
 {
@@ -61,5 +58,3 @@ struct Webserv_conf
 
 };
 
-
-#endif

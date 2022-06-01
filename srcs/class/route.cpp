@@ -19,7 +19,7 @@ Route::Route(std::string location, std::string root)
 	methods.push_back("GET");
 	this->auto_index = true;
 	this->cgi_enable = false;
-};
+}
 
 Route::Route(Route rhs, int notcopy)
 {
@@ -30,14 +30,14 @@ Route::Route(Route rhs, int notcopy)
 	this->cgi_enable = false;
 	index.push_back("index.html");
 	methods.push_back("GET");
-};
+}
 
 Route::Route(std::string location, std::string root, int notdefault)
 {
 	(void)notdefault;
 	this->root = root;
 	this->location = location;
-};
+}
 
 Route::Route(const Route &rhs)
 {
@@ -52,7 +52,7 @@ Route::Route(const Route &rhs)
 	this->methods = rhs.methods;
 	this->error_pages = rhs.error_pages;
 	this->redirections = rhs.redirections;
-};
+}
 
 Route &Route::operator=(const Route &rhs)
 {

@@ -51,7 +51,9 @@ int	Response::send() {
 	raw_response += body;
 
 
-	// std::cout << raw_response << std::endl;
+	#ifdefine DEBUG
+		std::cout << raw_response << std::endl;
+	#endif
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
 

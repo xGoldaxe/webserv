@@ -12,7 +12,22 @@ SRCS	=	main.cpp \
 			http_header/Data-length.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
-			cgi/cgi_manager.cpp
+			cgi/cgi_manager.cpp \
+			error_codes/error_code_http.cpp \
+			error_codes/internal_exceptions.cpp
+
+HEADERS = ./srcs/internal/mime_types.hpp \
+		./srcs/http_header/http_header.hpp \
+		./srcs/cgi/cgi_manager.hpp \
+		./srcs/class/response.hpp \
+		./srcs/class/request.hpp \
+		./srcs/class/webserv_conf.hpp \
+		./srcs/class/route.hpp \
+		./srcs/error_codes/error_code_http.hpp \
+		./srcs/error_codes/internal_exceptions.hpp \
+		./srcs/webserv.hpp \
+		./srcs/init/server.hpp \
+		./srcs/init/exception_server_not_listening.hpp
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 
@@ -32,10 +47,10 @@ B_GREEN			= \033[1;32m
 B_MAGENTA 		= \033[1;35m
 B_CYAN 			= \033[1;36m
 
-./.build/%.o : srcs/%.cpp
+./.build/%.o :	srcs/%.cpp $(HEADERS)
 		@mkdir -p $(@D)
-		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $?
-		@printf "${B_MAGENTA}Compilling $? ...\n${NONE}"
+		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $<
+		@printf "${B_MAGENTA}Compilling $< ...\n${NONE}"
 
 all:	
 		@mkdir -p .build

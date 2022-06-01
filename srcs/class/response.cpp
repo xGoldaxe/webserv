@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "unistd.h"
+#include "../error_codes/internal_exceptions.hpp"
 
 Response::Response( int client_socket, webserv_conf &conf, Request const &req ) : conf(conf), req( req ) {
 	
@@ -68,12 +69,11 @@ std::string auto_index_template( std::string url, std::string legacy_url );
 std::string Response::load_body( Request &req )
 {
 	std::string new_body;
-	if (false /* req.auto_index == true */ ) {
+
+	if (req.auto_index == true) {
 		this->add_header("Content-Type", "text/html");
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
-	}
-	else if (req.get_route().cgi_enable == true  && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
-
+	} else if (req.get_route().cgi_enable == true  && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
 		#ifdef DEBUG
 			std::cout << "CGI used" << std::endl;
 		#endif
@@ -95,13 +95,10 @@ std::string Response::load_body( Request &req )
 		close( pipe_fd[1] );
 		int status = 0;
 		waitpid( pid, &status, 0 );
+
 		if ( status != 0 ) {
-
-			this->set_status( 500, "Internal Server Error" );
-			this->error_body();
-		}
-		else {
-
+			throw ErrorHTTP500();
+		} else {
 			this->add_header( "Content-Type", "text/html" );
 			new_body = read_fd( pipe_fd[0] );
 			close( pipe_fd[0] );

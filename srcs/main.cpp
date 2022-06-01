@@ -36,7 +36,10 @@ void process_request(int client_socket, char **env)
 	req.env = env;
 	Response res( client_socket, conf, req );
 
-	// std::cout << "request url: " << req.getUrl() << std::endl;
+	#ifdef DEBUG
+		std::cout << "request url: " << req.getUrl() << std::endl;
+	#endif
+	
 	http_get_response(req, res);
 }
 

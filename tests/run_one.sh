@@ -35,5 +35,5 @@ then
     done
 else
     echo "Launching single tests with logs."
-    (cd $1 ; sudo ./server.sh ; ./client.sh) > $1.log
+    (cd $1 ; sudo ./server.sh ; ./client.sh 3000; ./client.sh) > $1.log
 fi

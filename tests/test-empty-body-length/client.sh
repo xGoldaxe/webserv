@@ -10,7 +10,7 @@ mkdir -p logs/
 # testBodyLength(test_name, method[GET, POST, DELETE], body_length, body_content)
 testBodyLength() {
     >&2 echo $1 # Display test name in the stderr (so it appears in the terminal)
-    ( echo -en "$2 / HTTP/1.1\nHost: 127.0.0.1:8080\nUser-Agent: Tester\nContent-Type: application/x-www-form-urlencoded\nContent-Length: $3\n\n$4\n\n"; sleep 1; echo "quit") | nc  127.0.0.1 8080 | tee logs/$1.logs
+    ( echo -en "$2 / HTTP/1.1\nHost: 127.0.0.1:8080\nUser-Agent: Tester\nContent-Type: application/x-www-form-urlencoded\nContent-Length: $3\n\n$4\n\n"; sleep 1; echo "quit") | nc -N 127.0.0.1 8080 | tee logs/$1.logs
     echo ""
 }
 

@@ -8,16 +8,6 @@
 #include <cctype>
 #include <exception>
 
-#include "exception_content_type.hpp"
-
-class ExceptionUnknownMimeType : virtual public std::exception
-{
-    const char *what() const throw()
-    {
-        return "extension inconnue.";
-    };
-};
-
 class MimeType {
 public:
     MimeType(const std::string name, const std::string types, const std::string extension);
@@ -28,6 +18,15 @@ public:
     std::string getContentType(void);
 
     friend std::ostream &operator<<(std::ostream &os, const MimeType &dt);
+
+    class ExceptionUnknownMimeType : public std::exception
+    {
+        public:
+        const char *what() const throw()
+        {
+            return "extension inconnue.";
+        };
+    };
 
 private:
     const std::string _name;
@@ -46,10 +45,17 @@ public:
 
     ~MimeTypes();
 
+    class ExceptionContentType : public std::exception
+    {
+        public:
+        const char *what() const throw()
+        {
+            return "The content type is not well formated.";
+        }
+    };
+
     void setDefault();
-
     void parseHTTP(std::string req);
-
     void addMimeType(const std::string type, const std::string name, const std::string extension);
 
     MimeType getMimeForExtension(std::string extension);

@@ -228,7 +228,7 @@ std::string MimeType::getContentType(void)
 MimeType MimeTypes::getMimeForExtension(std::string extension)
 {
     if (this->_map_extensions.find(extension) == this->_map_extensions.end())
-        throw new ExceptionUnknownMimeType();
+        throw new MimeType::ExceptionUnknownMimeType();
 
     return MimeType(this->_map_extensions.at(extension));
 }

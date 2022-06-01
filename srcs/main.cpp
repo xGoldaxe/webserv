@@ -54,7 +54,7 @@ int main(int argc, char **argv, char **env)
 	std::cout << mimes.getMimeForExtension("html") << std::endl;
 	try {
 		std::cout << mimes.getMimeForExtension("inconnu") << std::endl;
-	} catch (std::exception *e) {
+	} catch (MimeType::ExceptionUnknownMimeType *e) {
 		std::cout << e->what() << std::endl;
 	}
 

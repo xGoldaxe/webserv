@@ -86,49 +86,81 @@ bool	Request::is_allowed_method( const std::string &method ) const {
 	return ( std::find( this->route.methods.begin(), this->route.methods.end(), method) != this->route.methods.end() );
 }
 
-std::string Request::try_url( Response & res ) {
+std::string	store_cat_test( bool mode, std::string value = std::string() ) {
 
-	res.set_status( 404, "Not Found" ); // fallback if 0 condition has been checked
+	static std::string value_stored = std::string();
 
-	try
-	{
-		std::string	redir = this->route.redirections.at( 
-			this->get_legacy_url() );
+	if ( mode == true )
+		value_stored = value;
+	return (value_stored);
+}
 
-		res.set_status( 301, "Moved Permanently" );
-		res.add_header( "Location", redir );
-		return ( this->url );
-	}
-	catch( const std::exception& e ) {}
+bool	cat_test( std::string it, std::string &res )
+{
+	res = store_cat_test( false ) + it;
+	return ( is_file( res ) == IS_FILE_NOT_FOLDER );
+}
 
-	if ( this->route.auto_index && is_file( this->url.c_str() ) == 0 ) // this is a folder
-	{
-		res.set_status( 200, "OK" );
+void	Request::check_file_url(void)
+{
+	this->route.auto_index = false; // need to fix this
+	if ( this->route.auto_index && is_file( this->url ) == IS_FILE_FOLDER )
 		this->auto_index = true;
-	}
-	else if ( file_exist( this->url ) && is_file( this->url.c_str() ) == 1 ) // the file exist
+	else if ( is_file( this->url ) == IS_FILE_NOT_FOLDER )
 	{
-		if ( file_readable( this->url ) )
-			res.set_status( 200, "OK" );
-		else
-			res.set_status( 403, "Forbidden" );
+		if ( !file_readable( this->url ) )
+			throw HTTPCode403();
 	}
 	else
 	{
-
-		std::string test_url = finish_by_only_one( this->url, '/' );
-
-		for ( std::vector<std::string>::iterator it = this->conf.index.begin();
-			it != this->conf.index.end() ; ++it )
-		{
-			test_url += *it;
-
-			if ( file_exist(test_url) && is_file( test_url.c_str() ) == 1 )
-			{
-				res.set_status( 200, "OK" );
-				this->url = test_url;
-			}
-		}
+		store_cat_test( true, finish_by_only_one( this->url, '/' ) );
+		this->url = go_through_it_until(
+			this->conf.index,
+			&cat_test,
+			HTTPCode404()
+		);
 	}
-	return ( this->url );
+}
+
+bool	Request::is_redirection( std::string &redir_str ) {
+
+	try
+	{
+		redir_str = this->route.redirections.at( 
+			this->get_legacy_url() );
+		return true;
+	}
+	catch(const std::exception& e)
+	{
+		return false;
+	}
+}
+
+/* this function is use to route the url, and test many case ( redirection, cache ... )
+and if no conditions are check it goes to check the file to serve and throw an error if its fail */
+/* each case work as block that can be interchanged ( except the last one ) */
+/* nous on a que deux cas a gerer, redirection et la fallback */
+
+void Request::try_url( Response & res ) {
+
+	try
+	{
+		std::string redir_str;
+		if ( is_redirection( redir_str ) ) {
+
+			res.set_status( 301, "Moved Permanently" );
+			res.add_header( "Location", redir_str );
+			return ;
+		}
+
+		// may throw errors
+		this->check_file_url();
+		res.set_status( 200, "OK" );
+		res.load_body( *this );
+		http_header_content_type( *this, res );
+	} 
+	catch (const HTTPError &e) {
+		res.set_status( e.getCode(), e.getDescription() );
+		res.error_body();
+	} 
 }

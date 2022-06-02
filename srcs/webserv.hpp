@@ -29,10 +29,15 @@ struct webserv_conf;
 
 #include "http_header/http_header.hpp"
 
+#include "go_through_until.hpp"
+
 extern MimeTypes mimes;
 
 /* utils */
-int							is_file(const char* name);
+#define IS_FILE_FOLDER 0
+#define IS_FILE_NOT_FOLDER 1
+#define IS_FILE_ERROR -1 //doesnt exist
+int							is_file( std::string dir );
 bool 						file_exist(const std::string& name);
 bool						file_readable(const std::string &name);
 std::string 				to_string( int number );

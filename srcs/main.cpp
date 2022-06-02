@@ -20,23 +20,13 @@ void process_request(int client_socket, char **env)
 		return ;
 	}
 
-	bzero(buffer,256);
-	int n = 255;
-	while ( n == 255 )
-	{
-		bzero(buffer,256);
-		n = read(client_socket, buffer, 255);
-		buffer[n] = '\0';
-		req_raw_data += buffer;
-	}
 	/* we will need further verification */
 	webserv_conf	conf; 
 	
-	Request req( req_raw_data, conf );
+	Request req( client_socket, conf );
 	req.env = env;
 	Response res( client_socket, conf, req );
 
-	// std::cout << "request url: " << req.getUrl() << std::endl;
 	http_get_response(req, res);
 }
 
@@ -78,8 +68,6 @@ int main(int argc, char **argv, char **env)
 		{
 			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
 			process_request( evlist[i].data.fd, env );
-			// std::cout << "now closing connection, fd: " << evlist[i].data.fd << std::endl;
-			// close( evlist[i].data.fd );
 		}
 	}
 	/* connections must have a lifetime */

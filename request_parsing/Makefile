@@ -1,23 +1,9 @@
-SRCS	=	main.cpp \
-			get_response.cpp \
-			utils.cpp \
-			init/server.cpp \
-			init/exception_server_not_listening.cpp \
-			class/request.cpp \
-			class/request_constructor.cpp \
-			class/response.cpp \
-			class/route.cpp \
-			class/webserv_conf.cpp \
-			class/server_conf.cpp \
-			http_header/Date.cpp \
-			http_header/Server.cpp \
-			http_header/Data-length.cpp \
-			http_header/Content-Type.cpp \
-			internal/mime_types.cpp
+SRCS	=	print_or_store.cpp \
+			main.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 
-NAME	=	webserv
+NAME	=	reqparser
 
 CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG
 

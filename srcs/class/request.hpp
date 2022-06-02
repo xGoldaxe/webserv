@@ -15,7 +15,6 @@ class Request
 		std::string								legacy_url;
 		std::map<std::string, std::string>		headers;
 		std::string								body;
-		std::string								row_data;
 		std::string								version;
 		bool									request_validity;
 
@@ -25,13 +24,21 @@ class Request
 		Route			route;
 		char			**env;
 
-		/* coplien */
 		Request( std::string raw_data, Webserv_conf &conf );
 		Request( Request const &src );
 		~Request( void );
 
 		Request &   operator=( Request const & rhs );
 		/* end coplien */
+		/* fill from parsed req */
+		void		fill_start_line( std::string method,
+											std::string url,
+											std::string version );
+		void		fill_headers( std::map<std::string, std::string> headers );
+		void		fill_body( std::string body );
+		/* fill from parsed req */
+
+
 		std::string	getMethod(void) const;
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);

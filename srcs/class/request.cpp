@@ -53,8 +53,7 @@ Request::Request(std::string raw_data, Webserv_conf &conf) : conf(conf)
 };
 
 Request::~Request(void)
-{
-}
+{}
 
 /* end coplien */
 std::string Request::getMethod(void) const

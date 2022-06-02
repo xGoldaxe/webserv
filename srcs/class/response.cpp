@@ -181,7 +181,6 @@ std::string auto_index_template(std::string url, std::string legacy_url)
 {
 
 	std::string files;
-	std::cout << "auto_index_template" << std::endl;
 	/* get each files */
 	DIR *d;
 	struct dirent *dir;

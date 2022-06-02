@@ -59,7 +59,7 @@ void testconf()
 	try
 	{
 		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
-		conf.servers[0].printServer();
+		conf.getServers()[0].printServer();
 	}
 	catch (const std::exception &e)
 	{

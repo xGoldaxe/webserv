@@ -13,28 +13,31 @@
 
 class Server_conf;
 
-#define SERVER_NAME 0
-#define LISTEN 1
-#define ERROR_PAGE 2
-#define LOCATION 3
-#define ROOT 4
-#define INDEX 5
-#define METHODS 6
-#define ENABLE_CGI 7
-#define CGI_EXTENSION 8
-#define BODY_MAX_SIZE 9
-#define SERVER 10
-#define REWRITE 11
+#define SIZE_PARSING 12
 
-struct Webserv_conf
+#define SERVER_NAME_PARSING 0
+#define LISTEN_PARSING 1
+#define ERROR_PAGE_PARSING 2
+#define LOCATION_PARSING 3
+#define ROOT_PARSING 4
+#define INDEX_PARSING 5
+#define METHODS_PARSING 6
+#define ENABLE_CGI_PARSING 7
+#define CGI_EXTENSION_PARSING 8
+#define BODY_MAX_SIZE_PARSING 9
+#define SERVER_PARSING 10
+#define REWRITE_PARSING 11
+
+class Webserv_conf
 {
-	std::vector<Server_conf>	servers;
-	std::string 				http_version;
-
-	Webserv_conf(void);
-	Webserv_conf(std::string filename);
-
-//	void	print_conf(void);
+	private:
+		std::vector<Server_conf>	servers;
+		std::string 				http_version;
+	public:
+		Webserv_conf(void);
+		Webserv_conf(std::string filename);
+		std::vector<Server_conf> getServers() const;
+		std::string				 getHttpVersion() const;
 
 /* exceptions */
         class FailedToOpenFile : public std::exception	{
@@ -49,12 +52,5 @@ struct Webserv_conf
                     return ("Webserv_conf::Webserv_conf Provided Port is outside range!");
                 }
         };
-        class SussyParsing : public std::exception	{
-            public:
-                virtual const	char* what() const throw()	{
-                    return ("Webserv_conf::Webserv_conf Configuration file parsing error!");
-                }
-        };
-
 };
 

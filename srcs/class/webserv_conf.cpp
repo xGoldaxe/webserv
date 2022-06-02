@@ -6,18 +6,22 @@ Webserv_conf::Webserv_conf(void)
 	http_version = "HTTP/1.1";
 	Server_conf server = Server_conf();
 	this->servers.push_back(server);
-};
+}
 
 static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;
-	std::string tab[12] = {"server_name", "listen",
+	std::string tab1[SIZE_PARSING] = {"server_name", "listen",
 						   "error_page", "location",
 						   "root", "index",
 						   "methods", "enable_cgi",
 						   "cgi_extension", "body_max_size", "server",
 						   "rewrite"};
-	while (i < 12)
+	//initializing vector like an array is only available at CPP 11+
+	//forced to create a regular array before putting inside a vector
+	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
+
+	while (i < SIZE_PARSING)
 	{
 		if (s.compare(tab[i]) == 0)
 			return i;
@@ -26,8 +30,22 @@ static int return_type_parse(std::string s)
 	return (-1);
 }
 
+std::vector<Server_conf> Webserv_conf::getServers() const
+{
+	return this->servers;
+}
+
+std::string Webserv_conf::getHttpVersion() const
+{
+	return this->http_version;
+}
+
 Webserv_conf::Webserv_conf(std::string filename)
 {
+	/**
+	 * @TODO Besoin d'une refracto de cette fonction! Séparation des différentes tâches.
+	 */
+
 	http_version = "HTTP/1.1";
 	Server_conf server = Server_conf(1);
 
@@ -68,11 +86,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
-//		std::cout << words[it] << "|"
-//				  << check << std::endl;
+		//		std::cout << words[it] << "|"
+		//				  << check << std::endl;
 		switch (check)
 		{
-		case SERVER_NAME:
+		case SERVER_NAME_PARSING:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				server.setName(words[it + 2]);
@@ -80,10 +98,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing server_name");
 			}
 			break;
-		case LISTEN:
+		case LISTEN_PARSING:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				int port = std::atoi(words[it + 2].c_str());
@@ -95,10 +113,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing listen");
 			}
 			break;
-		case ERROR_PAGE:
+		case ERROR_PAGE_PARSING:
 			// assumes syntax error_page a b ... z = "blablabla" ;
 			//  get value after =
 			tmpit = it;
@@ -113,7 +131,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 					error = std::atoi(words[tmpit].c_str());
 					if (contextlocation == 0)
 						server.addErrorPages(error, tmperrorval);
-					else{ 	
+					else
+					{
 						server.addLastRouteErrorPages(error, tmperrorval);
 					}
 					tmpit++;
@@ -122,24 +141,23 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing error_pages");
 			}
 			break;
-		case LOCATION:
+		case LOCATION_PARSING:
 			contextlocation = 1;
-			// todo, cant test otherwise
 			if ((it + 3) < words.size() && words[it + 2].compare("root") == 0)
 			{
 				server.addRoute(Route(words[it + 1], words[it + 3], 1));
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing routes");
 			}
 			break;
-		case ROOT:
+		case ROOT_PARSING:
 			break;
-		case INDEX:
+		case INDEX_PARSING:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
 			{
 				it = it + 2;
@@ -154,31 +172,35 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing Index!");
 			}
 			break;
-		case METHODS:
+		case METHODS_PARSING:
 			if (!contextlocation)
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing, encountered methods outside of a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
 			{
 				it = it + 2;
 				while (it < words.size() && words[it].compare(";") != 0)
 				{
+					if (words[it].compare("GET") != 0 && words[it].compare("POST") != 0 && words[it].compare("DELETE") != 0 && words[it].compare("HEAD") != 0)
+					{
+						throw std::invalid_argument("Error parsing Methods! This is invalid: " + words[it]);
+					}
 					server.addMethods(words[it]);
 					it++;
 				}
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing Methods!");
 			}
 			break;
-		case ENABLE_CGI:
+		case ENABLE_CGI_PARSING:
 			break;
-		case CGI_EXTENSION:
+		case CGI_EXTENSION_PARSING:
 			break;
-		case BODY_MAX_SIZE:
+		case BODY_MAX_SIZE_PARSING:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
@@ -186,10 +208,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			else
 			{
-				throw Webserv_conf::SussyParsing();
+				throw std::invalid_argument("Error parsing Body Max Size!");
 			}
 			break;
-		case SERVER:
+		case SERVER_PARSING:
 			if (firstservswitch)
 			{
 				firstservswitch = 0;
@@ -199,7 +221,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			this->servers.push_back(server);
 			server = Server_conf(1);
 			break;
-		case REWRITE:
+		case REWRITE_PARSING:
 			break;
 		default:
 			break;
@@ -207,23 +229,4 @@ Webserv_conf::Webserv_conf(std::string filename)
 		it++;
 	}
 	this->servers.push_back(server);
-};
-/*
-void Webserv_conf::print_conf(void)
-{
-	std::cout << "root = " << this->root << std::endl;
-	std::cout << "http version = " << this->http_version << std::endl;
-	std::cout << "server_name = " << this->server_name << std::endl;
-
-	std::cout << "index = " << std::endl;
-	for (std::vector<std::string>::const_iterator i = (this->index).begin(); i != (this->index).end(); ++i)
-		std::cout << *i << ' ';
-	std::cout << std::endl;
-
-	// for (std::vector<Route>::const_iterator i = (this->index).begin(); i != path.end(); ++i)
-	//    std::cout << *i << ' ';
-	std::cout << "ports = " << std::endl;
-	for (std::list<int>::const_iterator k = (this->port).begin(); k != (this->port).end(); ++k)
-		std::cout << *k << ' ';
-	std::cout << std::endl;
-}*/
+}

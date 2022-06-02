@@ -35,5 +35,5 @@ class Response
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		int	send(void);
-		const Webserv_conf &get_conf() const { return conf; };
+		const Webserv_conf &get_conf() const;
 };

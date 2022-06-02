@@ -2,7 +2,7 @@
 
 Server_conf::Server_conf(void)
 {
-	this->server_name = "webserv (42) v0.1-dev";
+	this->server_name = DEFAULT_SERVER_NAME;
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
 	Route route1("/", "./www");
@@ -13,19 +13,21 @@ Server_conf::Server_conf(void)
 	routes.back().enable_cgi("/usr/bin/php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 	this->body_max_size = 2048;
-	this->root = ".";
+	this->root = DEFAULT_ROOT;
 }
 
-Server_conf::~Server_conf(void){};
+Server_conf::~Server_conf(void)
+{
+}
 
 // empty
 Server_conf::Server_conf(int emp)
 {
 	(void)emp;
 	// default server name
-	this->server_name = "webserv (42) v0.1-dev";
+	this->server_name = DEFAULT_SERVER_NAME;
 	// default root
-	this->root = ".";
+	this->root = DEFAULT_ROOT;
 }
 
 std::list<short> Server_conf::getPort() const
@@ -109,6 +111,7 @@ void Server_conf::setRoot(std::string root)
 
 void Server_conf::printServer()
 {
+#ifdef DEBUG
 
 	std::list<short>::iterator itp;
 	std::vector<std::string>::iterator iti;
@@ -154,4 +157,5 @@ void Server_conf::printServer()
 		itr++;
 	}
 	std::cout << std::endl;
+#endif
 }

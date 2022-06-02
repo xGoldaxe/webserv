@@ -142,7 +142,9 @@ std::string Response::load_body( Request &req )
 		}
 	}
 	else
+	{
 		new_body = read_binary( req.getUrl() );
+	}
 	this->body = new_body;
 	return this->body;
 }

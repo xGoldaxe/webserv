@@ -29,10 +29,6 @@ class HTTPError : public std::exception
     void    generateResponseString();
 };
 
-/*************************
-* @5xx
-* ***********************/
-
 class HTTPCode5XX : public HTTPError
 {
     public:
@@ -47,27 +43,3 @@ class HTTPCode500 : public HTTPCode5XX
     {}
 };
 
-/*************************
-* @4xx
-* ***********************/
-
-class HTTPCode4XX : public HTTPError
-{
-    public:
-    HTTPCode4XX(int code, std::string error) throw() : HTTPError(4, code, error)
-    {}
-};
-
-class HTTPCode403 : public HTTPCode4XX
-{
-    public:
-    HTTPCode403() throw() : HTTPCode4XX(3, "Forbidden")
-    {}
-};
-
-class HTTPCode404 : public HTTPCode4XX
-{
-    public:
-    HTTPCode404() throw() : HTTPCode4XX(4, "Not Found")
-    {}
-};

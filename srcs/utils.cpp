@@ -17,14 +17,9 @@ std::string to_string( int number ) {
 	return ( result );
 }
 
-// #define IS_FILE_FOLDER 0
-// #define IS_FILE_NOT_FOLDER 1
-// #define IS_FILE_ERROR -1 //doesnt exist
-
-int	is_file( std::string dir )
+int	is_file(const char* name)
 {
-	const char	*dirname = dir.c_str(); 
-	DIR* directory = opendir(dirname);
+	DIR* directory = opendir(name);
 
 	if(directory != NULL)
 	{
@@ -41,7 +36,6 @@ int	is_file( std::string dir )
 }
 
 bool	file_exist(const std::string& name) {
-
 	struct stat	buffer;   
 	return (stat (name.c_str(), &buffer) == 0); 
 }

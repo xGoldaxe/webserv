@@ -1,3 +1,0 @@
-GET / HTTP/1.1
-Random-header1:      salut      
-Random-header2:                 salut                  

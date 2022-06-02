@@ -1,9 +1,6 @@
 #include "../webserv.hpp"
 #include <algorithm>
 #include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 
 Request::~Request( void ) {};
 

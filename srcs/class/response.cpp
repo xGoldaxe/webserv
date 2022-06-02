@@ -95,13 +95,12 @@ std::string Response::load_body( Request &req )
 		close( pipe_fd[1] );
 		int status = 0;
 		waitpid( pid, &status, 0 );
-		if ( status != 0 ) {
 
+		if ( status != 0 ) {
+			throw HTTPCode500();
 			this->set_status( 500, "Internal Server Error" );
 			this->error_body();
-		}
-		else {
-
+		} else {
 			this->add_header( "Content-Type", "text/html" );
 			new_body = read_fd( pipe_fd[0] );
 			close( pipe_fd[0] );

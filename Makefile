@@ -12,9 +12,23 @@ SRCS	=	main.cpp \
 			http_header/Data-length.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
-			cgi/cgi_manager.cpp
+			cgi/cgi_manager.cpp \
+			errors/http_code.cpp
+
+HEADERS = errors/http_code.hpp \
+			init/exception_server_not_listening.hpp \
+			init/server.hpp \
+			http_header/http_header.hpp \
+			webserv.hpp \
+			class/request.hpp \
+			class/response.hpp \
+			class/route.hpp \
+			class/webserv_conf.hpp \
+			cgi/cgi_manager.hpp \
+			internal/mime_types.hpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
+DEPS	=	${HEADERS:%.hpp=./srcs/%.hpp}
 
 NAME	=	webserv
 
@@ -32,10 +46,10 @@ B_GREEN			= \033[1;32m
 B_MAGENTA 		= \033[1;35m
 B_CYAN 			= \033[1;36m
 
-./.build/%.o : srcs/%.cpp
+./.build/%.o : srcs/%.cpp $(DEPS)
 		@mkdir -p $(@D)
-		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $?
-		@printf "${B_MAGENTA}Compilling $? ...\n${NONE}"
+		$(CCP) ${CPPFLAGS} -I. -o $@ -c $<
+		@printf "${B_MAGENTA}Compilling $< ...\n${NONE}"
 
 all:	
 		@mkdir -p .build

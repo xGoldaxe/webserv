@@ -1,2 +1,5 @@
 #!/usr/bin/php
-<?php echo "salut les amis coucou la terre"; ?>
+
+<h1><?php echo "un titre avec PHP"; ?></h1>
+
+<?php phpinfo(); ?>

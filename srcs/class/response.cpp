@@ -98,13 +98,10 @@ std::string Response::load_body( Request &req )
 
 		if ( status != 0 ) {
 			throw HTTPCode500();
-			this->set_status( 500, "Internal Server Error" );
-			this->error_body();
-		} else {
-			this->add_header( "Content-Type", "text/html" );
-			new_body = read_fd( pipe_fd[0] );
-			close( pipe_fd[0] );
-		}
+			
+		this->add_header( "Content-Type", "text/html" );
+		new_body = read_fd( pipe_fd[0] );
+		close( pipe_fd[0] );
 	}
 	else
 	{

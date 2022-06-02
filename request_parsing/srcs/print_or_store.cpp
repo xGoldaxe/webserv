@@ -1,6 +1,6 @@
 #include "req_parse.hpp"
 
-void	print_or_store( 
+void	print_parsed_req( 
 	std::vector<std::string> parsed_first_line,
 	std::map<std::string, std::string> headers,
 	std::string	raw_body

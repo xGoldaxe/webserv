@@ -30,6 +30,15 @@ class Request
 
 		Request &   operator=( Request const & rhs );
 		/* end coplien */
+		/* fill from parsed req */
+		void		fill_start_line( std::string method,
+											std::string url,
+											std::string version );
+		void		fill_headers( std::map<std::string, std::string> headers );
+		void		fill_body( std::string body );
+		/* fill from parsed req */
+
+
 		std::string	getMethod(void) const;
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);

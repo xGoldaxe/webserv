@@ -4,6 +4,7 @@ SRCS	=	main.cpp \
 			init/server.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \
+			class/request_constructor.cpp \
 			class/response.cpp \
 			class/route.cpp \
 			class/webserv_conf.cpp \

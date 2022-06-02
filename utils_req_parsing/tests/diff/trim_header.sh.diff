@@ -1,6 +1,0 @@
-6,7c6,7
-< ==>[Random-header3]: [salut]
-< ==>[Random-header4]: [salut]
----
-> ==>[Random-header3]: [salu]
-> ==>[Random-header4]: [salu]

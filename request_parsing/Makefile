@@ -1,6 +1,4 @@
-SRCS	=	parse_request.cpp \
-			utils.cpp \
-			print_or_store.cpp \
+SRCS	=	print_or_store.cpp \
 			main.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}

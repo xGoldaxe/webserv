@@ -20,7 +20,7 @@ Route::Route(std::string location, std::string root) : root(root), location(loca
 {
 	index.push_back("index.html");
 	methods.push_back("GET");
-	this->auto_index = true;
+	this->auto_index = false;
 	this->cgi_enable = false;
 }
 
@@ -33,8 +33,8 @@ Route::Route(Route rhs, int notcopy)
 	this->cgi_extension = rhs.cgi_extension;
 	this->error_pages = rhs.error_pages;
 	this->redirections = rhs.redirections;
-	this->auto_index = true;
-	this->cgi_enable = false;
+	this->auto_index = rhs.auto_index;
+	this->cgi_enable = rhs.cgi_enable;
 	index.push_back("index.html");
 	methods.push_back("GET");
 }

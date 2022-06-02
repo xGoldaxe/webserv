@@ -77,7 +77,7 @@ std::string	read_fd( int fd ) {
 	std::string	res;
 	while (readed != 0)
 	{
-		memset(buff, 0, 256);
+		std::memset(buff, 0, 256);
 		readed = read( fd, buff, 255 );
 		buff[readed] = '\0';
 		res += buff;

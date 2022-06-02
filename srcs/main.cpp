@@ -20,11 +20,11 @@ void process_request(int client_socket, char **env)
 		return ;
 	}
 
-	memset(buffer, 0, 256);
+	std::memset(buffer, 0, 256);
 	int n = 255;
 	while ( n == 255 )
 	{
-		memset(buffer, 0, 256);
+		std::memset(buffer, 0, 256);
 		n = read(client_socket, buffer, 255);
 		buffer[n] = '\0';
 		req_raw_data += buffer;

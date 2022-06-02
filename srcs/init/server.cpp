@@ -82,6 +82,9 @@ void Server::handle_client()
     }
 }
 
+/**
+ * @todo Remove this feature and throw an error instead.
+ */
 short Server::_select_port()
 {
     while (bind(this->_socket_fd, (s_server_addr)&this->_addr, sizeof(this->_addr)) == -1)

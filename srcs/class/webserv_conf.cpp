@@ -7,8 +7,8 @@ webserv_conf::webserv_conf(void)	{
 	index.push_back("index.html");
 	http_version = "HTTP/1.1";
 	server_name = "webserv (42) v0.1-dev";
-	Route route1( "/", "./www" );
-	Route route2( "/php", "./cgi" );
+	Route route1( "/", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www" );
+	Route route2( "/php", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi" );
 
 	route1.add_error_page( 404, "defaultPages/404.html");
 	route1.add_error_page( 500, "defaultPages/404.html");
@@ -16,7 +16,7 @@ webserv_conf::webserv_conf(void)	{
 
 	routes.push_back( route1 );
 	routes.push_back( route2 );
-	routes.back().enable_cgi( "/usr/bin/php" );
+	routes.back().enable_cgi( "/usr/bin/php-cgi" );
 }
 
 webserv_conf::webserv_conf( webserv_conf &rhs ) : root(rhs.root) {};

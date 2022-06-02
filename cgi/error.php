@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -14,7 +13,7 @@
 
     <ul>
         <?php
-        foreach (getenv() as $key=>$entry) {
+        foreach (getenv() as $key=>entry) {
         ?>
             <li><?= $key ?>=<?= $entry ?></li>
         <?php

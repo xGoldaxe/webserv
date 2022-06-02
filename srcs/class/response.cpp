@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <dirent.h> 
+#include <stdio.h>
 #include "unistd.h"
 
 Response::Response( int client_socket, webserv_conf &conf, Request const &req ) : conf(conf), req( req ) {
@@ -63,8 +65,24 @@ int	Response::send() {
 	return (status);
 }
 
+inline static char *string_to_char(std::string to_convert)
+{
+    int n = to_convert.length();
+ 
+    // declaring character array
+    char *char_array = new char [n + 1];
+ 
+    // copying the contents of the
+    // string to char array
+    strcpy(char_array, to_convert.c_str());
+	return char_array;
+}
+
 std::string auto_index_template( std::string url, std::string legacy_url );
 
+/**
+ * @todo free all string_to_char
+ */
 std::string Response::load_body( Request &req )
 {
 	std::string new_body;
@@ -73,35 +91,55 @@ std::string Response::load_body( Request &req )
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
 	}
 	else if (req.get_route().cgi_enable == true  && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
-
 		#ifdef DEBUG
-			std::cout << "CGI used" << std::endl;
+			std::cout << "CGI " << req.get_route().cgi_path.c_str() << " used for " << req.getUrl().c_str() << std::endl;
 		#endif
 
+		char * const cgi_env[] = {
+			string_to_char("CONTENT_LENGTH=" + to_string(req.getBody().length())),
+			string_to_char("GATEWAY_INTERFACE=CGI/1.1"),
+			string_to_char("QUERY_STRING=" + req.get_legacy_url()),
+			string_to_char("REMOTE_ADDR=127.0.0.1"),
+			string_to_char("REQUEST_METHOD="+req.getMethod()),
+			string_to_char("SCRIPT_NAME="+req.get_route().cgi_path),
+			string_to_char("SERVER_NAME=localhost"),
+			string_to_char("SERVER_PORT=3000"),
+			string_to_char("SERVER_PROTOCOL=HTTP/1.1"),
+			string_to_char("SERVER_SOFTWARE=webserv-1.0"),
+			string_to_char("REDIRECT_STATUS=200"),
+			string_to_char("PATH_INFO="+req.get_route().root),
+			string_to_char("SCRIPT_FILENAME="+req.getUrl()),
+			NULL
+		};
+
+		char * const args[] = {string_to_char("php-cgi"), NULL};
+
 		int pipe_fd[2];
-		pipe( pipe_fd );
+		if (pipe(pipe_fd) == -1) {
+			throw HTTPCode500();
+		}
+
 		int pid = fork();
+		if (pid == -1)
+			throw HTTPCode500();
 		if ( pid == 0 )
 		{
-			close( pipe_fd[0] );
-			dup2( pipe_fd[1], STDOUT_FILENO );
-			char *args[3];
-			args[0] = const_cast<char *> ( req.get_route().cgi_path.c_str() );
-			args[1] = const_cast<char *> ( req.getUrl().c_str() );
-			args[2] = NULL;
-			execve( req.get_route().cgi_path.c_str(), args, req.env );
-			exit(2);
-		}
-		close( pipe_fd[1] );
-		int status = 0;
-		waitpid( pid, &status, 0 );
+			close(pipe_fd[0]);
+			dup2(pipe_fd[1], STDOUT_FILENO);
 
-		if ( status != 0 ) {
-			throw HTTPCode500();
-			
-		this->add_header( "Content-Type", "text/html" );
-		new_body = read_fd( pipe_fd[0] );
-		close( pipe_fd[0] );
+			execve("/usr/bin/php-cgi", args, cgi_env );
+			exit(2);
+		} else {
+			close(pipe_fd[1]);
+			new_body = read_fd( pipe_fd[0] );
+
+			int status = 0;
+			waitpid( pid, &status, 0 );
+
+			if ( status != 0 )
+				throw HTTPCode500();
+			close( pipe_fd[0] );
+		}
 	}
 	else
 	{
@@ -109,31 +147,6 @@ std::string Response::load_body( Request &req )
 	}
 	this->body = new_body;
 	return this->body;
-}
-
-std::string error_template(std::string error_code, std::string message);
-
-std::string & Response::error_body(void) {
-
-	this->add_header("Content-Type", "text/html");
-	try
-	{
-		//this line throw an error if page not find
-		std::string filename = this->req.route.error_pages.at( this->status_code );
-		if ( usable_file( filename ) )
-			this->body = read_binary( filename );
-		else
-		{
-			this->set_status( 500, "Internal Server Error" );
-			this->body = error_template(this->get_str_code(), this->status_message);
-		}
-	}
-	catch(const std::exception& e)
-	{
-		this->body = error_template(this->get_str_code(), this->status_message);
-	}
-	
-	return (this->body);
 }
 
 std::string error_template(std::string error_code, std::string message) {
@@ -166,8 +179,28 @@ std::string error_template(std::string error_code, std::string message) {
 	</html>"));
 }
 
-#include <dirent.h> 
-#include <stdio.h>
+std::string & Response::error_body(void) {
+
+	this->add_header("Content-Type", "text/html");
+	try
+	{
+		//this line throw an error if page not find
+		std::string filename = this->req.route.error_pages.at( this->status_code );
+		if ( usable_file( filename ) )
+			this->body = read_binary( filename );
+		else
+		{
+			this->set_status( 500, "Internal Server Error" );
+			this->body = error_template(this->get_str_code(), this->status_message);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		this->body = error_template(this->get_str_code(), this->status_message);
+	}
+	
+	return (this->body);
+}
 
 std::string auto_index_template( std::string url, std::string legacy_url ) {
 

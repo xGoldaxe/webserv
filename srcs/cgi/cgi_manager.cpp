@@ -66,7 +66,7 @@ std::string CGIManager::exec(Request &req)
 
     int pid = fork();
     if (pid == -1) {
-        delete args[0];
+        delete [] arg;
         throw HTTPCode500();
     }
     if (pid == 0)
@@ -83,15 +83,18 @@ std::string CGIManager::exec(Request &req)
         result = read_fd(pipe_fd[0]);
 
         #ifdef DEBUG_FULL
-            std::cout << result << std::endl;
+            std::cout << "request content: " << result << std::endl;
         #endif
 
         int status = 0;
         waitpid(pid, &status, 0);
 
-        if (status != 0)
-            throw HTTPCode500();
         close(pipe_fd[0]);
+
+        if (status != 0) {
+            std::cerr << "500: \"" << result << "\"" << std::endl;
+            throw HTTPCode500();
+        }
     }
 
     delete [] arg;

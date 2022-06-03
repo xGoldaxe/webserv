@@ -69,11 +69,11 @@ std::string auto_index_template( std::string url, std::string legacy_url );
 std::string Response::load_body( Request &req )
 {
 	std::string new_body;
-	if (false /* req.auto_index */) {
+	if (req.auto_index) {
 		this->add_header("Content-Type", "text/html");
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
 	} else if (req.get_route().cgi_enable && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
-		CGIManager cgi("/usr/bin/php-cgi", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www");
+		CGIManager cgi(req.get_route().cgi_path, "/home/restray/42/webserv/tests-42");
 		new_body = cgi.exec(req);
 		this->add_header("Content-Type", "text/html");
 	} else {

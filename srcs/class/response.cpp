@@ -73,10 +73,9 @@ std::string Response::load_body( Request &req )
 		this->add_header("Content-Type", "text/html");
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
 	} else if (req.get_route().cgi_enable && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
-		std::vector<MimeType> cgi_mime_types;
-		cgi_mime_types.push_back(mimes.getMimeForExtension("php"));
-		CGIManager cgi(cgi_mime_types, "/usr/bin/php-cgi", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www");
+		CGIManager cgi("/usr/bin/php-cgi", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www");
 		new_body = cgi.exec(req);
+		this->add_header("Content-Type", "text/html");
 	} else {
 		try {
 			new_body = read_binary(req.getUrl());

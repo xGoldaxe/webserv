@@ -6,8 +6,9 @@
 
 #define SIZE 1024
 
-/* throw a server exeption in case of failure */
+MimeTypes mimes;
 
+/* throw a server exeption in case of failure */
 void process_request(int client_socket, char **env)
 {
 	std::string req_raw_data;
@@ -40,7 +41,15 @@ void process_request(int client_socket, char **env)
 	http_get_response(req, res);
 }
 
-MimeTypes mimes;
+void signalHandler(int signum)
+{
+	std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+	// cleanup and close up stuff here
+	// terminate program
+
+	exit(signum);
+}
 
 int main(int argc, char **argv, char **env)
 {
@@ -54,8 +63,8 @@ int main(int argc, char **argv, char **env)
 	std::cout << mimes.getMimeForExtension("html") << std::endl;
 	try {
 		std::cout << mimes.getMimeForExtension("inconnu") << std::endl;
-	} catch (MimeType::ExceptionUnknownMimeType *e) {
-		std::cout << e->what() << std::endl;
+	} catch (const MimeType::ExceptionUnknownMimeType &e) {
+		std::cout << e.what() << std::endl;
 	}
 
 	mimes.parseHTTP("Content-Type = text/html");
@@ -73,7 +82,8 @@ int main(int argc, char **argv, char **env)
 	// CGIManager cgi(cgi_mimes);
 	/* End of CGI Example                                                    *
 	*************************************************************************/
-	
+
+	signal(SIGINT, signalHandler);
 
 	Server serv = Server();
 	serv.init_connection();
@@ -91,6 +101,7 @@ int main(int argc, char **argv, char **env)
 			// close( evlist[i].data.fd );
 		}
 	}
+
 	/* connections must have a lifetime */
 	return 0;
 }

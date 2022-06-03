@@ -20,18 +20,17 @@ class CGIManager {
 public:
     typedef std::vector<std::string> t_headers_list;
     typedef std::map<std::string, std::string> t_header_value;
-    typedef std::vector<MimeType> t_mime_list;
 
-    CGIManager(t_mime_list mimes, std::string cgi_path, std::string path);
+    CGIManager(std::string cgi_path, std::string path);
     ~CGIManager();
     std::string    exec(Request &req);
 
 private:
-    std::vector<MimeType>   _mime_types;
     t_header_value          _headers;
-    std::vector<char *>     _c_headers;
+    char                    **_c_headers;
     std::string             _cgi_path;
 
     void addHeader(std::string name, std::string value);
     void computeEnvArray();
+    void cleanCHeaders();
 };

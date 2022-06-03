@@ -1,13 +1,12 @@
 #include "cgi_manager.hpp"
 
-inline static char *string_to_char(std::string to_convert)
+inline static void string_to_char(std::string to_convert, char **dest)
 {
-    char *cstr = new char[to_convert.length() + 1];
-    std::strcpy(cstr, to_convert.c_str());
-    return cstr;
+    *dest = new char[to_convert.length() + 1];
+    std::strcpy(*dest, to_convert.c_str());
 }
 
-CGIManager::CGIManager(t_mime_list mimes, std::string cgi_path, std::string path) : _mime_types(mimes)
+CGIManager::CGIManager(std::string cgi_path, std::string path)
 {
     /** @todo change this */
     this->addHeader("PATH_INFO", path);
@@ -27,25 +26,21 @@ CGIManager::CGIManager(t_mime_list mimes, std::string cgi_path, std::string path
 
     this->_cgi_path = cgi_path;
 
+    this->_c_headers = new char* [1];
+    this->_c_headers[0] = NULL;
+
     #ifdef DEBUG
-        std::cout << "CGI register for applications" << std::endl;
-        for (t_mime_list::iterator it = mimes.begin(); it != mimes.end(); it++) {
-            std::cout << " - " << *it << std::endl;
-        }
+        std::cout << "[CGI] New with " << cgi_path << " for " << path << std::endl;
     #endif
 }
 
 CGIManager::~CGIManager()
 {
-    
+    this->cleanCHeaders();
 }
 
 std::string CGIManager::exec(Request &req)
 {
-    #ifdef DEBUG
-        std::cout << "CGI " << req.get_route().cgi_path.c_str() << " used for " << req.getUrl().c_str() << std::endl;
-    #endif
-
     this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
     this->addHeader("QUERY_STRING", req.get_legacy_url());
     this->addHeader("REMOTE_ADDR", "127.0.0.1");
@@ -62,8 +57,10 @@ std::string CGIManager::exec(Request &req)
     if (pipe(pipe_fd) == -1)
         throw HTTPCode500();
 
+    char *arg;
+    string_to_char(this->_cgi_path, &arg);
     char *args[] = {
-        string_to_char(this->_cgi_path),
+        arg,
         NULL
     };
 
@@ -77,17 +74,15 @@ std::string CGIManager::exec(Request &req)
         close(pipe_fd[0]);
         dup2(pipe_fd[1], STDOUT_FILENO);
 
-        execve("/usr/bin/php-cgi", args, &this->_c_headers[0]);
+        execve("/usr/bin/php-cgi", args, this->_c_headers);
         exit(2);
     }
     else
     {
-        delete args[0];
-
         close(pipe_fd[1]);
         result = read_fd(pipe_fd[0]);
 
-        #ifdef DEBUG
+        #ifdef DEBUG_FULL
             std::cout << result << std::endl;
         #endif
 
@@ -99,6 +94,7 @@ std::string CGIManager::exec(Request &req)
         close(pipe_fd[0]);
     }
 
+    delete [] arg;
     return result;
 }
 
@@ -109,12 +105,28 @@ void CGIManager::addHeader(std::string name, std::string value)
 
 void CGIManager::computeEnvArray()
 {
-    for (std::vector<char *>::iterator it = this->_c_headers.begin(); it != this->_c_headers.end(); it++) {
-        delete [] *it;
-        this->_c_headers.erase(it);
-    }
+    // Free previous headers
+    this->cleanCHeaders();
 
-    for (t_header_value::iterator it = this->_headers.begin(); it != this->_headers.end(); it++) {
-        this->_c_headers.push_back(string_to_char(it->first + "=" + it->second));
+    // Allocate memory size
+    this->_c_headers = new char *[this->_headers.size() + 1];
+    int i = 0;
+
+    for (t_header_value::iterator it = this->_headers.begin(); it != this->_headers.end(); it++)
+    {
+        std::string res = (it->first + "=" + it->second);
+
+        this->_c_headers[i] = new char[res.length() + 1];
+        std::strcpy(this->_c_headers[i++], res.c_str());
     }
+    this->_c_headers[i] = NULL;
+}
+
+void CGIManager::cleanCHeaders()
+{
+    for (int i = 0; this->_c_headers[i] != NULL; i++)
+    {
+        delete [] this->_c_headers[i];
+    }
+    delete [] this->_c_headers;
 }

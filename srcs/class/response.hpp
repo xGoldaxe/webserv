@@ -2,6 +2,7 @@
 
 #include "request.hpp"
 #include "webserv_conf.hpp"
+#include "../errors/http_code.hpp"
 
 class Request;
 

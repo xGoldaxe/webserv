@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include "webserv.hpp"
+#include "errors/http_code.hpp"
 
 int http_GET( Request &req, Response &res ) {
 	
@@ -42,15 +43,20 @@ int http_get_response( Request &req, Response &res ) {
 	}
 	else
 	{
-		if ( verify_method( req, "GET" ) )
-			http_GET(req, res);
-		else if ( verify_method( req, "POST" ) )
-			http_GET(req, res);
-		else if ( verify_method( req, "DELETE" ) )
-			http_GET(req, res);
-		else
-		{
-			res.set_status( 405, "Method Not Allowed" );
+		try {
+			if ( verify_method( req, "GET" ) )
+				http_GET(req, res);
+			else if ( verify_method( req, "POST" ) )
+				http_GET(req, res);
+			else if ( verify_method( req, "DELETE" ) )
+				http_GET(req, res);
+			else
+			{
+				res.set_status( 405, "Method Not Allowed" );
+				res.error_body();
+			}
+		} catch (const HTTPCode5XX &e) {
+			res.set_status( e.getCode(), e.getDescription() );
 			res.error_body();
 		}
 		/* generic headers */

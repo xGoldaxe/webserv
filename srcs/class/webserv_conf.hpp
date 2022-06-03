@@ -13,7 +13,7 @@
 
 class Server_conf;
 
-#define SIZE_PARSING 12
+#define SIZE_PARSING 13
 
 #define SERVER_NAME_PARSING 0
 #define LISTEN_PARSING 1
@@ -27,6 +27,7 @@ class Server_conf;
 #define BODY_MAX_SIZE_PARSING 9
 #define SERVER_PARSING 10
 #define REWRITE_PARSING 11
+#define	AUTOINDEX_PARSING 12
 
 class Webserv_conf
 {

@@ -16,7 +16,7 @@ static int return_type_parse(std::string s)
 									  "root", "index",
 									  "methods", "enable_cgi",
 									  "cgi_extension", "body_max_size", "server",
-									  "rewrite"};
+									  "rewrite", "autoindex"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -213,8 +213,12 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case ENABLE_CGI_PARSING:
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered enable cgi outside of location");
 			break;
 		case CGI_EXTENSION_PARSING:
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered cgi extension outside of location");
 			break;
 		case BODY_MAX_SIZE_PARSING:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -238,6 +242,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			server = Server_conf(1);
 			break;
 		case REWRITE_PARSING:
+			break;
+		case AUTOINDEX_PARSING:
 			break;
 		default:
 			break;

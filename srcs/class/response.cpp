@@ -69,19 +69,21 @@ std::string auto_index_template( std::string url, std::string legacy_url );
 std::string Response::load_body( Request &req )
 {
 	std::string new_body;
-	if (false /* req.auto_index == true */ ) {
+	if (false /* req.auto_index */) {
 		this->add_header("Content-Type", "text/html");
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
-	}
-	else if (req.get_route().cgi_enable == true  && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
+	} else if (req.get_route().cgi_enable && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
 		std::vector<MimeType> cgi_mime_types;
-		cgi_mime_types.push_back(MimeType("application", "php", "php", true));
-		CGIManager cgi(cgi_mime_types, "/usr/bin/php-cgi");
+		cgi_mime_types.push_back(mimes.getMimeForExtension("php"));
+		CGIManager cgi(cgi_mime_types, "/usr/bin/php-cgi", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www");
 		new_body = cgi.exec(req);
-	}
-	else
-	{
-		new_body = read_binary( req.getUrl() );
+	} else {
+		try {
+			new_body = read_binary(req.getUrl());
+		} catch (const std::exception &e) {
+			std::cerr << e.what() << std::endl;
+			/** @todo On peut renvoyer une erreur 404 ici! */
+		}
 	}
 	this->body = new_body;
 	return this->body;

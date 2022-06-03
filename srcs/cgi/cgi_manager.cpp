@@ -7,10 +7,11 @@ inline static char *string_to_char(std::string to_convert)
     return cstr;
 }
 
-CGIManager::CGIManager(t_mime_list mimes, std::string cgi_path) : _mime_types(mimes)
+CGIManager::CGIManager(t_mime_list mimes, std::string cgi_path, std::string path) : _mime_types(mimes)
 {
     /** @todo change this */
-    this->addHeader("PATH_INFO", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www");
+    this->addHeader("PATH_INFO", path);
+
     this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");
     this->addHeader("QUERY_STRING", "");
     this->addHeader("REMOTE_ADDR", "");
@@ -26,11 +27,10 @@ CGIManager::CGIManager(t_mime_list mimes, std::string cgi_path) : _mime_types(mi
 
     this->_cgi_path = cgi_path;
 
-#ifdef DEBUG
-                          std::cout
-                      << "New CGI for following MIME:" << std::endl;
+    #ifdef DEBUG
+        std::cout << "CGI register for applications" << std::endl;
         for (t_mime_list::iterator it = mimes.begin(); it != mimes.end(); it++) {
-            std::cout << *it << std::endl;
+            std::cout << " - " << *it << std::endl;
         }
     #endif
 }

@@ -13,7 +13,7 @@ SRCS	=	main.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
 			cgi/cgi_manager.cpp \
-			errors/http_code.cpp
+			errors/http_code.cpp \
 
 HEADERS = errors/http_code.hpp \
 			init/exception_server_not_listening.hpp \
@@ -32,11 +32,11 @@ DEPS	=	${HEADERS:%.hpp=./srcs/%.hpp}
 
 NAME	=	webserv
 
-CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG
 
 RM		=	rm -rf
 
-CCP		=	c++
+CXX		=	c++
 
 # COLORS
 NONE			= \033[0m
@@ -46,9 +46,9 @@ B_GREEN			= \033[1;32m
 B_MAGENTA 		= \033[1;35m
 B_CYAN 			= \033[1;36m
 
-./.build/%.o : srcs/%.cpp $(DEPS)
+./.build/%.o: srcs/%.cpp $(DEPS)
 		@mkdir -p $(@D)
-		$(CCP) ${CPPFLAGS} -I. -o $@ -c $<
+		@$(CXX) $(CXXFLAGS) -Isrcs/ -o $@ -c $<
 		@printf "${B_MAGENTA}Compilling $< ...\n${NONE}"
 
 all:	
@@ -56,7 +56,7 @@ all:
 		@make ${NAME} --no-print-directory
 
 ${NAME}:	${OBJS}
-		@${CCP} ${CPPFLAGS} ${OBJS} -o ${NAME}
+		@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 		@printf "${B_GREEN}==>{${NAME}} LINKED SUCCESFULLY<==${NONE}\n"
 
 clean:

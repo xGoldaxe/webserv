@@ -24,7 +24,7 @@ class Route
 		Route( const Route &rhs );
 		~Route(void);
 
-		void	enable_cgi( std::string path );
+		void	enable_cgi( std::string path, std::string extension ) ;
 		void	add_error_page( int status_code, std::string error_message );
 		void	add_redirection( std::string url, std::string redirect_url );
 };

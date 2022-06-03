@@ -74,7 +74,7 @@ std::string CGIManager::exec(Request &req)
         close(pipe_fd[0]);
         dup2(pipe_fd[1], STDOUT_FILENO);
 
-        execve("/usr/bin/php-cgi", args, this->_c_headers);
+        execve(args[0], args, this->_c_headers);
         exit(2);
     }
     else

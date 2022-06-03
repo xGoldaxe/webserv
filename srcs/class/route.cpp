@@ -27,10 +27,10 @@ Route::Route( const Route &rhs ) : error_pages(rhs.error_pages), redirections(rh
 
 Route::~Route(void) {};
 
-void	Route::enable_cgi( std::string path ) {
+void	Route::enable_cgi( std::string path, std::string extension ) {
 	this->cgi_enable = true;
 	this->cgi_path = path;
-	this->cgi_extension = "php"; //its case sensitive!
+	this->cgi_extension = extension; // its case sensitive!
 }
 
 void	Route::add_error_page( int status_code, std::string error_message ) {

@@ -11,24 +11,18 @@ Route::Route( std::string location, std::string root ) {
 
 Route::Route( void ) {
 
-	this->auto_index = false;
+	this->auto_index = true;
 	this->cgi_enable = false;
 	index.push_back("index.html");
 	methods.push_back("GET");
 }
 
-Route::Route( const Route &rhs ) : 
-	error_pages(rhs.error_pages), 
-	redirections(rhs.redirections), 
-	auto_index(rhs.auto_index), 
-	cgi_enable(rhs.cgi_enable), 
-	cgi_path(rhs.cgi_path), 
-	cgi_extension(rhs.cgi_extension)
+Route::Route( const Route &rhs ) : error_pages(rhs.error_pages), redirections(rhs.redirections), auto_index(rhs.auto_index), cgi_enable(rhs.cgi_enable), cgi_path(rhs.cgi_path), cgi_extension(rhs.cgi_extension)
 {
 	this->root = finish_by_only_one( rhs.root, '/' );
 	this->location = finish_by_only_one( rhs.location, '/' );
-	this->index = rhs.index;
-	this->methods = rhs.methods;
+	index.push_back("index.html");
+	methods.push_back("GET");
 };
 
 Route::~Route(void) {};

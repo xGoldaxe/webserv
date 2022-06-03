@@ -13,7 +13,7 @@ SRCS	=	main.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
 			cgi/cgi_manager.cpp \
-			errors/http_code.cpp \
+			errors/http_code.cpp
 
 HEADERS = errors/http_code.hpp \
 			init/exception_server_not_listening.hpp \
@@ -48,7 +48,7 @@ B_CYAN 			= \033[1;36m
 
 ./.build/%.o : srcs/%.cpp $(DEPS)
 		@mkdir -p $(@D)
-		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $<
+		$(CCP) ${CPPFLAGS} -I. -o $@ -c $<
 		@printf "${B_MAGENTA}Compilling $< ...\n${NONE}"
 
 all:	

@@ -19,7 +19,7 @@ OBJS	=	${SRCS:%.cpp=./.build/%.o}
 
 NAME	=	webserv
 
-CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG
+CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG -g3
 
 RM		=	rm -rf
 

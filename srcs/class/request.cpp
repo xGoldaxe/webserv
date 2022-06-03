@@ -2,56 +2,6 @@
 #include <algorithm>
 #include <string.h>
 
-Route find_route(std::vector<Route> routes, std::string url)
-{
-
-	Route route;
-	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
-	{
-		std::string test_url = finish_by_only_one(url, '/');
-		if (test_url == it->get_location())
-		{
-			route = Route(*it, 1);
-		}
-	}
-	// std::cout << "const " << (*route)->error_pages.begin()->second << std::endl;
-
-	return route;
-}
-
-Request::Request(std::string raw_data, Webserv_conf &conf) : conf(conf)
-{
-
-	std::string line = raw_data.substr(0, raw_data.find("\r"));
-	std::vector<std::string> splitted_str = split_str(line);
-
-	this->route = conf.getServers()[0].getRoutes()[0]; // using the default fallback route
-
-	/* need further verifications */
-	if (splitted_str.size() != 3)
-	{
-		request_validity = false;
-		return;
-	}
-
-	// file informations
-	request_validity = true;
-	this->method = splitted_str[0];
-	this->legacy_url = splitted_str[1];
-	this->version = splitted_str[2];
-
-	// this->url = find_route( &this->route, conf.routes, this->legacy_url );
-	this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
-
-	this->url = this->route.get_root() + this->legacy_url.substr(this->legacy_url.find_first_of(this->route.get_location()) + this->route.get_location().size());
-	this->url = this->url.substr(0, this->url.size());
-
-	std::cout << this->url << std::endl;
-
-	this->row_data = raw_data;
-	this->auto_index = false;
-};
-
 Request::~Request(void)
 {}
 

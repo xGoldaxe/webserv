@@ -24,6 +24,10 @@ Route::Route(Route rhs, int notcopy)
 	(void)notcopy;
 	this->root = finish_by_only_one(rhs.root, '/');
 	this->location = finish_by_only_one(rhs.location, '/');
+	this->cgi_path = rhs.cgi_path;
+	this->cgi_extension = rhs.cgi_extension;
+	this->error_pages = rhs.error_pages;
+	this->redirections = rhs.redirections;
 	this->auto_index = true;
 	this->cgi_enable = false;
 	index.push_back("index.html");

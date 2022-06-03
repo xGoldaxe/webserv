@@ -4,7 +4,6 @@
 #include "response.hpp"
 #include "webserv_conf.hpp"
 
-
 class Request
 {
 
@@ -24,8 +23,8 @@ class Request
 		Route			route;
 		char			**env;
 
+		/* coplien */
 		Request( int socket_data, Webserv_conf &conf );
-		Request( std::string raw_data, Webserv_conf &conf );
 		Request( Request const &src );
 		~Request( void );
 

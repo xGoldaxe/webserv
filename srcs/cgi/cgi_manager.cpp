@@ -1,92 +1,120 @@
 #include "cgi_manager.hpp"
 
-CGIManager::CGIManager(t_mime_list mimes) : _mime_types(mimes)
+inline static char *string_to_char(std::string to_convert)
 {
-    this->setRequiredHeadersName();
-    this->fillServerInfos();
-    /** @todo change this */
-    this->_headers["PATH_INFO"] = "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www";
+    char *cstr = new char[to_convert.length() + 1];
+    std::strcpy(cstr, to_convert.c_str());
+    return cstr;
+}
 
-    #ifdef DEBUG
-        std::cout << "New CGI for following MIME:" << std::endl;
+CGIManager::CGIManager(t_mime_list mimes, std::string cgi_path) : _mime_types(mimes)
+{
+    /** @todo change this */
+    this->addHeader("PATH_INFO", "/mnt/nfs/homes/tbelhomm/Desktop/webserv/www");
+    this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");
+    this->addHeader("QUERY_STRING", "");
+    this->addHeader("REMOTE_ADDR", "");
+    this->addHeader("REQUEST_METHOD", "");
+    this->addHeader("SCRIPT_NAME", "");
+    this->addHeader("SERVER_NAME", "localhost");
+    this->addHeader("SERVER_PORT", "3000");
+    this->addHeader("SERVER_PROTOCOL", "HTTP/1.1");
+    this->addHeader("SERVER_SOFTWARE", "webserv-1.0");
+    this->addHeader("REDIRECT_STATUS", "200");
+    this->addHeader("PATH_INFO", cgi_path);
+    this->addHeader("SCRIPT_FILENAME", "");
+
+    this->_cgi_path = cgi_path;
+
+#ifdef DEBUG
+                          std::cout
+                      << "New CGI for following MIME:" << std::endl;
         for (t_mime_list::iterator it = mimes.begin(); it != mimes.end(); it++) {
             std::cout << *it << std::endl;
         }
     #endif
 }
 
-void CGIManager::exec(Request &req)
+CGIManager::~CGIManager()
 {
-    (void)req;
-    // this->_headers["QUERY_STRING"] = req.;
-    // this->_headers["CONTENT_LENGTH"] = to_string( req.body.size() );
-
-
-    // int pipe_fd[2];
-    // pipe(pipe_fd);
-    // int pid = fork();
-
-    // if (pid == 0) {
-    //     close( pipe_fd[0] );
-    //     dup2( pipe_fd[1], STDOUT_FILENO );
-    //     char *args[3];
-
-    //     for (char **env = req.env; *env != 0; env++)
-    //     {
-    //         char *thisEnv = *env;
-    //         printf("%s\n", thisEnv);    
-    //     }
-
-    //     args[0] = const_cast<char *> ( req.get_route().cgi_path.c_str() );
-    //     args[1] = const_cast<char *> ( req.getUrl().c_str() );
-    //     args[2] = NULL;
-    //     execve(req.get_route().cgi_path.c_str(), args, req.env);
-    //     exit(2);
-    // }
-
-    // close(pipe_fd[1]);
-    // int status = 0;
-    // waitpid(pid, &status, 0);
     
-    // if (status != 0) {
-    //     this->set_status( 500, "Internal Server Error" );
-    //     this->error_body();
-    // } else {
-    //     this->add_header( "Content-Type", "text/html" );
-    //     new_body = read_fd(pipe_fd[0]);
-    //     close(pipe_fd[0]);
-    // }
 }
 
-void CGIManager::setRequiredHeadersName(void)
+std::string CGIManager::exec(Request &req)
 {
-    t_headers_list headers;
+    #ifdef DEBUG
+        std::cout << "CGI " << req.get_route().cgi_path.c_str() << " used for " << req.getUrl().c_str() << std::endl;
+    #endif
 
-    headers.push_back("CONTENT_LENGTH");
-    headers.push_back("CONTENT_TYPE");
-    headers.push_back("GATEWAY_INTERFACE"); //
-    headers.push_back("PATH_INFO"); //
-    headers.push_back("QUERY_STRING"); //
-    headers.push_back("REMOTE_ADDR");
-    headers.push_back("REQUEST_METHOD");
-    headers.push_back("SCRIPT_NAME");
-    headers.push_back("SERVER_NAME"); //
-    headers.push_back("SERVER_PORT"); //
-    headers.push_back("SERVER_PROTOCOL"); //
-    headers.push_back("SERVER_SOFTWARE"); //
+    this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
+    this->addHeader("QUERY_STRING", req.get_legacy_url());
+    this->addHeader("REMOTE_ADDR", "127.0.0.1");
+    this->addHeader("REQUEST_METHOD", req.getMethod());
+    this->addHeader("SCRIPT_NAME", req.get_route().cgi_path);
+    this->addHeader("PATH_INFO", req.get_route().root);
+    this->addHeader("SCRIPT_FILENAME", req.getUrl());
 
-    for (t_headers_list::iterator it = headers.begin(); it != headers.end(); it++) {
-        this->_headers.insert(std::make_pair(*it, std::string("")));
+    this->computeEnvArray();
+
+    std::string result;
+
+    int pipe_fd[2];
+    if (pipe(pipe_fd) == -1)
+        throw HTTPCode500();
+
+    char *args[] = {
+        string_to_char(this->_cgi_path),
+        NULL
+    };
+
+    int pid = fork();
+    if (pid == -1) {
+        delete args[0];
+        throw HTTPCode500();
+    }
+    if (pid == 0)
+    {
+        close(pipe_fd[0]);
+        dup2(pipe_fd[1], STDOUT_FILENO);
+
+        execve("/usr/bin/php-cgi", args, &this->_c_headers[0]);
+        exit(2);
+    }
+    else
+    {
+        delete args[0];
+
+        close(pipe_fd[1]);
+        result = read_fd(pipe_fd[0]);
+
+        #ifdef DEBUG
+            std::cout << result << std::endl;
+        #endif
+
+        int status = 0;
+        waitpid(pid, &status, 0);
+
+        if (status != 0)
+            throw HTTPCode500();
+        close(pipe_fd[0]);
     }
 
-    return;
+    return result;
 }
 
-void CGIManager::fillServerInfos()
+void CGIManager::addHeader(std::string name, std::string value)
 {
-    this->_headers["GATEWAY_INTERFACE"] = "CGI/1.1";
-    this->_headers["SERVER_NAME"] = "localhost";
-    this->_headers["SERVER_PORT"] = "3000";
-    this->_headers["SERVER_PROTOCOL"] = "HTTP/1.1";
-    this->_headers["SERVER_SOFTWARE"] = WEBSERV_VERSION;
+    this->_headers[name] = value;
+}
+
+void CGIManager::computeEnvArray()
+{
+    for (std::vector<char *>::iterator it = this->_c_headers.begin(); it != this->_c_headers.end(); it++) {
+        delete [] *it;
+        this->_c_headers.erase(it);
+    }
+
+    for (t_header_value::iterator it = this->_headers.begin(); it != this->_headers.end(); it++) {
+        this->_c_headers.push_back(string_to_char(it->first + "=" + it->second));
+    }
 }

@@ -1,12 +1,8 @@
 #include "../webserv.hpp"
-#include <sys/types.h>
+#include "response.hpp"
 #include <sys/socket.h>
-#include <cstdlib>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <dirent.h> 
 #include <stdio.h>
-#include "unistd.h"
 
 Response::Response( int client_socket, webserv_conf &conf, Request const &req ) : conf(conf), req( req ) {
 	
@@ -65,19 +61,6 @@ int	Response::send() {
 	return (status);
 }
 
-inline static char *string_to_char(std::string to_convert)
-{
-    int n = to_convert.length();
- 
-    // declaring character array
-    char *char_array = new char [n + 1];
- 
-    // copying the contents of the
-    // string to char array
-    strcpy(char_array, to_convert.c_str());
-	return char_array;
-}
-
 std::string auto_index_template( std::string url, std::string legacy_url );
 
 /**
@@ -91,55 +74,10 @@ std::string Response::load_body( Request &req )
 		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
 	}
 	else if (req.get_route().cgi_enable == true  && get_extension( req.getUrl().c_str() ) == req.get_route().cgi_extension) {
-		#ifdef DEBUG
-			std::cout << "CGI " << req.get_route().cgi_path.c_str() << " used for " << req.getUrl().c_str() << std::endl;
-		#endif
-
-		char * const cgi_env[] = {
-			string_to_char("CONTENT_LENGTH=" + to_string(req.getBody().length())),
-			string_to_char("GATEWAY_INTERFACE=CGI/1.1"),
-			string_to_char("QUERY_STRING=" + req.get_legacy_url()),
-			string_to_char("REMOTE_ADDR=127.0.0.1"),
-			string_to_char("REQUEST_METHOD="+req.getMethod()),
-			string_to_char("SCRIPT_NAME="+req.get_route().cgi_path),
-			string_to_char("SERVER_NAME=localhost"),
-			string_to_char("SERVER_PORT=3000"),
-			string_to_char("SERVER_PROTOCOL=HTTP/1.1"),
-			string_to_char("SERVER_SOFTWARE=webserv-1.0"),
-			string_to_char("REDIRECT_STATUS=200"),
-			string_to_char("PATH_INFO="+req.get_route().root),
-			string_to_char("SCRIPT_FILENAME="+req.getUrl()),
-			NULL
-		};
-
-		char * const args[] = {string_to_char("php-cgi"), NULL};
-
-		int pipe_fd[2];
-		if (pipe(pipe_fd) == -1) {
-			throw HTTPCode500();
-		}
-
-		int pid = fork();
-		if (pid == -1)
-			throw HTTPCode500();
-		if ( pid == 0 )
-		{
-			close(pipe_fd[0]);
-			dup2(pipe_fd[1], STDOUT_FILENO);
-
-			execve("/usr/bin/php-cgi", args, cgi_env );
-			exit(2);
-		} else {
-			close(pipe_fd[1]);
-			new_body = read_fd( pipe_fd[0] );
-
-			int status = 0;
-			waitpid( pid, &status, 0 );
-
-			if ( status != 0 )
-				throw HTTPCode500();
-			close( pipe_fd[0] );
-		}
+		std::vector<MimeType> cgi_mime_types;
+		cgi_mime_types.push_back(MimeType("application", "php", "php", true));
+		CGIManager cgi(cgi_mime_types, "/usr/bin/php-cgi");
+		new_body = cgi.exec(req);
 	}
 	else
 	{

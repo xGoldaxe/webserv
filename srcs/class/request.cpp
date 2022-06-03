@@ -9,7 +9,7 @@ Route find_route(std::vector<Route> routes, std::string url)
 	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
 	{
 		std::string test_url = finish_by_only_one(url, '/');
-		if (strncmp(test_url.c_str(), it->get_location().c_str(), it->get_location().size() - 1) == 0)
+		if (test_url == it->get_location())
 		{
 			route = Route(*it, 1);
 		}

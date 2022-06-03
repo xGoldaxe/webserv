@@ -78,7 +78,7 @@ std::string Response::load_body(Request &req)
 		this->add_header("Content-Type", "text/html");
 		new_body = auto_index_template(req.getUrl(), req.get_legacy_url());
 	}
-	else if (req.get_route().get_cgi_enable() == true && get_extension(req.getUrl().c_str()) == req.get_route().get_cgi_extension())
+	else if (req.get_route().get_cgi_enable() && get_extension(req.getUrl()) == req.get_route().get_cgi_extension())
 	{
 
 		int pipe_fd[2];

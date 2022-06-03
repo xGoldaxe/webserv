@@ -24,6 +24,7 @@ class Request
 		Route			route;
 		char			**env;
 
+		Request( int socket_data, Webserv_conf &conf );
 		Request( std::string raw_data, Webserv_conf &conf );
 		Request( Request const &src );
 		~Request( void );

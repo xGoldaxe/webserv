@@ -54,17 +54,17 @@ void	Request::fill_body( std::string body ) {
 
 Route find_route( std::vector<Route> routes, std::string url );
 
-Request::Request( int socket_data, webserv_conf &conf ) : conf(conf) {
+Request::Request( int socket_data, Webserv_conf &conf ) : conf(conf) {
 
 	store_req( true, this );
 	preq::parse_request( socket_data, &( store_data_from_raw_req ) );
 
 	//file informations
 	request_validity = true;
-	this->route = find_route( conf.routes, this->legacy_url );
+	this->route = find_route( conf.getServers()[0].getRoutes(), this->legacy_url );
 
-	this->url = this->route.root
-				+ this->legacy_url.substr( this->legacy_url.find_first_of( this->route.location ) + this->route.location.size() );
+	this->url = this->route.get_root()
+				+ this->legacy_url.substr( this->legacy_url.find_first_of( this->route.get_location() ) + this->route.get_location().size() );
 	this->url = this->url.substr( 0, this->url.size() );
 
 	this->auto_index = false;
@@ -76,7 +76,7 @@ Route find_route( std::vector<Route> routes, std::string url ) {
 	for ( std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it )
 	{
 		std::string test_url = finish_by_only_one( url, '/' );
-		if ( strncmp( test_url.c_str(), it->location.c_str(), it->location.size() - 1 ) == 0 )
+		if ( strncmp( test_url.c_str(), it->get_location().c_str(), it->get_location().size() - 1 ) == 0 )
 		{
 			route = *it;
 		}

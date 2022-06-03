@@ -109,6 +109,11 @@ void Server_conf::setRoot(std::string root)
 	this->root.append(root);
 }
 
+void Server_conf::setRouteRoot(std::string root)
+{
+	this->routes.back().set_root(root);
+}
+
 void Server_conf::printServer()
 {
 #ifdef DEBUG

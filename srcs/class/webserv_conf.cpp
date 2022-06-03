@@ -12,13 +12,13 @@ static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;
 	std::string tab1[SIZE_PARSING] = {"server_name", "listen",
-						   "error_page", "location",
-						   "root", "index",
-						   "methods", "enable_cgi",
-						   "cgi_extension", "body_max_size", "server",
-						   "rewrite"};
-	//initializing vector like an array is only available at CPP 11+
-	//forced to create a regular array before putting inside a vector
+									  "error_page", "location",
+									  "root", "index",
+									  "methods", "enable_cgi",
+									  "cgi_extension", "body_max_size", "server",
+									  "rewrite"};
+	// initializing vector like an array is only available at CPP 11+
+	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
 
 	while (i < SIZE_PARSING)
@@ -150,12 +150,28 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				server.addRoute(Route(words[it + 1], words[it + 3], 1));
 			}
+			else if ((it + 1) < words.size() == 0)
+			{
+				server.addRoute(Route(words[it + 1]));
+			}
 			else
 			{
 				throw std::invalid_argument("Error parsing routes");
 			}
 			break;
 		case ROOT_PARSING:
+			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0)
+			{
+				if (contextlocation == 0)
+					server.setName(words[it + 1]);
+				else
+					server.setRouteRoot(words[it + 1]);
+				it = it + 2;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing root");
+			}
 			break;
 		case INDEX_PARSING:
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)

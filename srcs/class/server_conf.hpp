@@ -51,6 +51,7 @@ class Server_conf
 		void 							addLastRouteErrorPages(int error, std::string errorpage);
 		void							setBodyMaxSize(int body_max_size);
 		void							setRoot(std::string root);
+		void							setRouteRoot(std::string root);
 		void							printServer();
 
 

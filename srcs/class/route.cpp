@@ -10,6 +10,11 @@ Route::Route(void)
 	methods.push_back("GET");
 }
 
+Route::Route(std::string root) : root(root)
+{
+
+}
+
 // default route
 Route::Route(std::string location, std::string root) : root(root), location(location)
 {
@@ -150,6 +155,12 @@ void Route::printMethods()
 		std::cout << this->methods[itp];
 		itp++;
 	}
+}
+
+void Route::set_root(std::string root)
+{
+	this->root.clear();
+	this->root.append(root);
 }
 
 void Route::printRoute()

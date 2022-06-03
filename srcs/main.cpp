@@ -21,7 +21,7 @@ void process_request(int client_socket, char **env)
 	}
 
 	/* we will need further verification */
-	webserv_conf	conf; 
+	Webserv_conf	conf; 
 	
 	Request req( client_socket, conf );
 	req.env = env;
@@ -32,10 +32,42 @@ void process_request(int client_socket, char **env)
 
 MimeTypes mimes;
 
+//testing confparser if you type ./webserv testconf
+//to remove when done
+void testconf()
+{
+	
+	try
+	{
+		Webserv_conf conf = Webserv_conf("idOnotExist");
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
+		conf.getServers()[0].printServer();
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+}
+
 int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
+
+	if(argc == 2 && strcmp(argv[1],"testconf") == 0)
+	{
+		testconf();
+		return(0);
+	}
 
 	mimes.setDefault();
 

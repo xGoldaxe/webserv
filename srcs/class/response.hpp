@@ -12,7 +12,7 @@ class Response
 {
 
 	private:
-		const webserv_conf						&conf;
+		const Webserv_conf						&conf;
 		std::string								version;
 		std::map<std::string, std::string>		headers;
 		const Request							&req;
@@ -28,7 +28,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response( int client_socket, webserv_conf &conf, const Request &req );
+		Response( int client_socket, Webserv_conf &conf, const Request &req );
 		Response( Response const &src );
 		~Response( void );
 
@@ -40,5 +40,5 @@ class Response
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		int	send(void);
-		const webserv_conf &get_conf() const { return conf; };
+		const Webserv_conf &get_conf() const;
 };

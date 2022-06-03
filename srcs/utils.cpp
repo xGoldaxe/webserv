@@ -77,7 +77,7 @@ std::string	read_fd( int fd ) {
 	std::string	res;
 	while (readed != 0)
 	{
-		bzero(buff, 256);
+		std::memset(buff, 0, 256);
 		readed = read( fd, buff, 255 );
 		buff[readed] = '\0';
 		res += buff;
@@ -98,9 +98,6 @@ std::vector<std::string>	split_str( std::string str ) {
 	std::stringstream stream_str( str );
 	std::string buffer_str;
 	while ( std::getline(stream_str, buffer_str, ' ') )
-	{
 		splitted_str.push_back(buffer_str);
-		// std::cout << str;
-	}
 	return	splitted_str;
 }

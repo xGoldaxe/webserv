@@ -45,8 +45,8 @@ std::string CGIManager::exec(Request &req)
     this->addHeader("QUERY_STRING", req.get_legacy_url());
     this->addHeader("REMOTE_ADDR", "127.0.0.1");
     this->addHeader("REQUEST_METHOD", req.getMethod());
-    this->addHeader("SCRIPT_NAME", req.get_route().cgi_path);
-    this->addHeader("PATH_INFO", req.get_route().root);
+    this->addHeader("SCRIPT_NAME", req.get_route().get_cgi_path());
+    this->addHeader("PATH_INFO", req.get_route().get_root());
     this->addHeader("SCRIPT_FILENAME", req.getUrl());
 
     this->computeEnvArray();

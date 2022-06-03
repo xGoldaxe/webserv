@@ -21,23 +21,13 @@ void process_request(int client_socket, char **env)
 		return ;
 	}
 
-	bzero(buffer,256);
-	int n = 255;
-	while ( n == 255 )
-	{
-		bzero(buffer,256);
-		n = read(client_socket, buffer, 255);
-		buffer[n] = '\0';
-		req_raw_data += buffer;
-	}
 	/* we will need further verification */
-	webserv_conf	conf; 
+	Webserv_conf	conf; 
 	
-	Request req( req_raw_data, conf );
+	Request req( client_socket, conf );
 	req.env = env;
 	Response res( client_socket, conf, req );
 
-	// std::cout << "request url: " << req.getUrl() << std::endl;
 	http_get_response(req, res);
 }
 
@@ -51,10 +41,42 @@ void signalHandler(int signum)
 	exit(signum);
 }
 
+//testing confparser if you type ./webserv testconf
+//to remove when done
+void testconf()
+{
+	
+	try
+	{
+		Webserv_conf conf = Webserv_conf("idOnotExist");
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	try
+	{
+		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
+		conf.getServers()[0].printServer();
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+}
+
 int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
+
+	if(argc == 2 && strcmp(argv[1],"testconf") == 0)
+	{
+		testconf();
+		return(0);
+	}
 
 	mimes.setDefault();
 
@@ -97,8 +119,6 @@ int main(int argc, char **argv, char **env)
 		{
 			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
 			process_request( evlist[i].data.fd, env );
-			// std::cout << "now closing connection, fd: " << evlist[i].data.fd << std::endl;
-			// close( evlist[i].data.fd );
 		}
 	}
 

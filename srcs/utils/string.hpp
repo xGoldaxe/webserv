@@ -13,3 +13,4 @@ std::string to_string(T convert)
 
 std::string finish_by_only_one(std::string str, char c);
 std::string get_extension(std::string file_name);
+std::string intToHex(int nb);

@@ -1,5 +1,7 @@
 #include "response.hpp"
 
+#define MAX_BODY_LENGTH 1024
+
 inline static std::string read_binary(std::string filename)
 {
 	std::ifstream input(filename.c_str(), std::ios::binary);
@@ -56,15 +58,36 @@ int Response::send()
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
 		raw_response += "\n" + it->first + ": " + it->second;
 	raw_response += "\r\n\n";
-	raw_response += body;
 
-#ifdef PRINT_REQ
-	std::cout << "<====>" << std::endl;
-	std::cout << raw_response << std::endl;
-	std::cout << "<====>" << std::endl;
-#endif
+	#ifdef PRINT_REQ
+		std::cout << "<====>" << std::endl;
+		std::cout << raw_response << std::endl;
+		std::cout << "<====>" << std::endl;
+	#endif
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
+
+	if (this->body.size() > MAX_BODY_LENGTH)
+	{
+		std::cout << this->body.size() << std::endl;
+		while (status > 0 && this->body.size() > 0)
+		{
+			std::string response_body(this->body, 0, std::min<size_t>(1024, this->body.size()));
+			std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
+			status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+			this->body.erase(0, 1024);
+			std::cout << this->body.size() << std::endl;
+		}
+
+		std::cout << this->body.size() << std::endl;
+
+		if (status >= 0) {
+			std::string response_content = "0\r\n\r\n";
+			status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+		}
+	} else {
+		status = ::send(this->client_socket, this->body.c_str(), this->body.size(), 0);
+	}
 
 	return (status);
 }

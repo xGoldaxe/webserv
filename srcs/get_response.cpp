@@ -20,7 +20,8 @@ int http_get_response( Request &req, Response &res ) {
 	/* generic headers */
 	http_header_date(req, res);
 	http_header_server(req, res);
-	res.add_header( "Connection", "keep-alive" );
+	res.add_header("Connection", "Keep-Alive");
+	res.add_header("Keep-Alive", "timeout=5, max=10000");
 
 	res.send();
 	

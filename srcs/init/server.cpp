@@ -1,7 +1,5 @@
 #include "server.hpp"
 
-#include <strings.h>
-
 Server::Server() : _socket_fd(0), _poll_fd(0)
 {
     this->_port = 3000;
@@ -35,6 +33,8 @@ int Server::get_poll_fd() const
 void Server::init_connection()
 {
     this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    this->_bind_port();
 
     if (listen(this->_socket_fd, BACKLOG) < 0)
         throw ServerNotListeningException();
@@ -82,7 +82,6 @@ void Server::handle_client()
         ev.events = EPOLLET | EPOLLIN;
         ev.data.fd = client_socket;
         epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
-        std::cout << "========>new registered connection!<========" << std::endl;
     }
 }
 
@@ -104,4 +103,18 @@ void Server::_report(s_server_addr_in *server_addr)
         std::cout << "It's not working!" << std::endl;
     }
     std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
+}
+
+void Server::_bind_port()
+{
+    int i = 0;
+    while (bind(this->_socket_fd, (s_server_addr) & this->_addr, sizeof(this->_addr)) == -1 && i < 100)
+    {
+        if (i % 10 == 0)
+        {
+            std::cerr << "Can't bind port " << this->_port << ". Retrying in 10sec. (Try " << (i / 10) << "/10)" << std::endl;
+        }
+        sleep(1);
+        i++;
+    }
 }

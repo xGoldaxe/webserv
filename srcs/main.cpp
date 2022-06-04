@@ -39,9 +39,6 @@ void signalHandler(int signum)
 
 int main(int argc, char **argv, char **env)
 {
-	(void)argc;
-	(void)argv;
-
 	if (argc == 2 && argv[1])
 	{
 		try
@@ -57,17 +54,16 @@ int main(int argc, char **argv, char **env)
 	
 	mimes.setDefault();
 
-	signal(SIGINT, signalHandler);
-
 	Server serv = Server();
-	try
-	{
+	try {
 		serv.init_connection();
 	} catch (const std::exception &e) {
 		std::cerr << "Can't launch server!" << std::endl;
 		std::cerr << e.what() << std::endl;
 		return (1);
 	}
+
+	signal(SIGINT, signalHandler);
 
 	exit_code = 0;
 

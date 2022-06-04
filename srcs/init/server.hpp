@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstring>
+#include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -46,4 +49,5 @@ class Server {
         int                 _poll_fd;
 
         void     _report(s_server_addr_in *server_addr);
+        void     _bind_port();
 };

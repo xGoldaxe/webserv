@@ -1,10 +1,10 @@
-#include "init/server.hpp"
-
 #include "webserv.hpp"
+#include "init/server.hpp"
 
 #define SIZE 1024
 
 MimeTypes mimes;
+int exit_code;
 
 /* throw a server exeption in case of failure */
 void process_request(int client_socket, char **env)
@@ -31,38 +31,28 @@ void process_request(int client_socket, char **env)
 
 void signalHandler(int signum)
 {
-	std::cout << "Interrupt signal (" << signum << ") received.\n";
+	std::cout << std::endl
+			  << "Goodbye! That was cool top have you :)" << std::endl;
 
-	// cleanup and close up stuff here
-	// terminate program
-
-	exit(signum);
+	exit_code = signum;
 }
 
 //testing confparser if you type ./webserv testconf
 //to remove when done
 void testconf()
 {
-	
-	try
-	{
+	try {
 		Webserv_conf conf = Webserv_conf("idOnotExist");
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() << '\n';
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << std::endl;
 	}
 
-	try
-	{
+	try {
 		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
 		conf.getServers()[0].printServer();
+	} catch (const std::exception &e) {
+		std::cerr << e.what() << std::endl;
 	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
 }
 
 int main(int argc, char **argv, char **env)
@@ -78,41 +68,18 @@ int main(int argc, char **argv, char **env)
 
 	mimes.setDefault();
 
-	/************************************************************************
-	 * Example of working mimes parsing                                     */
-	std::cout << mimes.getMimeForExtension("html") << std::endl;
-	try {
-		std::cout << mimes.getMimeForExtension("inconnu") << std::endl;
-	} catch (const MimeType::ExceptionUnknownMimeType &e) {
-		std::cout << e.what() << std::endl;
-	}
-
-	mimes.parseHTTP("Content-Type = text/html");
-	mimes.parseHTTP("Content-Type = text/html; charset=utf-8");
-	mimes.parseHTTP("Content-Type = text/html ;Charset=utf-8");
-	mimes.parseHTTP("Content-Type = text/html ; charset=utf-8");
-
-	/* End of Example                                                       *
-	*************************************************************************/
-
-	/*************************************************************************
-	 * Example CGI Manager usage											 */
-	// std::vector<MimeType> cgi_mimes;
-	// cgi_mimes.push_back(mimes.getMimeForExtension("php"));
-	// CGIManager cgi(cgi_mimes);
-	/* End of CGI Example                                                    *
-	*************************************************************************/
-
 	signal(SIGINT, signalHandler);
 
 	Server serv = Server();
 	serv.init_connection();
 
-	while (true) {
+	exit_code = 0;
+
+	while (exit_code == 0) {
 		serv.handle_client();
 
-		struct epoll_event evlist[1024];
-		int nbr_req = epoll_wait(serv.get_poll_fd(), evlist, 1024, 0);
+		struct epoll_event evlist[SIZE];
+		int nbr_req = epoll_wait(serv.get_poll_fd(), evlist, SIZE, 0);
 		for (int i = 0; i < nbr_req; ++i)
 		{
 			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
@@ -120,6 +87,5 @@ int main(int argc, char **argv, char **env)
 		}
 	}
 
-	/* connections must have a lifetime */
-	return 0;
+	return (exit_code);
 }

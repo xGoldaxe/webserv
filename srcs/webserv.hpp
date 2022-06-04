@@ -1,8 +1,5 @@
 #pragma once
 
-#include <sys/types.h>
-#include <stdlib.h>
-
 #include "internal/mime_types.hpp"
 
 #include "class/route.hpp"

@@ -8,8 +8,8 @@ Server::Server()
 
     this->_port = 3000;
 
-        this->_addr.sin_family = AF_INET;
-    this->_addr.sin_port = htons(3000);
+    this->_addr.sin_family = AF_INET;
+    this->_addr.sin_port = htons(this->_port);
     this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
     this->_select_port();
@@ -22,6 +22,8 @@ Server::Server()
 
 Server::~Server()
 {
+    close(this->_poll_fd);
+    close(this->_socket_fd);
     std::cout << "Server closed." << std::endl;
 }
 

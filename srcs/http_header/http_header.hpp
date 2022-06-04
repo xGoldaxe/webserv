@@ -1,6 +1,7 @@
 #pragma once
-#include "../class/request.hpp"
-#include "../class/response.hpp"
+
+#include "class/request.hpp"
+#include "class/response.hpp"
 
 class Request;
 class Response;

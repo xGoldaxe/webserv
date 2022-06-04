@@ -1,23 +1,24 @@
 SRCS	=	main.cpp \
 			get_response.cpp \
-			utils.cpp \
+			utils/file.cpp \
+			utils/string.cpp \
 			init/server.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \
 			class/request_constructor.cpp \
 			class/response.cpp \
 			class/route.cpp \
-			class/webserv_conf.cpp \
-			class/server_conf.cpp \
+			configuration/webserv.cpp \
+			configuration/server.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
 			cgi/cgi_manager.cpp \
-			errors/http_code.cpp \
+			errors/http_code.cpp
 
-HEADERS = errors/http_code.hpp \
+HEADERS =	errors/http_code.hpp \
 			init/exception_server_not_listening.hpp \
 			init/server.hpp \
 			http_header/http_header.hpp \
@@ -25,16 +26,20 @@ HEADERS = errors/http_code.hpp \
 			class/request.hpp \
 			class/response.hpp \
 			class/route.hpp \
-			class/webserv_conf.hpp \
+			configuration/webserv.hpp \
+			configuration/server.hpp \
 			cgi/cgi_manager.hpp \
 			internal/mime_types.hpp \
+			utils/go_through_until.hpp \
+			utils/file.hpp \
+			utils/string.hpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
-DEPS	=	${HEADERS:%.hpp=./srcs/%.hpp}
+DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG -g -O2
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG # -g -O2
 
 RM		=	rm -rf
 
@@ -55,7 +60,7 @@ B_CYAN 			= \033[1;36m
 
 all:	
 		@mkdir -p .build
-		@make ${NAME} --no-print-directory
+		@make $(NAME) --no-print-directory
 
 ${NAME}:	${OBJS}
 		@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)

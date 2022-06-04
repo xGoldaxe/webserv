@@ -1,7 +1,5 @@
 #include "init/server.hpp"
 
-#include <strings.h>
-
 #include "webserv.hpp"
 
 #define SIZE 1024

@@ -1,10 +1,14 @@
 #pragma once
 
-#include "request.hpp"
-#include "webserv_conf.hpp"
+#include <sys/socket.h>
+#include <dirent.h>
+#include <stdio.h>
 #include <vector>
-#include "../errors/http_code.hpp"
-#include "../cgi/cgi_manager.hpp"
+
+#include "request.hpp"
+#include "configuration/webserv.hpp"
+#include "errors/http_code.hpp"
+#include "cgi/cgi_manager.hpp"
 
 class Request;
 

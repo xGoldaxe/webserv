@@ -1,6 +1,4 @@
-#include "../webserv.hpp"
-#include <algorithm>
-#include <string.h>
+#include "request.hpp"
 
 Request::~Request(void)
 {}

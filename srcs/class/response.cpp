@@ -1,8 +1,12 @@
-#include "../webserv.hpp"
 #include "response.hpp"
-#include <sys/socket.h>
-#include <dirent.h> 
-#include <stdio.h>
+
+inline static std::string read_binary(std::string filename)
+{
+	std::ifstream input(filename.c_str(), std::ios::binary);
+	std::istreambuf_iterator<char> it(input), end;
+	std::string ss(it, end);
+	return ss;
+}
 
 Response::Response(int client_socket, Webserv_conf &conf, Request const &req) : conf(conf), req(req)
 {

@@ -1,4 +1,7 @@
-#include "webserv.hpp"
+#pragma once
+
+#include <vector>
+#include <string>
 
 template < class exception >
 std::string	go_through_it_until

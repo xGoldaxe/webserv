@@ -3,7 +3,8 @@
 #include <exception>
 #include <string>
 #include <cstring>
-#include "../webserv.hpp"
+
+#include "utils/string.hpp"
 
 class HTTPError : public std::exception
 {

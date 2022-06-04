@@ -1,40 +1,31 @@
 #include "route.hpp"
-#include "../webserv.hpp"
 
-Route::Route(void)
+Route::Route(void) : auto_index(true), cgi_enable(false)
 {
-
-	this->auto_index = true;
-	this->cgi_enable = false;
 	index.push_back("index.html");
 	methods.push_back("GET");
 }
 
 Route::Route(std::string root) : root(root)
-{
-
-}
+{}
 
 // default route
-Route::Route(std::string location, std::string root) : root(root), location(location)
+Route::Route(std::string location, std::string root) : root(root), location(location), auto_index(false), cgi_enable(false)
 {
 	index.push_back("index.html");
 	methods.push_back("GET");
-	this->auto_index = false;
-	this->cgi_enable = false;
 }
 
-Route::Route(Route rhs, int notcopy)
+Route::Route(Route rhs, int notcopy) : error_pages(rhs.error_pages),
+									   redirections(rhs.redirections),
+									   auto_index(rhs.auto_index),
+									   cgi_enable(rhs.cgi_enable),
+									   cgi_path(rhs.cgi_path),
+									   cgi_extension(rhs.cgi_extension)
 {
 	(void)notcopy;
 	this->root = finish_by_only_one(rhs.root, '/');
 	this->location = finish_by_only_one(rhs.location, '/');
-	this->cgi_path = rhs.cgi_path;
-	this->cgi_extension = rhs.cgi_extension;
-	this->error_pages = rhs.error_pages;
-	this->redirections = rhs.redirections;
-	this->auto_index = rhs.auto_index;
-	this->cgi_enable = rhs.cgi_enable;
 	index.push_back("index.html");
 	methods.push_back("GET");
 }
@@ -70,8 +61,7 @@ Route &Route::operator=(const Route &rhs)
 }
 
 Route::~Route(void)
-{
-}
+{}
 
 bool Route::get_auto_index(void)
 {
@@ -147,6 +137,7 @@ void Route::add_redirection(std::string url, std::string redirect_url)
 
 void Route::printMethods()
 {
+	#ifdef DEBUG
 	std::cout << std::endl;
 	unsigned int itp = 0;
 
@@ -155,6 +146,7 @@ void Route::printMethods()
 		std::cout << this->methods[itp];
 		itp++;
 	}
+	#endif
 }
 
 void Route::set_root(std::string root)

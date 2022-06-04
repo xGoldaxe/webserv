@@ -1,4 +1,4 @@
-#include "webserv_conf.hpp"
+#include "webserv.hpp"
 
 // default values
 Webserv_conf::Webserv_conf(void)

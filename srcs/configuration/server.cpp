@@ -1,4 +1,4 @@
-#include "server_conf.hpp"
+#include "server.hpp"
 
 Server_conf::Server_conf(void)
 {

@@ -1,8 +1,18 @@
 #pragma once
 
+#include <algorithm>
+#include <string.h>
+
+#include "utils/go_through_until.hpp"
+#include "utils/string.hpp"
+#include "utils/file.hpp"
+
 #include "route.hpp"
 #include "response.hpp"
-#include "webserv_conf.hpp"
+#include "configuration/webserv.hpp"
+#include "http_header/http_header.hpp"
+
+class Response;
 
 class Request
 {

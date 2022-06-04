@@ -18,13 +18,6 @@ inline static std::string rtrim(std::string s)
 	return s;
 }
 
-// trim from both ends
-// inline static std::string trim(std::string s)
-// {
-// 	return ltrim(rtrim(s));
-// }
-
-
 MimeType::MimeType(const std::string name, const std::string extension, const std::string types, const bool cgi_needed) : _name(name), _extension(extension), _types(types), _cgi(cgi_needed)
 {}
 

@@ -1,0 +1,24 @@
+server
+{
+	server_name = Uno ;
+}
+
+server
+{
+	server_name = Duo ;
+
+	location /test
+	{
+		root ./imaginary ;
+	}
+}
+
+server
+{
+	server_name = Tres ;
+}
+
+server
+{
+	server_name = Quatros ;
+}

@@ -12,19 +12,19 @@ void process_request(int client_socket, char **env)
 	std::string req_raw_data;
 	char buffer[256];
 	/* with MSG_PEEK, no data will be ride of the socket */
-	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	if (recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
 	{
 		std::cout << "Client close remote: " << client_socket << std::endl;
-		close( client_socket );
-		return ;
+		close(client_socket);
+		return;
 	}
 
 	/* we will need further verification */
-	Webserv_conf	conf; 
-	
-	Request req( client_socket, conf );
+	Webserv_conf conf;
+
+	Request req(client_socket, conf);
 	req.env = env;
-	Response res( client_socket, conf, req );
+	Response res(client_socket, conf, req);
 
 	http_get_response(req, res);
 }
@@ -36,11 +36,12 @@ void signalHandler(int signum)
 
 	exit_code = signum;
 }
+MimeTypes mimes;
 
 int main(int argc, char **argv, char **env)
 {
-	(void) argc;
-	(void) argv;
+	(void)argc;
+	(void)argv;
 
 	if (argc == 2 && argv[1])
 	{
@@ -79,7 +80,7 @@ int main(int argc, char **argv, char **env)
 		for (int i = 0; i < nbr_req; ++i)
 		{
 			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
-			process_request( evlist[i].data.fd, env );
+			process_request(evlist[i].data.fd, env);
 		}
 	}
 

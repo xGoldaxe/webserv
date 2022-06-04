@@ -28,6 +28,10 @@ Server_conf::Server_conf(int emp)
 	this->server_name = DEFAULT_SERVER_NAME;
 	// default root
 	this->root = DEFAULT_ROOT;
+	//default body max size
+	this->body_max_size = DEFAULT_BODY_MAX_SIZE;
+	//default port
+	this->port.push_back(DEFAULT_PORT);
 }
 
 std::list<short> Server_conf::getPort() const
@@ -142,6 +146,8 @@ void Server_conf::printServer()
 
 	std::cout << "Index : ";
 
+	if (this->index.empty())
+		std::cout << "None";
 	for (iti = this->index.begin(); iti != this->index.end(); iti++)
 	{
 		std::cout << *iti;
@@ -157,6 +163,8 @@ void Server_conf::printServer()
 
 	std::cout << "Routes : ";
 	std::cout << std::endl;
+	if (this->routes.empty())
+		std::cout << "None";
 	while (itr < this->routes.size())
 	{
 		this->routes[itr].printRoute();

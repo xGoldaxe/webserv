@@ -39,6 +39,7 @@ class Webserv_conf
 		Webserv_conf(std::string filename);
 		std::vector<Server_conf> getServers() const;
 		std::string				 getHttpVersion() const;
+		static void 			testconf(char *argv);
 
 /* exceptions */
         class FailedToOpenFile : public std::exception	{

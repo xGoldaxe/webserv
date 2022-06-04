@@ -1,8 +1,18 @@
 #pragma once
 
+#include <algorithm>
+#include <string.h>
+
+#include "utils/go_through_until.hpp"
+#include "utils/string.hpp"
+#include "utils/file.hpp"
+
 #include "route.hpp"
 #include "response.hpp"
-#include "webserv_conf.hpp"
+#include "configuration/webserv.hpp"
+#include "http_header/http_header.hpp"
+
+class Response;
 
 class Request
 {
@@ -45,10 +55,14 @@ class Request
 		std::string getUrl(void);
 		std::string get_legacy_url(void);
 		std::string getRelativeUrl(void);
-		std::string try_url( Response & res );
 		Route		get_route(void);
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
+
+		void		try_url( Response & res );
+		void		check_file_url(void);
+		bool		is_redirection( std::string &redir_str );
+
 
 		/* exceptions */
         class invalid_http_request : public std::exception	{

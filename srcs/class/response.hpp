@@ -1,7 +1,16 @@
 #pragma once
 
+#include <sys/socket.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <vector>
+
 #include "request.hpp"
-#include "webserv_conf.hpp"
+#include "configuration/webserv.hpp"
+#include "errors/http_code.hpp"
+#include "cgi/cgi_manager.hpp"
+
+class Request;
 
 class Response
 {

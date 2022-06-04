@@ -2,26 +2,23 @@
 
 #include <strings.h>
 
-Server::Server()
+Server::Server() : _socket_fd(0), _poll_fd(0)
 {
-    this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-
     this->_port = 3000;
 
-        this->_addr.sin_family = AF_INET;
-    this->_addr.sin_port = htons(3000);
+    this->_addr.sin_family = AF_INET;
+    this->_addr.sin_port = htons(this->_port);
     this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-
-    this->_select_port();
-
-    if (listen(this->_socket_fd, BACKLOG) < 0)
-        throw new ServerNotListeningException;
-
-    this->_report(&this->_addr);
 }
 
 Server::~Server()
 {
+    if (this->_poll_fd > 0)
+        close(this->_poll_fd);
+
+    if (this->_socket_fd > 0)
+        close(this->_socket_fd);
+
     std::cout << "Server closed." << std::endl;
 }
 
@@ -37,6 +34,13 @@ int Server::get_poll_fd() const
 
 void Server::init_connection()
 {
+    this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (listen(this->_socket_fd, BACKLOG) < 0)
+        throw ServerNotListeningException();
+
+    this->_report(&this->_addr);
+
     this->_poll_fd = epoll_create1(O_CLOEXEC);
     fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
 }
@@ -82,19 +86,6 @@ void Server::handle_client()
     }
 }
 
-short Server::_select_port()
-{
-    while (bind(this->_socket_fd, (s_server_addr)&this->_addr, sizeof(this->_addr)) == -1)
-    {
-        this->_addr.sin_port = htons(++this->_port);
-        #ifdef DEBUG
-            std::cout << this->_port << std::endl;
-        #endif
-    }
-
-    return this->_port;
-}
-
 void Server::_report(s_server_addr_in *server_addr)
 {
     char host_buffer[INET6_ADDRSTRLEN];
@@ -112,5 +103,5 @@ void Server::_report(s_server_addr_in *server_addr)
     {
         std::cout << "It's not working!" << std::endl;
     }
-    std::cout << "\n\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
+    std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }

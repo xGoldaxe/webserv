@@ -1,4 +1,4 @@
-#include "webserv_conf.hpp"
+#include "webserv.hpp"
 
 // default values
 Webserv_conf::Webserv_conf(void)
@@ -157,7 +157,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				server.addRoute(Route(words[it + 1], words[it + 3], 1));
 			}
-			else if ((it + 1) < words.size() == 0)
+			else if (!((it + 1) < words.size()))
 			{
 				server.addRoute(Route(words[it + 1]));
 			}

@@ -6,8 +6,12 @@ int	http_header_content_type( Request &req, Response &res )
 
 	try {
 		MimeType mi = mimes.getMimeForExtension(ext);
-		res.add_header("Content-Type", mi.getContentType());
-	} catch(MimeType::ExceptionUnknownMimeType *e) {
+		if (!mi.needCGI()) {
+			res.add_header("Content-Type", mi.getContentType());
+		} else {
+			res.add_header("Content-Type", mimes.getMimeForExtension("html").getContentType());
+		}
+	} catch(const MimeType::ExceptionUnknownMimeType &e) {
 		res.add_header("Content-Type", "application/octet-stream");
 	}
 

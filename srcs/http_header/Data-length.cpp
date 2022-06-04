@@ -3,6 +3,6 @@
 int	http_header_content_length( const Request &req, Response &res ) {
 
 	(void) req;
-	res.add_header( "Content-Length", to_string( res.body.size() ) + " bytes");
+	res.add_header( "Content-Length", to_string( res.body.size() ));
 	return (1);
 }

@@ -1,15 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <list>
+#include <cstdlib>
+#include <limits>
 #include <fstream>
 #include <sstream>
-#include "route.hpp"
-#include <list>
 #include <algorithm>
-#include <cstring>
-#include <limits>
-#include <cstdlib>
-#include "server_conf.hpp"
+
+#include "class/route.hpp"
+#include "server.hpp"
 
 class Server_conf;
 

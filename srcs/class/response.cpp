@@ -1,10 +1,12 @@
-#include "../webserv.hpp"
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <cstdlib>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include "unistd.h"
+#include "response.hpp"
+
+inline static std::string read_binary(std::string filename)
+{
+	std::ifstream input(filename.c_str(), std::ios::binary);
+	std::istreambuf_iterator<char> it(input), end;
+	std::string ss(it, end);
+	return ss;
+}
 
 Response::Response(int client_socket, Webserv_conf &conf, Request const &req) : conf(conf), req(req)
 {
@@ -69,85 +71,32 @@ int Response::send()
 
 std::string auto_index_template(std::string url, std::string legacy_url);
 
-std::string Response::load_body(Request &req)
+/**
+ * @todo free all string_to_char
+ */
+std::string Response::load_body( Request &req )
 {
-
 	std::string new_body;
-	if (req.auto_index == true)
-	{
+	if (req.auto_index) {
 		this->add_header("Content-Type", "text/html");
-		new_body = auto_index_template(req.getUrl(), req.get_legacy_url());
-	}
-	else if (req.get_route().get_cgi_enable() && get_extension(req.getUrl()).compare(req.get_route().get_cgi_extension()) == 0)
-	{
-
-		int pipe_fd[2];
-		pipe(pipe_fd);
-		int pid = fork();
-		if (pid == 0)
-		{
-			close(pipe_fd[0]);
-			dup2(pipe_fd[1], STDOUT_FILENO);
-			char *args[3];
-			args[0] = const_cast<char *>(req.get_route().get_cgi_path().c_str());
-			args[1] = const_cast<char *>(req.getUrl().c_str());
-			args[2] = NULL;
-			execve(req.get_route().get_cgi_path().c_str(), args, req.env);
-			exit(2);
+		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
+	} else if (req.get_route().get_cgi_enable() && get_extension( req.getUrl().c_str() ) == req.get_route().get_cgi_extension()) {
+		CGIManager cgi(req.get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
+		new_body = cgi.exec(req);
+		this->add_header("Content-Type", "text/html");
+	} else {
+		try {
+			new_body = read_binary(req.getUrl());
+		} catch (const std::exception &e) {
+			std::cerr << e.what() << std::endl;
+			/** @todo On peut renvoyer une erreur 404 ici! */
 		}
-		close(pipe_fd[1]);
-		int status = 0;
-		waitpid(pid, &status, 0);
-		if (status != 0)
-		{
-
-			this->set_status(500, "Internal Server Error");
-			this->error_body();
-		}
-		else
-		{
-
-			this->add_header("Content-Type", "text/html");
-			new_body = read_fd(pipe_fd[0]);
-			close(pipe_fd[0]);
-		}
-	}
-	else
-	{
-		new_body = read_binary(req.getUrl());
 	}
 	this->body = new_body;
 	return this->body;
 }
 
-std::string error_template(std::string error_code, std::string message);
-
-std::string &Response::error_body(void)
-{
-
-	this->add_header("Content-Type", "text/html");
-	try
-	{
-		// this line throw an error if page not find
-		std::string filename = this->req.route.get_error_pages().at(this->status_code);
-		if (usable_file(filename))
-			this->body = read_binary(filename);
-		else
-		{
-			this->set_status(500, "Internal Server Error");
-			this->body = error_template(this->get_str_code(), this->status_message);
-		}
-	}
-	catch (const std::exception &e)
-	{
-		this->body = error_template(this->get_str_code(), this->status_message);
-	}
-
-	return (this->body);
-}
-
-std::string error_template(std::string error_code, std::string message)
-{
+std::string error_template(std::string error_code, std::string message) {
 
 	return std::string(std::string("<!DOCTYPE html>\
 	<html lang=\"en\">\
@@ -174,14 +123,34 @@ std::string error_template(std::string error_code, std::string message)
 	</html>"));
 }
 
-#include <dirent.h>
-#include <stdio.h>
+std::string & Response::error_body(void) {
+
+	this->add_header("Content-Type", "text/html");
+	try
+	{
+		//this line throw an error if page not find
+		std::string filename = this->req.route.get_error_pages().at( this->status_code );
+		if ( usable_file( filename ) )
+			this->body = read_binary( filename );
+		else
+		{
+			this->set_status( 500, "Internal Server Error" );
+			this->body = error_template(this->get_str_code(), this->status_message);
+		}
+	}
+	catch(const std::exception& e)
+	{
+		this->body = error_template(this->get_str_code(), this->status_message);
+	}
+	
+	return (this->body);
+}
 
 std::string auto_index_template(std::string url, std::string legacy_url)
 {
-
 	std::string files;
 	/* get each files */
+
 	DIR *d;
 	struct dirent *dir;
 	d = opendir(url.c_str());
@@ -203,15 +172,7 @@ std::string auto_index_template(std::string url, std::string legacy_url)
 			<meta charset=\"UTF-8\">\
 			<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\
 			<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
-			<title>Index of ") +
-					   legacy_url + std::string("</title>\
-			\
-			<style>\
 			p, h1 {\
-				text-align: center;\
-			}\
-			</style>\
-		</head>\
 		<body>\
 			<h1>Index of ") +
 					   legacy_url + std::string("</h1>\

@@ -10,12 +10,13 @@
 
 class MimeType {
 public:
-    MimeType(const std::string name, const std::string types, const std::string extension);
+    MimeType(const std::string name, const std::string types, const std::string extension, const bool cgi_needed = false);
     MimeType(const MimeType &cpy);
 
     MimeType &operator=(MimeType &cpy);
 
     std::string getContentType(void);
+    bool        needCGI(void);
 
     friend std::ostream &operator<<(std::ostream &os, const MimeType &dt);
 
@@ -32,6 +33,7 @@ private:
     const std::string _name;
     const std::string _extension;
     const std::string _types;
+    const bool        _cgi;
 };
 
 class MimeTypes {
@@ -56,7 +58,7 @@ public:
 
     void setDefault();
     void parseHTTP(std::string req);
-    void addMimeType(const std::string type, const std::string name, const std::string extension);
+    void addMimeType(const std::string type, const std::string name, const std::string extension, const bool need_cgi = false);
 
     MimeType getMimeForExtension(std::string extension);
 

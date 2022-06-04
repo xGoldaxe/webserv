@@ -2,3 +2,5 @@
 .vscode/
 webserv
 .nfs*
+ubuntu_tester
+ubuntu_cgi_tester

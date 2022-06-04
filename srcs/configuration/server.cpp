@@ -1,4 +1,4 @@
-#include "server_conf.hpp"
+#include "server.hpp"
 
 Server_conf::Server_conf(void)
 {
@@ -10,7 +10,7 @@ Server_conf::Server_conf(void)
 	route1.add_redirection("/moved.html", "/sub/index.html");
 	routes.push_back(route1);
 	routes.push_back(route2);
-	routes.back().enable_cgi("/usr/bin/php");
+	routes.back().enable_cgi("/usr/bin/php", "php");
 	routes.at(0).add_error_page(404, "defaultPages/404.html");
 	this->body_max_size = 2048;
 	this->root = DEFAULT_ROOT;

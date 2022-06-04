@@ -1,24 +1,19 @@
 #pragma once
 
-#include "route.hpp"
+#include <string>
 #include <list>
 #include <vector>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <cstring>
-#include <limits>
-#include <cstdlib>
 #include <map>
 #include <iostream>
-#include <string>
 
-class Route;
+#include "class/route.hpp"
 
 #define DEFAULT_SERVER_NAME "webserv (42) v0.1-dev"
 #define DEFAULT_ROOT "."
 #define DEFAULT_BODY_MAX_SIZE 2048
 #define DEFAULT_PORT 80
+
+class Route;
 
 class Server_conf
 {
@@ -55,7 +50,4 @@ class Server_conf
 		void							setRoot(std::string root);
 		void							setRouteRoot(std::string root);
 		void							printServer();
-
-
-
 };

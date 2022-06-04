@@ -10,7 +10,6 @@ static inline std::string get_formatted_datetime()
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	// Wed, 21 Oct 2015 07:28:00 GMT
 	strftime(buffer, 80, "%a, %d %b %G %T GMT", timeinfo);
 
 	return buffer;

@@ -36,7 +36,6 @@ void signalHandler(int signum)
 
 	exit_code = signum;
 }
-MimeTypes mimes;
 
 int main(int argc, char **argv, char **env)
 {

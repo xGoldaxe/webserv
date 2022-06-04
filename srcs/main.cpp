@@ -37,35 +37,24 @@ void signalHandler(int signum)
 	exit_code = signum;
 }
 
-//testing confparser if you type ./webserv testconf
-//to remove when done
-void testconf()
-{
-	try {
-		Webserv_conf conf = Webserv_conf("idOnotExist");
-	} catch (const std::exception &e) {
-		std::cerr << e.what() << std::endl;
-	}
-
-	try {
-		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
-		conf.getServers()[0].printServer();
-	} catch (const std::exception &e) {
-		std::cerr << e.what() << std::endl;
-	}
-}
-
 int main(int argc, char **argv, char **env)
 {
 	(void) argc;
 	(void) argv;
 
-	if(argc == 2 && strcmp(argv[1],"testconf") == 0)
+	if (argc == 2 && argv[1])
 	{
-		testconf();
-		return(0);
+		try
+		{
+			Webserv_conf conf = Webserv_conf(argv[1]);
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+		return (0);
 	}
-
+	
 	mimes.setDefault();
 
 	signal(SIGINT, signalHandler);

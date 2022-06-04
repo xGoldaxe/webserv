@@ -45,6 +45,5 @@ class Server {
         int                 _socket_fd;
         int                 _poll_fd;
 
-        short    _select_port();
         void     _report(s_server_addr_in *server_addr);
 };

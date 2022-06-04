@@ -71,7 +71,14 @@ int main(int argc, char **argv, char **env)
 	signal(SIGINT, signalHandler);
 
 	Server serv = Server();
-	serv.init_connection();
+	try
+	{
+		serv.init_connection();
+	} catch (const std::exception &e) {
+		std::cerr << "Can't launch server!" << std::endl;
+		std::cerr << e.what() << std::endl;
+		return (1);
+	}
 
 	exit_code = 0;
 

@@ -22,6 +22,7 @@ jobs:
           repo-root: ./srcs/
           version: 8
           thread-comments: true
+          files-changed-only: false
 
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0

@@ -18,6 +18,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           style: file
+          tidy-checks: boost-*,bugprone-*,performance-*,readability-*,portability-*,clang-analyzer-*,cppcoreguidelines-*
+          repo-root: ./srcs/
+          version: 8
+          thread-comments: true
 
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0

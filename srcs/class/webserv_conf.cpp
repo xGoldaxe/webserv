@@ -83,6 +83,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 		buffer.erase(0, pos + 1);
 	}
 	words.erase(std::remove(words.begin(), words.end(), ""), words.end());
+
+	if (words.empty())
+		throw std::invalid_argument("Config file is empty");
+	if (words.size() > 0 && words[0].compare("server") != 0)
+		throw std::invalid_argument("Config file does not start with 'server'");
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);

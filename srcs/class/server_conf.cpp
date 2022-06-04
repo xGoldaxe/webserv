@@ -28,6 +28,8 @@ Server_conf::Server_conf(int emp)
 	this->server_name = DEFAULT_SERVER_NAME;
 	// default root
 	this->root = DEFAULT_ROOT;
+	//default body max size
+	this->body_max_size = DEFAULT_BODY_MAX_SIZE;
 }
 
 std::list<short> Server_conf::getPort() const

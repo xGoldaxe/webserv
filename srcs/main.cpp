@@ -13,66 +13,41 @@ void process_request(int client_socket, char **env)
 	std::string req_raw_data;
 	char buffer[256];
 	/* with MSG_PEEK, no data will be ride of the socket */
-	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	if (recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
 	{
 		std::cout << "Client close remote: " << client_socket << std::endl;
-		close( client_socket );
-		return ;
+		close(client_socket);
+		return;
 	}
 
 	/* we will need further verification */
-	Webserv_conf	conf; 
-	
-	Request req( client_socket, conf );
+	Webserv_conf conf;
+
+	Request req(client_socket, conf);
 	req.env = env;
-	Response res( client_socket, conf, req );
+	Response res(client_socket, conf, req);
 
 	http_get_response(req, res);
 }
 
 MimeTypes mimes;
 
-//testing confparser if you type ./webserv testconf
-//to remove when done
-void testconf()
-{
-	
-	try
-	{
-		Webserv_conf conf = Webserv_conf("idOnotExist");
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
-	try
-	{
-		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
-		std::vector<Server_conf> vec = conf.getServers();
-		unsigned int i = 0;
-		while (i < vec.size())
-		{
-			vec[i].printServer();
-			i++;
-		}
-	}
-	catch (const std::exception &e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
-}
-
 int main(int argc, char **argv, char **env)
 {
-	(void) argc;
-	(void) argv;
+	(void)argc;
+	(void)argv;
 
-	if(argc == 2 && strcmp(argv[1],"testconf") == 0)
+	if (argc == 2 && argv[1])
 	{
-		testconf();
-		return(0);
+		try
+		{
+			Webserv_conf conf = Webserv_conf(argv[1]);
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+		return (0);
 	}
 
 	mimes.setDefault();
@@ -80,9 +55,12 @@ int main(int argc, char **argv, char **env)
 	/************************************************************************
 	 * Example of working mimes parsing                                     */
 	std::cout << mimes.getMimeForExtension("html") << std::endl;
-	try {
+	try
+	{
 		std::cout << mimes.getMimeForExtension("inconnu") << std::endl;
-	} catch (MimeType::ExceptionUnknownMimeType *e) {
+	}
+	catch (MimeType::ExceptionUnknownMimeType *e)
+	{
 		std::cout << e->what() << std::endl;
 	}
 
@@ -97,7 +75,8 @@ int main(int argc, char **argv, char **env)
 	Server serv = Server();
 	serv.init_connection();
 
-	while (true) {
+	while (true)
+	{
 		serv.handle_client();
 
 		struct epoll_event evlist[1024];
@@ -105,7 +84,7 @@ int main(int argc, char **argv, char **env)
 		for (int i = 0; i < nbr_req; ++i)
 		{
 			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
-			process_request( evlist[i].data.fd, env );
+			process_request(evlist[i].data.fd, env);
 		}
 	}
 	/* connections must have a lifetime */

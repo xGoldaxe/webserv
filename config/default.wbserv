@@ -22,3 +22,21 @@ server
 		cgi_extension php ;
 	}
 }
+
+server
+{
+	server_name = 2ndserver ;
+	listen = 4000 ;
+	error_page 404 = error.html ;
+	body_max_size = 1024 ;
+
+	location /test
+	{
+		root ./imaginary ;
+	}
+}
+
+server
+{
+
+}

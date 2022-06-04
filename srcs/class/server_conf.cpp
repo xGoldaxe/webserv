@@ -144,6 +144,8 @@ void Server_conf::printServer()
 
 	std::cout << "Index : ";
 
+	if (this->index.empty())
+		std::cout << "None";
 	for (iti = this->index.begin(); iti != this->index.end(); iti++)
 	{
 		std::cout << *iti;
@@ -159,6 +161,8 @@ void Server_conf::printServer()
 
 	std::cout << "Routes : ";
 	std::cout << std::endl;
+	if (this->routes.empty())
+		std::cout << "None";
 	while (itr < this->routes.size())
 	{
 		this->routes[itr].printRoute();

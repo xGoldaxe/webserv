@@ -17,7 +17,7 @@ class Route;
 
 #define DEFAULT_SERVER_NAME "webserv (42) v0.1-dev"
 #define DEFAULT_ROOT "."
-#define DEFAULT_BODY_MAX_SIZE 2028
+#define DEFAULT_BODY_MAX_SIZE 2048
 class Server_conf
 {
 

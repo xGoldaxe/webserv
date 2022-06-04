@@ -49,7 +49,13 @@ void testconf()
 	try
 	{
 		Webserv_conf conf = Webserv_conf("./config/default.wbserv");
-		conf.getServers()[0].printServer();
+		std::vector<Server_conf> vec = conf.getServers();
+		unsigned int i = 0;
+		while (i < vec.size())
+		{
+			vec[i].printServer();
+			i++;
+		}
 	}
 	catch (const std::exception &e)
 	{

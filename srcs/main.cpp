@@ -8,25 +8,22 @@
 
 /* throw a server exeption in case of failure */
 
-void process_request(int client_socket, char **env)
+void process_request( std::string raw_request, char **env)
 {
-	std::string req_raw_data;
-	char buffer[256];
-	/* with MSG_PEEK, no data will be ride of the socket */
-	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
-	{
-		std::cout << "Client close remote: " << client_socket << std::endl;
-		close( client_socket );
-		return ;
-	}
-	/* we will need further verification */
-	Webserv_conf	conf; 
-	
-	Request req( client_socket, conf );
-	req.env = env;
-	Response res( client_socket, conf, req );
+	// char buffer[256];
+	// /* with MSG_PEEK, no data will be ride of the socket */
+	// if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	// {
+	// 	std::cout << "Client close remote: " << client_socket << std::endl;
+	// 	close( client_socket );
+	// 	return ;
+	// }
 
-	http_get_response(req, res);
+	(void) raw_request;
+	(void) env;
+	return ;
+	// /* we will need further verification */
+	
 }
 
 MimeTypes mimes;
@@ -90,16 +87,10 @@ int main(int argc, char **argv, char **env)
 	Server serv = Server();
 	serv.init_connection();
 
+	(void)env;
 	while (true) {
 		serv.handle_client();
-
-		struct epoll_event evlist[1024];
-		int nbr_req = epoll_wait(serv.get_poll_fd(), evlist, 1024, 0);
-		for (int i = 0; i < nbr_req; ++i)
-		{
-			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
-			process_request( evlist[i].data.fd, env );
-		}
+		serv.wait_for_connections();
 	}
 	/* connections must have a lifetime */
 	return 0;

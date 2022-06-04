@@ -24,6 +24,9 @@ void store_data_from_raw_req(
 	if (!stored_req)
 		throw std::exception();
 
+	std::cout << parsed_first_line[0] << std::endl;
+	std::cout << parsed_first_line[1] << std::endl;
+	std::cout << parsed_first_line[2] << std::endl;
 	stored_req->fill_start_line(
 		parsed_first_line[0],
 		parsed_first_line[1],
@@ -56,13 +59,14 @@ void Request::fill_body(std::string body)
 
 Route find_route(std::vector<Route> routes, std::string url);
 
-Request::Request(int socket_data, Webserv_conf &conf) : conf(conf)
+// change it through the config
+#define MAX_BUFFER_SIZE 16384
+#define TIMEOUT_TIME 3
+Request::Request( std::string raw_request, Webserv_conf conf) : conf(conf)
 {
-
 	store_req(true, this);
-	std::cout << "start reading" << std::endl;
-	preq::parse_request(socket_data, &(store_data_from_raw_req));
-	std::cout << "end reading" << std::endl;
+
+	preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
 
 	// file informations

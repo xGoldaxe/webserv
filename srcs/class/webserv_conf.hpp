@@ -40,6 +40,8 @@ class Webserv_conf
 		std::vector<Server_conf> getServers() const;
 		std::string				 getHttpVersion() const;
 
+		Webserv_conf &   operator=( Webserv_conf const & rhs );
+
 /* exceptions */
         class FailedToOpenFile : public std::exception	{
             public:

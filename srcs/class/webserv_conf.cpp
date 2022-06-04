@@ -1,5 +1,12 @@
 #include "webserv_conf.hpp"
 
+Webserv_conf &  Webserv_conf::operator=( Webserv_conf const & rhs )
+{
+	this->servers = rhs.getServers();
+	this->http_version = rhs.getHttpVersion();
+	return *this;
+}
+
 // default values
 Webserv_conf::Webserv_conf(void)
 {

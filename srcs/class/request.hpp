@@ -7,8 +7,8 @@
 class Request
 {
 
-	private:
-		Webserv_conf							&conf;
+	protected:
+		Webserv_conf							conf;
 		std::string								method;
 		std::string								url;
 		std::string								legacy_url;
@@ -17,14 +17,14 @@ class Request
 		std::string								version;
 		bool									request_validity;
 
-		Request( void );
 	public:
 		bool			auto_index;
 		Route			route;
 		char			**env;
 
 		/* coplien */
-		Request( int socket_data, Webserv_conf &conf );
+		Request( void );
+		Request( std::string raw_request, Webserv_conf conf );
 		Request( Request const &src );
 		~Request( void );
 
@@ -49,6 +49,8 @@ class Request
 		Route		get_route(void);
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
+
+		bool		add_body( std::string add_str );
 
 		/* exceptions */
         class invalid_http_request : public std::exception	{

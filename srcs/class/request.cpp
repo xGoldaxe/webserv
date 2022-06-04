@@ -5,6 +5,9 @@
 Request::~Request(void)
 {}
 
+Request::Request(void)
+{}
+
 /* end coplien */
 std::string Request::getMethod(void) const
 {
@@ -95,4 +98,51 @@ std::string Request::try_url(Response &res)
 		}
 	}
 	return (this->url);
+}
+
+Request::Request( Request const &src )
+{
+	this->conf = src.conf;
+	this->method = src.method;
+	this->url = src.url;
+	this->legacy_url = src.legacy_url;
+	this->headers = src.headers;
+	this->body = src.body;
+	this->version = src.version;
+	this->request_validity = src.request_validity;
+	this->auto_index = src.auto_index;
+	this->route = src.route;
+	this->env = src.env;
+}
+
+Request &   Request::operator=( Request const & rhs )
+{
+	this->conf = rhs.conf;
+	this->method = rhs.method;
+	this->url = rhs.url;
+	this->legacy_url = rhs.legacy_url;
+	this->headers = rhs.headers;
+	this->body = rhs.body;
+	this->version = rhs.version;
+	this->request_validity = rhs.request_validity;
+	this->auto_index = rhs.auto_index;
+	this->route = rhs.route;
+	this->env = rhs.env;
+	return *this;
+}
+
+/* return true if body is fullfiled, or more than fullfiled */
+bool	Request::add_body( std::string add_str )
+{
+	std::map<std::string, std::string> ::iterator it = this->headers.find( "Content-Length" );
+	if ( it != this->headers.end() )
+	{
+		this->body += add_str;
+		char	*end_ptr;
+		size_t	body_length = strtoul( (it->second).c_str(), &end_ptr, 10 );
+		if ( this->body.size() >= body_length )
+			return true;
+
+	}
+	return false;
 }

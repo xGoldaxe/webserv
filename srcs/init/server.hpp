@@ -1,4 +1,5 @@
 #pragma once
+#include "../webserv.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,7 @@
 #include <arpa/inet.h>
 
 #include <iostream>
+#include <map>
 #include <fstream>
 #include <string>
 #include <sys/epoll.h>
@@ -29,22 +31,27 @@ typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
 
 class Server {
-    public:
-        Server();
-        ~Server();
-        void    init_connection();
-        void    handle_client();
+	public:
+		Server();
+		~Server();
+		void    init_connection();
+		void    handle_client();
+		void    wait_for_connections(void);
 
-        // Getters
-        int     get_socket() const;
-        int     get_poll_fd() const;
+		// Getters
+		int     get_socket() const;
+		int     get_poll_fd() const;
 
-    private:
-        short               _port;
-        s_server_addr_in    _addr;
-        int                 _socket_fd;
-        int                 _poll_fd;
+	private:
+		short						_port;
+		s_server_addr_in			_addr;
+		int							_socket_fd;
+		int							_poll_fd;
+		std::map<int, std::string>	_raw_request_map;
+		std::map<int, Request>		_requests;
 
-        short    _select_port();
-        void     _report(s_server_addr_in *server_addr);
+		short    _select_port();
+		void     _report( s_server_addr_in *server_addr );
+
+		void    read_connection( int client_socket );
 };

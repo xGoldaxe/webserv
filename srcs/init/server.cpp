@@ -1,6 +1,65 @@
 #include "server.hpp"
 
 #include <strings.h>
+// #include "../class/webserv_conf.hpp"
+// #include "../class/request.hpp"
+// #include "../class/response.hpp"
+#include "../webserv.hpp"
+
+void    Server::read_connection( int client_socket )
+{
+    char buffer[32];
+    if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	{
+		std::cout << "Client close remote: " << client_socket << std::endl;
+		close( client_socket );
+        if ( this->_raw_request_map.find( client_socket ) != this->_raw_request_map.end() )
+            this->_raw_request_map.erase( this->_raw_request_map.find( client_socket ) );
+        if ( this->_requests.find( client_socket ) != this->_requests.end() )
+            this->_requests.erase( this->_requests.find( client_socket ) );
+		return ;
+	}
+
+	char    buff[1024];
+	bzero( buff, 1024 );
+	recv( client_socket, buff, 1024 - 1, 0 );
+	this->_raw_request_map[client_socket] += buff;
+
+
+    std::size_t EOF_index = this->_raw_request_map[client_socket].find("GET");
+    std::cout << EOF_index << std::endl;
+    if ( EOF_index != std::string::npos )
+    {
+        Webserv_conf	conf; 
+
+        std::cout << "{" << std::endl << this->_raw_request_map[client_socket] << "}" << std::endl;
+        Request req( this->_raw_request_map[client_socket], conf );
+        this->_requests[client_socket] = req;
+
+        if ( this->_requests[client_socket].add_body( 
+            this->_raw_request_map[client_socket].substr( 
+                EOF_index, 
+                this->_raw_request_map[client_socket].size() 
+        ) ) )
+        {
+            Response res( client_socket, conf, this->_requests[client_socket] );
+            http_get_response( this->_requests[client_socket], res);
+            this->_raw_request_map[client_socket] = "";
+        }
+    }
+	// // req.env = env;
+}
+
+void    Server::wait_for_connections( void )
+{
+    struct epoll_event evlist[1024];
+    int nbr_req = epoll_wait( this->get_poll_fd(), evlist, 1024, 0 );
+    for (int i = 0; i < nbr_req; ++i)
+    {
+        std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
+        this->read_connection( evlist[i].data.fd );
+    }
+}
 
 Server::Server()
 {
@@ -8,7 +67,7 @@ Server::Server()
 
     this->_port = 3000;
 
-        this->_addr.sin_family = AF_INET;
+     this->_addr.sin_family = AF_INET;
     this->_addr.sin_port = htons(3000);
     this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
@@ -75,7 +134,8 @@ void Server::handle_client()
 
         struct epoll_event ev;
         bzero(&ev, sizeof(ev));
-        ev.events = EPOLLET | EPOLLIN;
+        // ev.events = EPOLLET | EPOLLIN;
+        ev.events = EPOLLIN;
         ev.data.fd = client_socket;
         epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
         std::cout << "========>new registered connection!<========" << std::endl;

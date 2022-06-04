@@ -19,7 +19,6 @@ void process_request(int client_socket, char **env)
 		close( client_socket );
 		return ;
 	}
-
 	/* we will need further verification */
 	Webserv_conf	conf; 
 	

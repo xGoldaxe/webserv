@@ -60,7 +60,10 @@ Request::Request(int socket_data, Webserv_conf &conf) : conf(conf)
 {
 
 	store_req(true, this);
+	std::cout << "start reading" << std::endl;
 	preq::parse_request(socket_data, &(store_data_from_raw_req));
+	std::cout << "end reading" << std::endl;
+
 
 	// file informations
 	request_validity = true;

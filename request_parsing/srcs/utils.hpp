@@ -12,7 +12,9 @@ namespace preq {
 		while ( n == 1 && rule( res ) == false )
 		{
 			bzero( buffer, 2 );
-			n = read( fd, buffer, 1 );
+			n = recv( fd, buffer, 1, MSG_WAITALL );
+			std::cout << buffer;
+			std::cout << "==>" << std::endl;
 			res += buffer;
 		}
 		return res;

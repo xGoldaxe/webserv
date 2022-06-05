@@ -24,32 +24,30 @@ void    Server::read_connection( int client_socket )
         );
 
     this->_connections.at(client_socket).add_data( buff );
-    // std::size_t EOF_index = this->_raw_request_map[client_socket].find("\r\n\r\n");
-    // std::cout << EOF_index << std::endl;
 
-    // if ( EOF_index != std::string::npos )
-    // {
-    //     Webserv_conf	conf; 
-
-    //     std::cout << "{" << std::endl << this->_raw_request_map[client_socket] << "}" << std::endl;
-    //     Request req( this->_raw_request_map[client_socket], conf );
-    //     this->_requests[client_socket] = req;
-
-    //     if ( this->_requests[client_socket].add_body( 
-    //         this->_raw_request_map[client_socket].substr( 
-    //             EOF_index, 
-    //             this->_raw_request_map[client_socket].size() 
-    //     ) ) )
-    //     {
-    //         Response res( client_socket, conf, this->_requests[client_socket] );
-    //         http_get_response( this->_requests[client_socket], res);
-    //         this->_raw_request_map[client_socket] = "";
-    //     }
-    //     this->_raw_request_map[client_socket] = "";
-    // }
-	// // req.env = env;
+    /*
+    if connection buffer_size > 0
+        then add_to_queue( connection )
+    */
 }
 
+//void  server::trigger_queue( void )
+/*
+{   
+    for Connections in queue where depth < MAX_CALL_REQUEST
+        connection.add_data("");
+        if connection buffer_size > 0
+            then add_to_queue( connection )
+
+    if queue_not_empty
+        trigger_queue
+    else
+        for Connections in queue
+            Connections depth set to 0
+}
+*/
+
+/* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
 void    Server::wait_for_connections( void )
 {
     struct epoll_event evlist[1024];

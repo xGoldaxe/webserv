@@ -8,6 +8,15 @@
 void	Connection::add_data( char * buffer )
 {
 	this->_raw_data += buffer;
+	std::cout << this->_raw_data << std::endl;
+
+	// error case
+	/*
+	if size of raw_data > MAX_HEADERS_SIZE
+		throw HTTP ERROR
+	if request isnt ready AND start request longere than TIMEOUT_MAX
+		throw HTTP ERROR 408 and close connection from socket ( at catch level )
+	*/
 
 	// we can create a request
 	if ( this->is_ready() )
@@ -74,7 +83,6 @@ void	Connection::process()
 	else
 	{
 		this->_res.set_status( 400, "Bad Request" );
-		this->_res.error_body();
 		this->_res.send();
 		close( this->_res.client_socket );
 	}

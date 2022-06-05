@@ -40,6 +40,8 @@ int Server::get_poll_fd() const
 void Server::init_connection()
 {
     this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    bool set_opt = 1;
+    setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
 
     this->_bind_port();
 
@@ -72,8 +74,6 @@ void    Server::handle_responses()
         /* with MSG_PEEK, no data will be ride of the socket */
         char buffer[256];
         if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
-            std::cout << "Client close remote: " << res->client_socket << std::endl;
-            close(res->client_socket);
             delete this->_queue.front();
         } else {
             if (res->send_chunk() > 0) {

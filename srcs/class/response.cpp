@@ -88,13 +88,13 @@ int Response::send()
 				{
 					std::cout << "Client close remote: " << this->client_socket << std::endl;
 					close(this->client_socket);
+					status = -1;
 					break;
 				}
 
 				memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
 				length -= transmit_size;
 			}
-			std::cerr << "quit" << std::endl;
 
 			if (in_file.is_open())
 				in_file.close();

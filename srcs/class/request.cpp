@@ -6,7 +6,9 @@ Request::~Request(void)
 {}
 
 Request::Request(void)
-{}
+{
+	this->request_validity = false;
+}
 
 /* end coplien */
 std::string Request::getMethod(void) const
@@ -102,17 +104,7 @@ std::string Request::try_url(Response &res)
 
 Request::Request( Request const &src )
 {
-	this->conf = src.conf;
-	this->method = src.method;
-	this->url = src.url;
-	this->legacy_url = src.legacy_url;
-	this->headers = src.headers;
-	this->body = src.body;
-	this->version = src.version;
-	this->request_validity = src.request_validity;
-	this->auto_index = src.auto_index;
-	this->route = src.route;
-	this->env = src.env;
+	*this = src;
 }
 
 Request &   Request::operator=( Request const & rhs )
@@ -128,21 +120,25 @@ Request &   Request::operator=( Request const & rhs )
 	this->auto_index = rhs.auto_index;
 	this->route = rhs.route;
 	this->env = rhs.env;
+	this->request_validity = rhs.request_validity;
+	this->body_length = rhs.body_length;
 	return *this;
 }
 
-/* return true if body is fullfiled, or more than fullfiled */
-bool	Request::add_body( std::string add_str )
+bool	Request::is_fulfilled() const
 {
-	std::map<std::string, std::string> ::iterator it = this->headers.find( "Content-Length" );
-	if ( it != this->headers.end() )
+	return ( this->request_validity == true
+				&& this->body.size() == this->body_length );
+}
+/* return the amount of char added to the body */
+std::size_t	Request::feed_body( std::string add_str )
+{
+	std::size_t missing = this->body_length - this->body.size();
+	if ( missing > add_str.size() )
 	{
 		this->body += add_str;
-		char	*end_ptr;
-		size_t	body_length = strtoul( (it->second).c_str(), &end_ptr, 10 );
-		if ( this->body.size() >= body_length )
-			return true;
-
+		return add_str.size();
 	}
-	return false;
+	this->body += add_str.substr( 0, missing );
+	return missing;
 }

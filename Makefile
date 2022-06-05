@@ -2,6 +2,7 @@ SRCS	=	main.cpp \
 			get_response.cpp \
 			utils.cpp \
 			init/server.cpp \
+			init/connection.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \
 			class/request_constructor.cpp \

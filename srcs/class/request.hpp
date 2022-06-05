@@ -16,6 +16,7 @@ class Request
 		std::string								body;
 		std::string								version;
 		bool									request_validity;
+		std::size_t								body_length;
 
 	public:
 		bool			auto_index;
@@ -24,7 +25,6 @@ class Request
 
 		/* coplien */
 		Request( void );
-		Request( std::string raw_request, Webserv_conf conf );
 		Request( Request const &src );
 		~Request( void );
 
@@ -38,7 +38,6 @@ class Request
 		void		fill_body( std::string body );
 		/* fill from parsed req */
 
-
 		std::string	getMethod(void) const;
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
@@ -50,7 +49,9 @@ class Request
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
 
-		bool		add_body( std::string add_str );
+		std::size_t	feed_body( std::string add_str );
+		bool		is_fulfilled(void) const;
+		void		try_construct( std::string raw_request, Webserv_conf conf );
 
 		/* exceptions */
         class invalid_http_request : public std::exception	{

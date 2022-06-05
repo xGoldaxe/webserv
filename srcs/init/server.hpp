@@ -1,5 +1,6 @@
 #pragma once
 #include "../webserv.hpp"
+#include "connection.hpp"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +37,7 @@ class Server {
 		~Server();
 		void    init_connection();
 		void    handle_client();
-		void    wait_for_connections(void);
+		void    wait_for_connections();
 
 		// Getters
 		int     get_socket() const;
@@ -47,8 +48,7 @@ class Server {
 		s_server_addr_in			_addr;
 		int							_socket_fd;
 		int							_poll_fd;
-		std::map<int, std::string>	_raw_request_map;
-		std::map<int, Request>		_requests;
+		std::map<int, Connection>	_connections;
 
 		short    _select_port();
 		void     _report( s_server_addr_in *server_addr );

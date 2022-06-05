@@ -91,41 +91,36 @@ namespace	preq {
 
 	int parse_request( std::string & data, void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>, std::string) ) {
 
-		try {
-			std::vector<std::string> lines = read_until( data, &check_line );
-			if ( lines.size() < 1 )
-				throw std::exception();
-			// first line
-			std::string start_line = lines[0];
-			if ( check_and_trunc_line( &start_line ) == false )
-				throw std::exception();
-			std::vector<std::string> parsed_first_line = parse_start_line( start_line );
-			
-			// headers
-			std::map<std::string, std::string> headers;
-			if ( lines.size() > 1 )
-				headers = get_headers_req( lines.begin() + 1, lines.end() );
-			
-			std::string raw_body;
-			// body
-			/* in case the user doesnt chose a body size, we put a default one to zero
-			, spec doesnt like it but it's ok */
-			headers.insert( std::pair<std::string, std::string>( "Content-Length", "0" ) );
-			// may throw an error if content-length is not defined
-			// std::string str_body_length = headers.at( "Content-Length" );
-			// char	*end_ptr;
-			// size_t	body_length = strtoul( str_body_length.c_str(), &end_ptr, 10 );
-			// std::string raw_body = read_body_req( data, body_length );
+		std::vector<std::string> lines = read_until( data, &check_line );
+		if ( lines.size() < 1 )
+			throw std::exception();
+		// first line
+		std::string start_line = lines[0];
+		if ( check_and_trunc_line( &start_line ) == false )
+			throw std::exception();
+		std::vector<std::string> parsed_first_line = parse_start_line( start_line );
+		
+		// headers
+		std::map<std::string, std::string> headers;
+		if ( lines.size() > 1 )
+			headers = get_headers_req( lines.begin() + 1, lines.end() );
+		
+		std::string raw_body;
+		// body
+		/* in case the user doesnt chose a body size, we put a default one to zero
+		, spec doesnt like it but it's ok */
+		// headers.insert( std::pair<std::string, std::string>( "Content-Length", "0" ) );
+		// may throw an error if content-length is not defined
+		// std::string str_body_length = headers.at( "Content-Length" );
+		// char	*end_ptr;
+		// size_t	body_length = strtoul( str_body_length.c_str(), &end_ptr, 10 );
+		// std::string raw_body = read_body_req( data, body_length );
 
-			// if ( raw_body.size() != body_length )
-			// 	throw std::exception();
+		// if ( raw_body.size() != body_length )
+		// 	throw std::exception();
 
-			print_or_store( parsed_first_line , headers, raw_body );
-		}
-		catch(const std::exception& e) {
+		print_or_store( parsed_first_line , headers, raw_body );
 
-			std::cout << "error 400, bad request" << std::endl;
-		}
 
 		return (0);
 	}

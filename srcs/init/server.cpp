@@ -1,9 +1,6 @@
 #include "server.hpp"
 
 #include <strings.h>
-// #include "../class/webserv_conf.hpp"
-// #include "../class/request.hpp"
-// #include "../class/response.hpp"
 #include "../webserv.hpp"
 
 void    Server::read_connection( int client_socket )
@@ -13,40 +10,43 @@ void    Server::read_connection( int client_socket )
 	{
 		std::cout << "Client close remote: " << client_socket << std::endl;
 		close( client_socket );
-        if ( this->_raw_request_map.find( client_socket ) != this->_raw_request_map.end() )
-            this->_raw_request_map.erase( this->_raw_request_map.find( client_socket ) );
-        if ( this->_requests.find( client_socket ) != this->_requests.end() )
-            this->_requests.erase( this->_requests.find( client_socket ) );
+            this->_connections.erase( this->_connections.find( client_socket ) );
 		return ;
 	}
 
 	char    buff[1024];
 	bzero( buff, 1024 );
 	recv( client_socket, buff, 1024 - 1, 0 );
-	this->_raw_request_map[client_socket] += buff;
 
+    if ( this->_connections.find( client_socket ) == this->_connections.end() )
+        this->_connections.insert( 
+            std::pair<int, Connection>(client_socket, Connection( client_socket ) )
+        );
 
-    std::size_t EOF_index = this->_raw_request_map[client_socket].find("GET");
-    std::cout << EOF_index << std::endl;
-    if ( EOF_index != std::string::npos )
-    {
-        Webserv_conf	conf; 
+    this->_connections.at(client_socket).add_data( buff );
+    // std::size_t EOF_index = this->_raw_request_map[client_socket].find("\r\n\r\n");
+    // std::cout << EOF_index << std::endl;
 
-        std::cout << "{" << std::endl << this->_raw_request_map[client_socket] << "}" << std::endl;
-        Request req( this->_raw_request_map[client_socket], conf );
-        this->_requests[client_socket] = req;
+    // if ( EOF_index != std::string::npos )
+    // {
+    //     Webserv_conf	conf; 
 
-        if ( this->_requests[client_socket].add_body( 
-            this->_raw_request_map[client_socket].substr( 
-                EOF_index, 
-                this->_raw_request_map[client_socket].size() 
-        ) ) )
-        {
-            Response res( client_socket, conf, this->_requests[client_socket] );
-            http_get_response( this->_requests[client_socket], res);
-            this->_raw_request_map[client_socket] = "";
-        }
-    }
+    //     std::cout << "{" << std::endl << this->_raw_request_map[client_socket] << "}" << std::endl;
+    //     Request req( this->_raw_request_map[client_socket], conf );
+    //     this->_requests[client_socket] = req;
+
+    //     if ( this->_requests[client_socket].add_body( 
+    //         this->_raw_request_map[client_socket].substr( 
+    //             EOF_index, 
+    //             this->_raw_request_map[client_socket].size() 
+    //     ) ) )
+    //     {
+    //         Response res( client_socket, conf, this->_requests[client_socket] );
+    //         http_get_response( this->_requests[client_socket], res);
+    //         this->_raw_request_map[client_socket] = "";
+    //     }
+    //     this->_raw_request_map[client_socket] = "";
+    // }
 	// // req.env = env;
 }
 

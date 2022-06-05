@@ -1,4 +1,3 @@
-#body fullfiling
-#object "connection", contain req, res, fd and maybe row data
-#check how to put out socket when they havent validate a request since TIMEOUT seconds ( thats mean also very slow request that havent sent all their data )
-#look to send part
+# check how to put out socket when they havent validate a request since TIMEOUT seconds ( thats mean also very slow request that havent sent all their data )
+# add header max_size
+# secure path, secure and check method ( this work will be on request itself );

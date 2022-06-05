@@ -11,6 +11,7 @@
 #include "http_header/http_header.hpp"
 
 extern MimeTypes mimes;
+extern int exit_code;
 
 /* http */
 int http_get_response( Request &req, Response &res );

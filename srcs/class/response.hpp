@@ -5,10 +5,17 @@
 #include <stdio.h>
 #include <vector>
 
+#include "webserv.hpp"
+
 #include "request.hpp"
 #include "configuration/webserv.hpp"
 #include "errors/http_code.hpp"
 #include "cgi/cgi_manager.hpp"
+
+#define MAX_BODY_LENGTH 1024
+
+#define BODY_TYPE_FILE		1
+#define BODY_TYPE_STRING	2
 
 class Request;
 
@@ -20,6 +27,7 @@ class Response
 		std::string								version;
 		std::map<std::string, std::string>		headers;
 		const Request							&req;
+		int										_return_body_type;
 
 		Response( void );
 	public:
@@ -43,6 +51,7 @@ class Response
 		void set_status( int status_code, std::string msg );
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
+		bool isFile(void);
 		int	send(void);
 		const Webserv_conf &get_conf() const;
 };

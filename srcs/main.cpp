@@ -32,7 +32,7 @@ void process_request(int client_socket, char **env)
 void signalHandler(int signum)
 {
 	std::cout << std::endl
-			  << "Goodbye! That was cool top have you :)" << std::endl;
+			  << "Goodbye! That was cool to have you :)" << std::endl;
 
 	exit_code = signum;
 }

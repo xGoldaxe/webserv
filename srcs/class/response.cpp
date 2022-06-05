@@ -1,21 +1,8 @@
 #include "response.hpp"
 
-#define MAX_BODY_LENGTH 1024
-
-inline static std::string read_binary(std::string filename)
+Response::Response(int client_socket, Webserv_conf &conf, Request const &req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
 {
-	std::ifstream input(filename.c_str(), std::ios::binary);
-	std::istreambuf_iterator<char> it(input), end;
-	std::string ss(it, end);
-	return ss;
-}
-
-Response::Response(int client_socket, Webserv_conf &conf, Request const &req) : conf(conf), req(req)
-{
-
-	this->client_socket = client_socket;
 	this->version = this->conf.getHttpVersion();
-	this->status_code = -1;
 
 	if (req.is_request_valid() == false)
 		this->set_status(400, "Bad Request");
@@ -67,19 +54,41 @@ int Response::send()
 
 	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
 
-	if (this->body.size() > MAX_BODY_LENGTH)
+	if (this->body.size() > MAX_BODY_LENGTH || this->_return_body_type == BODY_TYPE_FILE)
 	{
-		std::cout << this->body.size() << std::endl;
-		while (status > 0 && this->body.size() > 0)
-		{
-			std::string response_body(this->body, 0, std::min<size_t>(1024, this->body.size()));
-			std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
-			status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
-			this->body.erase(0, 1024);
-			std::cout << this->body.size() << std::endl;
-		}
+		if (this->_return_body_type == BODY_TYPE_STRING) {
+			while (status > 0 && this->body.size() > 0)
+			{
+				std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
+				std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
+				status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+				this->body.erase(0, MAX_BODY_LENGTH);
+			}
+		} else if (this->_return_body_type == BODY_TYPE_FILE) {
+			std::ifstream in_file(this->body.c_str(), std::ios::binary);
 
-		std::cout << this->body.size() << std::endl;
+			in_file.seekg(0, in_file.end);
+			size_t length = in_file.tellg();
+			in_file.seekg(0, in_file.beg);
+
+			char buf[MAX_BODY_LENGTH + 2 + 1];
+			memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
+			while (length > 0 && status > 0 && in_file && exit_code == 0)
+			{
+				size_t transmit_size = std::min<size_t>(MAX_BODY_LENGTH, length);
+				in_file.read(buf, transmit_size);
+
+				std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
+				status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+				memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
+				length -= transmit_size;
+			}
+
+			if (in_file.is_open())
+				in_file.close();
+		} else {
+			throw HTTPCode500();
+		}
 
 		if (status >= 0) {
 			std::string response_content = "0\r\n\r\n";
@@ -92,6 +101,11 @@ int Response::send()
 	return (status);
 }
 
+bool Response::isFile()
+{
+	return this->_return_body_type == BODY_TYPE_FILE;
+}
+
 std::string auto_index_template(std::string url, std::string legacy_url);
 
 /**
@@ -99,23 +113,22 @@ std::string auto_index_template(std::string url, std::string legacy_url);
  */
 std::string Response::load_body( Request &req )
 {
-	std::string new_body;
 	if (req.auto_index) {
 		this->add_header("Content-Type", "text/html");
-		new_body = auto_index_template( req.getUrl(), req.get_legacy_url() );
+		this->body = auto_index_template( req.getUrl(), req.get_legacy_url() );
 	} else if (req.get_route().get_cgi_enable() && get_extension( req.getUrl().c_str() ) == req.get_route().get_cgi_extension()) {
 		CGIManager cgi(req.get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
-		new_body = cgi.exec(req);
+		this->body = cgi.exec(req);
 		this->add_header("Content-Type", "text/html");
 	} else {
 		try {
-			new_body = read_binary(req.getUrl());
+			this->_return_body_type = BODY_TYPE_FILE;
+			this->body = req.getUrl();
 		} catch (const std::exception &e) {
 			std::cerr << e.what() << std::endl;
 			/** @todo On peut renvoyer une erreur 404 ici! */
 		}
 	}
-	this->body = new_body;
 	return this->body;
 }
 
@@ -154,7 +167,10 @@ std::string & Response::error_body(void) {
 		//this line throw an error if page not find
 		std::string filename = this->req.route.get_error_pages().at( this->status_code );
 		if ( usable_file( filename ) )
-			this->body = read_binary( filename );
+		{
+			this->_return_body_type = BODY_TYPE_FILE;
+			this->body = filename;
+		}
 		else
 		{
 			this->set_status( 500, "Internal Server Error" );

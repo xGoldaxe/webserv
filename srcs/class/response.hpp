@@ -28,6 +28,8 @@ class Response
 		std::map<std::string, std::string>		headers;
 		const Request							&req;
 		int										_return_body_type;
+		std::ifstream							_in_file;
+		size_t									_file_len;
 
 		Response( void );
 	public:
@@ -51,7 +53,9 @@ class Response
 		void set_status( int status_code, std::string msg );
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
-		bool isFile(void);
-		int	send(void);
+		bool	isFile(void);
+		int		send(void);
+		int send_chunk(void);
+		size_t get_size_next_chunk();
 		const Webserv_conf &get_conf() const;
 };

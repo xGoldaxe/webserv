@@ -4,6 +4,8 @@ Server::Server() : _socket_fd(0), _poll_fd(0)
 {
     this->_port = 3000;
 
+    this->_queue = std::queue<Response *>();
+
     this->_addr.sin_family = AF_INET;
     this->_addr.sin_port = htons(this->_port);
     this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -16,6 +18,11 @@ Server::~Server()
 
     if (this->_socket_fd > 0)
         close(this->_socket_fd);
+
+    while (!this->_queue.empty()) {
+        delete this->_queue.front();
+        this->_queue.pop();
+    }
 
     std::cout << "Server closed." << std::endl;
 }
@@ -43,6 +50,42 @@ void Server::init_connection()
 
     this->_poll_fd = epoll_create1(O_CLOEXEC);
     fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
+}
+
+bool    Server::queue_response(Response *res)
+{
+    this->_queue.push(res);
+    return true;
+}
+
+void    Server::handle_responses()
+{
+    std::queue<Response *> new_queue;
+
+    while (!this->_queue.empty() && exit_code == 0) {
+        Response *res = this->_queue.front();
+
+        /* with MSG_PEEK, no data will be ride of the socket */
+        char buffer[256];
+        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
+            std::cout << "Client close remote: " << res->client_socket << std::endl;
+            close(res->client_socket);
+            delete this->_queue.front();
+        } else {
+            if (res->send_chunk() > 0) {
+                new_queue.push(res);
+            } else {
+                std::string response_content = "0\r\n\r\n";
+                ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
+
+                delete this->_queue.front();
+            }
+        }
+
+        this->_queue.pop();
+    }
+
+    this->_queue = new_queue;
 }
 
 void Server::handle_client()

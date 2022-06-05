@@ -11,8 +11,7 @@ Response::Response(int client_socket, Webserv_conf &conf, Request const &req) : 
 }
 
 Response::~Response(void)
-{
-}
+{}
 
 std::string Response::get_str_code(void)
 {
@@ -35,82 +34,73 @@ void Response::set_status(int status_code, std::string msg)
 
 int Response::send()
 {
-
 	/* add some headers */
 	http_header_content_length(this->req, *this);
 
-	std::string raw_response;
-
-	raw_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
+	std::string headers_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
-		raw_response += "\n" + it->first + ": " + it->second;
-	raw_response += "\r\n\n";
+		headers_response += "\n" + it->first + ": " + it->second;
+	headers_response += "\r\n\n";
+	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.size(), 0);
+	return (status);
+}
 
-	#ifdef PRINT_REQ
-		std::cout << "<====>" << std::endl;
-		std::cout << raw_response << std::endl;
-		std::cout << "<====>" << std::endl;
-	#endif
+size_t	Response::get_size_next_chunk()
+{
+	return std::min<size_t>(MAX_BODY_LENGTH, this->_file_len);
+}
 
-	int status = ::send(this->client_socket, raw_response.c_str(), raw_response.size(), 0);
-
+/**
+ * Send the current chunk, and move to the next one
+ * 
+ * @return -1 if an error occured
+ * @return 0 if the file is completely read
+ * @return x the remaining length
+ */
+int		Response::send_chunk()
+{
 	if (this->body.size() > MAX_BODY_LENGTH || this->_return_body_type == BODY_TYPE_FILE)
 	{
-		if (this->_return_body_type == BODY_TYPE_STRING) {
-			while (status > 0 && this->body.size() > 0)
-			{
-				std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
-				std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
-				status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
-				this->body.erase(0, MAX_BODY_LENGTH);
-			}
-		} else if (this->_return_body_type == BODY_TYPE_FILE) {
-			std::ifstream in_file(this->body.c_str(), std::ios::binary);
-
-			in_file.seekg(0, in_file.end);
-			size_t length = in_file.tellg();
-			in_file.seekg(0, in_file.beg);
+		if (this->_return_body_type == BODY_TYPE_STRING)
+		{
+			this->body.size();
+			std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
+			std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
+			this->body.erase(0, MAX_BODY_LENGTH);
+			return ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+		}
+		else if (this->_return_body_type == BODY_TYPE_FILE)
+		{
+			if (!this->_in_file.is_open())
+				return -1;
 
 			char buf[MAX_BODY_LENGTH + 2 + 1];
 			memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
-			while (length > 0 && status > 0 && in_file && exit_code == 0)
-			{
-				size_t transmit_size = std::min<size_t>(MAX_BODY_LENGTH, length);
-				in_file.read(buf, transmit_size);
 
-				std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
-			
-				status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+			size_t transmit_size = this->get_size_next_chunk();
+			this->_in_file.read(buf, transmit_size);
 
-				/* with MSG_PEEK, no data will be ride of the socket */
-				char buffer[256];
-				if (recv(this->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
-				{
-					std::cout << "Client close remote: " << this->client_socket << std::endl;
-					close(this->client_socket);
-					status = -1;
-					break;
-				}
+			std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
 
-				memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
-				length -= transmit_size;
-			}
+			::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
 
-			if (in_file.is_open())
-				in_file.close();
-		} else {
+			this->_file_len -= transmit_size;
+
+			if (this->_file_len <= 0 && this->_in_file.is_open())
+				this->_in_file.close();
+			return this->_file_len;
+		}
+		else
+		{
 			throw HTTPCode500();
 		}
-
-		if (status >= 0) {
-			std::string response_content = "0\r\n\r\n";
-			status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
-		}
-	} else {
-		status = ::send(this->client_socket, this->body.c_str(), this->body.size(), 0);
+	}
+	else
+	{
+		::send(this->client_socket, this->body.c_str(), this->body.size(), 0);
+		return 0;
 	}
 
-	return (status);
 }
 
 bool Response::isFile()
@@ -135,7 +125,11 @@ std::string Response::load_body( Request &req )
 	} else {
 		try {
 			this->_return_body_type = BODY_TYPE_FILE;
-			this->body = req.getUrl();
+			this->_in_file.open(req.getUrl().c_str(), std::ios::binary);
+
+			this->_in_file.seekg(0, this->_in_file.end);
+			this->_file_len = this->_in_file.tellg();
+			this->_in_file.seekg(0, this->_in_file.beg);
 		} catch (const std::exception &e) {
 			std::cerr << e.what() << std::endl;
 			/** @todo On peut renvoyer une erreur 404 ici! */

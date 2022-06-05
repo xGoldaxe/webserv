@@ -7,7 +7,7 @@ MimeTypes mimes;
 int exit_code;
 
 /* throw a server exeption in case of failure */
-void process_request(int client_socket, char **env)
+void process_request(int client_socket, char **env, Server &serv)
 {
 	std::string req_raw_data;
 	char buffer[256];
@@ -24,9 +24,11 @@ void process_request(int client_socket, char **env)
 
 	Request req(client_socket, conf);
 	req.env = env;
-	Response res(client_socket, conf, req);
 
-	http_get_response(req, res);
+	Response *res = new Response(client_socket, conf, req);
+	http_get_response(req, *res);
+
+	serv.queue_response(res);
 }
 
 void signalHandler(int signum)
@@ -73,10 +75,9 @@ int main(int argc, char **argv, char **env)
 		struct epoll_event evlist[SIZE];
 		int nbr_req = epoll_wait(serv.get_poll_fd(), evlist, SIZE, 0);
 		for (int i = 0; i < nbr_req; ++i)
-		{
-			std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
-			process_request(evlist[i].data.fd, env);
-		}
+			process_request(evlist[i].data.fd, env, serv);
+
+		serv.handle_responses();
 	}
 
 	return (exit_code);

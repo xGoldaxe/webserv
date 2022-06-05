@@ -12,7 +12,7 @@
 #include "errors/http_code.hpp"
 #include "cgi/cgi_manager.hpp"
 
-#define MAX_BODY_LENGTH 1024
+#define MAX_BODY_LENGTH 5096
 
 #define BODY_TYPE_FILE		1
 #define BODY_TYPE_STRING	2

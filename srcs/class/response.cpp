@@ -78,8 +78,8 @@ int		Response::send_chunk()
 		if (!this->_in_file.is_open())
 			return -1;
 
-		char buf[MAX_BODY_LENGTH + 2 + 1];
-		memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
+		char buf[MAX_BODY_LENGTH + 1];
+		memset(buf, 0, MAX_BODY_LENGTH + 1);
 
 		size_t transmit_size = this->get_size_next_chunk();
 		this->_in_file.read(buf, transmit_size);

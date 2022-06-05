@@ -54,7 +54,11 @@ void Server::init_connection()
 
 bool    Server::queue_response(Response *res)
 {
-    this->_queue.push(res);
+    if (res->get_size_next_chunk() == MAX_BODY_LENGTH) {
+        this->_queue.push(res);
+    } else {
+        delete res;
+    }
     return true;
 }
 

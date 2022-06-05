@@ -15,13 +15,11 @@ Response::~Response(void)
 
 std::string Response::get_str_code(void)
 {
-
 	return to_string(this->status_code);
 }
 
 int Response::add_header(std::string key, std::string value)
 {
-
 	this->headers.insert(headers_t::value_type(key, value));
 	return (1);
 }
@@ -41,13 +39,21 @@ int Response::send()
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
 		headers_response += "\n" + it->first + ": " + it->second;
 	headers_response += "\r\n\n";
+
+	if (this->_return_body_type == BODY_TYPE_STRING && this->body.size() < MAX_BODY_LENGTH) {
+		headers_response += this->body + "\r\n";
+	}
+
 	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.size(), 0);
 	return (status);
 }
 
 size_t	Response::get_size_next_chunk()
 {
-	return std::min<size_t>(MAX_BODY_LENGTH, this->_file_len);
+	if (this->_return_body_type == BODY_TYPE_FILE) {
+		return std::min<size_t>(MAX_BODY_LENGTH, this->_file_len);
+	}
+	return std::min<size_t>(MAX_BODY_LENGTH, this->body.size());
 }
 
 /**
@@ -59,48 +65,40 @@ size_t	Response::get_size_next_chunk()
  */
 int		Response::send_chunk()
 {
-	if (this->body.size() > MAX_BODY_LENGTH || this->_return_body_type == BODY_TYPE_FILE)
+	if (this->body.size() > MAX_BODY_LENGTH)
 	{
-		if (this->_return_body_type == BODY_TYPE_STRING)
-		{
-			this->body.size();
-			std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
-			std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
-			this->body.erase(0, MAX_BODY_LENGTH);
-			return ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
-		}
-		else if (this->_return_body_type == BODY_TYPE_FILE)
-		{
-			if (!this->_in_file.is_open())
-				return -1;
+		std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
+		std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
+		this->body.erase(0, MAX_BODY_LENGTH);
+		::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+		return this->body.size();
+	}
+	else if (this->_return_body_type == BODY_TYPE_FILE)
+	{
+		if (!this->_in_file.is_open())
+			return -1;
 
-			char buf[MAX_BODY_LENGTH + 2 + 1];
-			memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
+		char buf[MAX_BODY_LENGTH + 2 + 1];
+		memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
 
-			size_t transmit_size = this->get_size_next_chunk();
-			this->_in_file.read(buf, transmit_size);
+		size_t transmit_size = this->get_size_next_chunk();
+		this->_in_file.read(buf, transmit_size);
 
-			std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
+		std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
 
-			::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+		::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
 
-			this->_file_len -= transmit_size;
+		this->_file_len -= transmit_size;
 
-			if (this->_file_len <= 0 && this->_in_file.is_open())
-				this->_in_file.close();
-			return this->_file_len;
-		}
-		else
-		{
-			throw HTTPCode500();
-		}
+		if (this->_file_len <= 0 && this->_in_file.is_open())
+			this->_in_file.close();
+		return this->_file_len;
 	}
 	else
 	{
 		::send(this->client_socket, this->body.c_str(), this->body.size(), 0);
 		return 0;
 	}
-
 }
 
 bool Response::isFile()

@@ -79,10 +79,22 @@ int Response::send()
 				in_file.read(buf, transmit_size);
 
 				std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
+			
 				status = ::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+
+				/* with MSG_PEEK, no data will be ride of the socket */
+				char buffer[256];
+				if (recv(this->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
+				{
+					std::cout << "Client close remote: " << this->client_socket << std::endl;
+					close(this->client_socket);
+					break;
+				}
+
 				memset(buf, 0, MAX_BODY_LENGTH + 2 + 1);
 				length -= transmit_size;
 			}
+			std::cerr << "quit" << std::endl;
 
 			if (in_file.is_open())
 				in_file.close();

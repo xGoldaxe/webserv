@@ -56,7 +56,7 @@ void Server::init_connection()
 
 bool    Server::queue_response(Response *res)
 {
-    if (res->get_size_next_chunk() == MAX_BODY_LENGTH) {
+    if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
     } else {
         delete res;
@@ -76,7 +76,9 @@ void    Server::handle_responses()
         if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
             delete this->_queue.front();
         } else {
-            if (res->send_chunk() > 0) {
+            size_t exchange = res->send_chunk();
+            if (exchange > 0) {
+                std::cout << exchange << std::endl;
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";

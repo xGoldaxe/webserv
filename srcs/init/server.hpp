@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstring>
+#include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -21,7 +24,10 @@
 #include <sys/epoll.h>
 #include <sys/stat.h>
 
+#include <queue>
+
 #include "exception_server_not_listening.hpp"
+#include "class/response.hpp"
 
 #define BACKLOG 10
 
@@ -39,11 +45,16 @@ class Server {
         int     get_socket() const;
         int     get_poll_fd() const;
 
+        bool    queue_response(Response *res);
+        void    handle_responses();
+
     private:
-        short               _port;
-        s_server_addr_in    _addr;
-        int                 _socket_fd;
-        int                 _poll_fd;
+        short                   _port;
+        s_server_addr_in        _addr;
+        int                     _socket_fd;
+        int                     _poll_fd;
+        std::queue<Response *>   _queue;
 
         void     _report(s_server_addr_in *server_addr);
+        void     _bind_port();
 };

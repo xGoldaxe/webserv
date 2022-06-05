@@ -1,10 +1,10 @@
 #include "server.hpp"
 
-#include <strings.h>
-
 Server::Server() : _socket_fd(0), _poll_fd(0)
 {
     this->_port = 3000;
+
+    this->_queue = std::queue<Response *>();
 
     this->_addr.sin_family = AF_INET;
     this->_addr.sin_port = htons(this->_port);
@@ -18,6 +18,11 @@ Server::~Server()
 
     if (this->_socket_fd > 0)
         close(this->_socket_fd);
+
+    while (!this->_queue.empty()) {
+        delete this->_queue.front();
+        this->_queue.pop();
+    }
 
     std::cout << "Server closed." << std::endl;
 }
@@ -35,6 +40,10 @@ int Server::get_poll_fd() const
 void Server::init_connection()
 {
     this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    bool set_opt = 1;
+    setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+
+    this->_bind_port();
 
     if (listen(this->_socket_fd, BACKLOG) < 0)
         throw ServerNotListeningException();
@@ -43,6 +52,44 @@ void Server::init_connection()
 
     this->_poll_fd = epoll_create1(O_CLOEXEC);
     fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
+}
+
+bool    Server::queue_response(Response *res)
+{
+    if (res->get_size_next_chunk() == MAX_BODY_LENGTH) {
+        this->_queue.push(res);
+    } else {
+        delete res;
+    }
+    return true;
+}
+
+void    Server::handle_responses()
+{
+    std::queue<Response *> new_queue;
+
+    while (!this->_queue.empty() && exit_code == 0) {
+        Response *res = this->_queue.front();
+
+        /* with MSG_PEEK, no data will be ride of the socket */
+        char buffer[256];
+        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
+            delete this->_queue.front();
+        } else {
+            if (res->send_chunk() > 0) {
+                new_queue.push(res);
+            } else {
+                std::string response_content = "0\r\n\r\n";
+                ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
+
+                delete this->_queue.front();
+            }
+        }
+
+        this->_queue.pop();
+    }
+
+    this->_queue = new_queue;
 }
 
 void Server::handle_client()
@@ -82,7 +129,6 @@ void Server::handle_client()
         ev.events = EPOLLET | EPOLLIN;
         ev.data.fd = client_socket;
         epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
-        std::cout << "========>new registered connection!<========" << std::endl;
     }
 }
 
@@ -104,4 +150,18 @@ void Server::_report(s_server_addr_in *server_addr)
         std::cout << "It's not working!" << std::endl;
     }
     std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
+}
+
+void Server::_bind_port()
+{
+    int i = 0;
+    while (bind(this->_socket_fd, (s_server_addr) & this->_addr, sizeof(this->_addr)) == -1 && i < 100)
+    {
+        if (i % 10 == 0)
+        {
+            std::cerr << "Can't bind port " << this->_port << ". Retrying in 10sec. (Try " << (i / 10) << "/10)" << std::endl;
+        }
+        sleep(1);
+        i++;
+    }
 }

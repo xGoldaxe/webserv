@@ -16,3 +16,11 @@ std::string get_extension(std::string file_name)
     int position = file_name.find_last_of(".");
     return file_name.substr(position + 1);
 }
+
+std::string intToHex(int nb)
+{
+    std::stringstream stream;
+    stream << std::hex << nb;
+    std::string result(stream.str());
+    return result;
+}

@@ -235,7 +235,7 @@ static inline std::string error_template(std::string error_code, std::string mes
            "            <h1>404</h1>"
            "            <p>" + message + "</p>"
            "        </div>"
-           "        <h3>Vous semblez perdu... Vous voulez de l'aide?</h3>"
+           "        <h3>Vous semblez perdu... <a href=\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\" target=\"_blank\" rel=\"noopener noreferrer\">Vous voulez de l'aide</a>?</h3>"
            "    </div>"
            "    <script src=\"https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js\"></script>"
            "    <script>"

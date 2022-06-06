@@ -69,9 +69,12 @@ void    Server::handle_responses()
 {
     std::queue<Response *> new_queue;
 
-    while (!this->_queue.empty() && exit_code == 0) {
-        Response *res = this->_queue.front();
+    int runner_i = 0;
 
+    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && exit_code == 0)
+    {
+        Response *res = this->_queue.front();
+        
         /* with MSG_PEEK, no data will be ride of the socket */
         char buffer[256];
         if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
@@ -88,6 +91,14 @@ void    Server::handle_responses()
             }
         }
 
+        this->_queue.pop();
+
+        runner_i++;
+    }
+
+    while (!this->_queue.empty() && exit_code == 0) {
+        Response *res = this->_queue.front();
+        new_queue.push(res);
         this->_queue.pop();
     }
 

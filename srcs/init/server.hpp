@@ -30,6 +30,7 @@
 #include "class/response.hpp"
 
 #define BACKLOG 10
+#define MAX_RUNNERS 20
 
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;

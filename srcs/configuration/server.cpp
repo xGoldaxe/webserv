@@ -140,6 +140,19 @@ void Server_conf::setRouteAutoIndex(bool auto_index)
 	this->routes.back().set_auto_index(auto_index);
 }
 
+void Server_conf::set_cgi_timeout(int cgi_timeout)
+{
+	this->routes.back().set_cgi_timeout(cgi_timeout);
+}
+void Server_conf::set_send_file(bool send_file)
+{
+	this->routes.back().set_send_file(send_file);
+}
+void Server_conf::set_file_limit(int file_limit)
+{
+	this->routes.back().set_file_limit(file_limit);
+}
+
 void Server_conf::printServer()
 {
 #ifdef DEBUG

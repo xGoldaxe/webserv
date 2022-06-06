@@ -92,11 +92,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
-		//		std::cout << words[it] << "|"
-		//				  << check << std::endl;
 		switch (check)
 		{
 		case SERVER_NAME_PARSING:
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered server_name in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				server.setName(words[it + 2]);
@@ -108,6 +108,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case LISTEN_PARSING:
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered port in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				int port = std::atoi(words[it + 2].c_str());
@@ -231,6 +233,9 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered cgi extension outside of location");
 			break;
 		case BODY_MAX_SIZE_PARSING:
+			// server int
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered body_max_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
@@ -276,31 +281,88 @@ Webserv_conf::Webserv_conf(std::string filename)
 			// location int seconds
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered cgi timeout outside of location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.set_cgi_timeout(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing CGI Timeout!");
+			}
 			break;
 		case READ_TIMEOUT_PARSING:
 			// server int seconds
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.setReadTimeOut(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Read Timeout!");
+			}
 			break;
 		case SERVER_BODY_SIZE_PARSING:
 			// server int
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered server body size in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.setServerBodySize(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing server_body_size!");
+			}
 			break;
 		case SEND_FILE_PARSING:
 			// location bool
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered send_file outside of location");
+			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0 && (words[it + 1].compare("on") == 0 || words[it + 1].compare("off") == 0))
+			{
+				if (words[it + 1].compare("on") == 0)
+					server.set_send_file(true);
+				else
+					server.set_send_file(false);
+				it = it + 2;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing send_file");
+			}
 			break;
 		case FILE_LIMIT_PARSING:
 			// location int megabytes
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered file_limit outside of location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.set_file_limit(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing file_limit!");
+			}
 			break;
 		case CLIENT_HEADER_SIZE_PARSING:
 			// server int
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered client_header_size in a locatoin");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.setClientHeaderSize(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing client_header_size!");
+			}
 			break;
 		default:
 			break;

@@ -64,5 +64,8 @@ class Server_conf
 		void							setServerBodySize(int server_body_size);
 		void 							setClientHeaderSize(int client_header_size);
 		void 							setRouteAutoIndex(bool auto_index);
+		void							set_cgi_timeout(int cgi_timeout);
+		void							set_send_file(bool send_file);
+		void							set_file_limit(int file_limit);
 
 };

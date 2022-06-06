@@ -3,6 +3,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "utils/string.hpp"
+
+#ifdef DEBUG
+# include <iostream>
+#endif
 
 class Route
 {
@@ -31,23 +36,22 @@ class Route
 
 		Route& operator=(const Route& other);
 
-	bool								get_auto_index( void );
-	std::string							get_location(void);
-	std::string 						get_root(void);
-	std::vector<std::string> 			get_methods(void) const;
-	std::map<std::string, std::string>  &get_redirections(void);
-	bool								get_cgi_enable(void);
-	std::string							get_cgi_extension(void);
-	std::string							get_cgi_path(void);
-	std::map<int, std::string>			get_error_pages(void) const;
-	void								enable_cgi( std::string path );
-	void								add_error_page( int status_code, std::string error_message );
-	void								add_methods( std::string methods );
-	void								add_index( std::string index );
-	void								add_redirection( std::string url, std::string redirect_url );
-	void								printRoute();
-	void								printMethods();
-	void 								set_root(std::string root);
-
+		bool								get_auto_index( void );
+		std::string							get_location(void);
+		std::string 						get_root(void);
+		std::vector<std::string> 			get_methods(void) const;
+		std::map<std::string, std::string>  &get_redirections(void);
+		bool								get_cgi_enable(void);
+		std::string							get_cgi_extension(void);
+		std::string							get_cgi_path(void);
+		std::map<int, std::string>			get_error_pages(void) const;
+		void								enable_cgi(std::string path, std::string extension);
+		void								add_error_page( int status_code, std::string error_message );
+		void								add_methods( std::string methods );
+		void								add_index( std::string index );
+		void								add_redirection( std::string url, std::string redirect_url );
+		void								printRoute();
+		void								printMethods();
+		void 								set_root(std::string root);
 };
 

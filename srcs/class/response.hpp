@@ -1,7 +1,23 @@
 #pragma once
 
+#include <sys/socket.h>
+#include <dirent.h>
+#include <stdio.h>
+#include <vector>
+
+#include "webserv.hpp"
+
 #include "request.hpp"
-#include "webserv_conf.hpp"
+#include "configuration/webserv.hpp"
+#include "errors/http_code.hpp"
+#include "cgi/cgi_manager.hpp"
+
+#define MAX_BODY_LENGTH 5096
+
+#define BODY_TYPE_FILE		1
+#define BODY_TYPE_STRING	2
+
+class Request;
 
 class Response
 {
@@ -11,6 +27,9 @@ class Response
 		std::string								version;
 		std::map<std::string, std::string>		headers;
 		const Request							*req;
+		int										_return_body_type;
+		std::ifstream							_in_file;
+		size_t									_file_len;
 
 	public:
 		int				status_code;
@@ -34,6 +53,9 @@ class Response
 		void set_status( int status_code, std::string msg );
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
-		int	send(void);
+		bool	isFile(void);
+		int		send(void);
+		int send_chunk(void);
+		size_t get_size_next_chunk();
 		const Webserv_conf &get_conf() const;
 };

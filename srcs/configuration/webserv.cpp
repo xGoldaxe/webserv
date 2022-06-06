@@ -1,4 +1,4 @@
-#include "webserv_conf.hpp"
+#include "webserv.hpp"
 
 Webserv_conf &  Webserv_conf::operator=( Webserv_conf const & rhs )
 {
@@ -90,6 +90,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 		buffer.erase(0, pos + 1);
 	}
 	words.erase(std::remove(words.begin(), words.end(), ""), words.end());
+
+	if (words.empty())
+		throw std::invalid_argument("Config file is empty");
+	if (words.size() > 0 && words[0].compare("server") != 0)
+		throw std::invalid_argument("Config file does not start with 'server'");
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
@@ -136,6 +141,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				while (tmpit < it)
 				{
 					error = std::atoi(words[tmpit].c_str());
+					if (error < 400 || error > 599)
+						throw std::invalid_argument("Error code provided in configuration file is outside the 400-599 range");
 					if (contextlocation == 0)
 						server.addErrorPages(error, tmperrorval);
 					else
@@ -157,7 +164,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				server.addRoute(Route(words[it + 1], words[it + 3], 1));
 			}
-			else if ((it + 1) < words.size() == 0)
+			else if (!((it + 1) < words.size()))
 			{
 				server.addRoute(Route(words[it + 1]));
 			}
@@ -258,4 +265,14 @@ Webserv_conf::Webserv_conf(std::string filename)
 		it++;
 	}
 	this->servers.push_back(server);
+
+	#ifdef DEBUG
+	std::vector<Server_conf> vecdebug = this->servers;
+	unsigned int iterdebug = 0;
+	while (iterdebug < vecdebug.size())
+	{
+		vecdebug[iterdebug].printServer();
+		iterdebug++;
+	}
+	#endif
 }

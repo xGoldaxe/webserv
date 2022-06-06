@@ -1,11 +1,14 @@
 #include "server.hpp"
 
-#include <strings.h>
+#include <cstring>
 #include "../webserv.hpp"
 
 bool	Server::close_connection( int client_socket )
 {
-	std::cout << "Client close remote: " << client_socket << std::endl;
+    #ifdef DEBUG
+	    std::cout << "Client close remote: " << client_socket << std::endl;
+    #endif
+
 	close( client_socket );
 	std::map<int, Connection>::iterator it = this->_connections.find( client_socket );
 	bool ret_val = it != this->_connections.end();
@@ -72,27 +75,31 @@ void    Server::wait_for_connections( void )
 	}
 }
 
-Server::Server()
+Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
 {
-	this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    this->_port = 3000;
 
-	this->_port = 3000;
+    this->_queue = std::queue<Response *>();
 
-	 this->_addr.sin_family = AF_INET;
-	this->_addr.sin_port = htons(3000);
-	this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-
-	this->_select_port();
-
-	if (listen(this->_socket_fd, BACKLOG) < 0)
-		throw new ServerNotListeningException;
-
-	this->_report(&this->_addr);
+    this->_addr.sin_family = AF_INET;
+    this->_addr.sin_port = htons(this->_port);
+    this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 }
 
 Server::~Server()
 {
-	std::cout << "Server closed." << std::endl;
+    if (this->_poll_fd > 0)
+        close(this->_poll_fd);
+
+    if (this->_socket_fd > 0)
+        close(this->_socket_fd);
+
+    while (!this->_queue.empty()) {
+        delete this->_queue.front();
+        this->_queue.pop();
+    }
+
+    std::cout << "Server closed." << std::endl;
 }
 
 int Server::get_socket() const
@@ -107,8 +114,70 @@ int Server::get_poll_fd() const
 
 void Server::init_connection()
 {
-	this->_poll_fd = epoll_create1(O_CLOEXEC);
-	fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
+    this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    bool set_opt = 1;
+    setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+
+    this->_bind_port();
+
+    if (listen(this->_socket_fd, BACKLOG) < 0)
+        throw ServerNotListeningException();
+
+    this->_report(&this->_addr);
+
+    this->_poll_fd = epoll_create1(O_CLOEXEC);
+    fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
+}
+
+bool    Server::queue_response(Response *res)
+{
+    this->_request_handled++;
+    if (res->get_size_next_chunk() > 0) {
+        this->_queue.push(res);
+    } else {
+        delete res;
+    }
+    return true;
+}
+
+void    Server::handle_responses()
+{
+    std::queue<Response *> new_queue;
+
+    int runner_i = 0;
+
+    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && exit_code == 0)
+    {
+        Response *res = this->_queue.front();
+        
+        /* with MSG_PEEK, no data will be ride of the socket */
+        char buffer[256];
+        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
+            delete this->_queue.front();
+        } else {
+            size_t exchange = res->send_chunk();
+            if (exchange > 0) {
+                new_queue.push(res);
+            } else {
+                std::string response_content = "0\r\n\r\n";
+                ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
+
+                delete this->_queue.front();
+            }
+        }
+
+        this->_queue.pop();
+
+        runner_i++;
+    }
+
+    while (!this->_queue.empty() && exit_code == 0) {
+        Response *res = this->_queue.front();
+        new_queue.push(res);
+        this->_queue.pop();
+    }
+
+    this->_queue = new_queue;
 }
 
 void Server::handle_client()
@@ -158,35 +227,41 @@ void Server::handle_client()
 	}
 }
 
-short Server::_select_port()
-{
-	while (bind(this->_socket_fd, (s_server_addr)&this->_addr, sizeof(this->_addr)) == -1)
-	{
-		this->_addr.sin_port = htons(++this->_port);
-		#ifdef DEBUG
-			std::cout << this->_port << std::endl;
-		#endif
-	}
-
-	return this->_port;
-}
-
 void Server::_report(s_server_addr_in *server_addr)
 {
-	char host_buffer[INET6_ADDRSTRLEN];
-	char service_buffer[NI_MAXSERV];
-	socklen_t addr_len = sizeof(*server_addr);
-	int err = getnameinfo(
-		(s_server_addr)server_addr,
-		addr_len,
-		host_buffer,
-		sizeof(host_buffer),
-		service_buffer,
-		sizeof(host_buffer),
-		NI_NUMERICHOST);
-	if (err != 0)
-	{
-		std::cout << "It's not working!" << std::endl;
-	}
-	std::cout << "\n\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
+    char host_buffer[INET6_ADDRSTRLEN];
+    char service_buffer[NI_MAXSERV];
+    socklen_t addr_len = sizeof(*server_addr);
+    int err = getnameinfo(
+        (s_server_addr)server_addr,
+        addr_len,
+        host_buffer,
+        sizeof(host_buffer),
+        service_buffer,
+        sizeof(host_buffer),
+        NI_NUMERICHOST);
+    if (err != 0)
+    {
+        std::cout << "It's not working!" << std::endl;
+    }
+    std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
+}
+
+void Server::_bind_port()
+{
+    int i = 0;
+    while (bind(this->_socket_fd, (s_server_addr) & this->_addr, sizeof(this->_addr)) == -1 && i < 100)
+    {
+        if (i % 10 == 0)
+        {
+            std::cerr << "Can't bind port " << this->_port << ". Retrying in 10sec. (Try " << (i / 10) << "/10)" << std::endl;
+        }
+        sleep(1);
+        i++;
+    }
+}
+
+size_t Server::countHandledRequest()
+{
+    return this->_request_handled;
 }

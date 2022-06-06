@@ -16,8 +16,6 @@ if (( $CLIENTS_NUMBER > 1 ))
 then
     echo "Launching stress test"
 
-    (cd $1 ; sudo ./server.sh)
-
     testsPID=()
 
     for (( c=0; c <= $CLIENTS_NUMBER-1; c++ ))

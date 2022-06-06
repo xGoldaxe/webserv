@@ -2,6 +2,9 @@
 #include "../webserv.hpp"
 #include "connection.hpp"
 
+#include <cstring>
+#include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -25,9 +28,13 @@
 #include <sys/epoll.h>
 #include <sys/stat.h>
 
+#include <queue>
+
 #include "exception_server_not_listening.hpp"
+#include "class/response.hpp"
 
 #define BACKLOG 10
+#define MAX_RUNNERS 20
 
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
@@ -40,6 +47,8 @@ class Server {
 		void    handle_client();
 		void    wait_for_connections();
 		void	trigger_queue(void);
+        bool    queue_response(Response *res);
+        size_t  countHandledRequest();
 
 		// Getters
 		int     get_socket() const;
@@ -52,9 +61,11 @@ class Server {
 		int							_poll_fd;
 		std::map<int, Connection>	_connections;
 		std::queue<Connection*>		_c_queue;
+        std::queue<Response *>   _queue;
+        size_t                   _request_handled;
 
-		short    _select_port();
-		void     _report( s_server_addr_in *server_addr );
+        void     _report(s_server_addr_in *server_addr);
+        void     _bind_port();
 
 		void    read_connection( int client_socket );
 		bool	close_connection( int client_socket );

@@ -1,15 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <list>
+#include <cstdlib>
+#include <limits>
 #include <fstream>
 #include <sstream>
-#include "route.hpp"
-#include <list>
 #include <algorithm>
-#include <cstring>
-#include <limits>
-#include <cstdlib>
-#include "server_conf.hpp"
+
+#include "class/route.hpp"
+#include "server.hpp"
 
 class Server_conf;
 
@@ -39,6 +39,7 @@ class Webserv_conf
 		Webserv_conf(std::string filename);
 		std::vector<Server_conf> getServers() const;
 		std::string				 getHttpVersion() const;
+		static void 			testconf(char *argv);
 
 		Webserv_conf &   operator=( Webserv_conf const & rhs );
 

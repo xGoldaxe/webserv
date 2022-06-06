@@ -1,4 +1,4 @@
-#include "../webserv.hpp"
+#include "webserv.hpp"
 #include <string.h>
 #include <unistd.h>
 #include "../../request_parsing/srcs/req_parse.hpp"

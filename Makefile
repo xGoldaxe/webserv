@@ -1,6 +1,7 @@
 SRCS	=	main.cpp \
 			get_response.cpp \
-			utils.cpp \
+			utils/file.cpp \
+			utils/string.cpp \
 			init/server.cpp \
 			init/connection.cpp \
 			init/exception_server_not_listening.cpp \
@@ -8,23 +9,42 @@ SRCS	=	main.cpp \
 			class/request_constructor.cpp \
 			class/response.cpp \
 			class/route.cpp \
-			class/webserv_conf.cpp \
-			class/server_conf.cpp \
+			configuration/webserv.cpp \
+			configuration/server.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \
 			http_header/Content-Type.cpp \
-			internal/mime_types.cpp
+			internal/mime_types.cpp \
+			cgi/cgi_manager.cpp \
+			errors/http_code.cpp
+
+HEADERS =	errors/http_code.hpp \
+			init/exception_server_not_listening.hpp \
+			init/server.hpp \
+			http_header/http_header.hpp \
+			webserv.hpp \
+			class/request.hpp \
+			class/response.hpp \
+			class/route.hpp \
+			configuration/webserv.hpp \
+			configuration/server.hpp \
+			cgi/cgi_manager.hpp \
+			internal/mime_types.hpp \
+			utils/go_through_until.hpp \
+			utils/file.hpp \
+			utils/string.hpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
+DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CPPFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG -g -O2
 
 RM		=	rm -rf
 
-CCP		=	c++
+CXX		=	c++
 
 # COLORS
 NONE			= \033[0m
@@ -34,17 +54,17 @@ B_GREEN			= \033[1;32m
 B_MAGENTA 		= \033[1;35m
 B_CYAN 			= \033[1;36m
 
-./.build/%.o : srcs/%.cpp
+./.build/%.o: srcs/%.cpp $(DEPS)
 		@mkdir -p $(@D)
-		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $?
-		@printf "${B_MAGENTA}Compilling $? ...\n${NONE}"
+		@$(CXX) $(CXXFLAGS) -Isrcs/ -o $@ -c $<
+		@printf "${B_MAGENTA}Compilling $< ...\n${NONE}"
 
 all:	
 		@mkdir -p .build
-		@make ${NAME} --no-print-directory
+		@make $(NAME) --no-print-directory
 
 ${NAME}:	${OBJS}
-		@${CCP} ${CPPFLAGS} ${OBJS} -o ${NAME}
+		@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 		@printf "${B_GREEN}==>{${NAME}} LINKED SUCCESFULLY<==${NONE}\n"
 
 clean:

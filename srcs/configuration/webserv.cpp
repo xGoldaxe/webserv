@@ -244,6 +244,19 @@ Webserv_conf::Webserv_conf(std::string filename)
 			// location cgi_extension machin machin ... ;
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered cgi extension outside of location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
+			{
+				it = it + 2;
+				while (it < words.size() && words[it].compare(";") != 0)
+				{
+					server.addRouteCGIExtension(words[it]);
+					it++;
+				}
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Methods!");
+			}
 			break;
 		case BODY_MAX_SIZE_PARSING:
 			// server int
@@ -283,7 +296,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				throw std::invalid_argument("Error parsing rewrite!");
 			}
-			break;
 			break;
 		case AUTOINDEX_PARSING:
 			// location bool

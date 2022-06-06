@@ -291,11 +291,12 @@ void Route::printRoute()
 	std::cout << "CGI Path : " << this->cgi_path << std::endl;
 
 	std::cout << "CGI Extensions : ";
+	std::cout << std::endl;
 	if (!this->cgi_extension.empty())
 	{
 		for (itex = this->cgi_extension.begin(); itex != this->cgi_extension.end(); itex++)
 		{
-			std::cout << *itex << " " << std::endl ;
+			std::cout << *itex << " " << std::endl;
 		}
 	}
 	else
@@ -303,7 +304,6 @@ void Route::printRoute()
 		std::cout << "None";
 		std::cout << std::endl;
 	}
-
 
 	std::cout << "CGI Timeout : " << this->cgi_timeout << std::endl;
 

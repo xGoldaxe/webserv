@@ -24,7 +24,7 @@ server
 		root ./php ;
 		index = index.php ;
 		enable_cgi on ; 
-		cgi_extension = php js ;
+		cgi_extension = php ;
 		cgi_timeout = 10 ;
 	}
 }

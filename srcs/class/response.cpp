@@ -116,7 +116,7 @@ std::string Response::load_body( Request &req )
 	if (req.auto_index) {
 		this->add_header("Content-Type", "text/html");
 		this->body = auto_index_template( req.getUrl(), req.get_legacy_url() );
-	} else if (req.get_route().get_cgi_enable() && get_extension( req.getUrl().c_str() ) == req.get_route().get_cgi_extension()) {
+	} else if (req.get_route().get_cgi_enable() && req.get_route().is_in_extension(get_extension(req.getUrl()))) {
 		CGIManager cgi(req.get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
 		this->body = cgi.exec(req);
 		this->add_header("Content-Type", "text/html");

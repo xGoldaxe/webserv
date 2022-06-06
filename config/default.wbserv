@@ -4,21 +4,26 @@ server
 	listen = 3000 ;
 	error_page 404 403 = error.html ;
 	body_max_size = 2048 ;
-
+	read_timeout = 10 ;
+	server_body_size = 2048;
+	send_file on ;
+	file_limit 5000;
+	client_header_size 2048;
 	location /
 	{
 		root ./ ;
 		index = index.html index.htm ;
 		error_page 404 = 404.html ;
 		methods = POST GET DELETE ;
-		rewrite  /sub  moved.html ;
+		return /sub moved.html ;
 		autoindex on;
 	}
 	location /php 
 	{ 
 		root ./php ;
 		index = index.php ;
-		enable_cgi $CGI_PATH ; 
-		cgi_extension php ;
+		enable_cgi on ; 
+		cgi_extension = .php ;
+		cgi_timeout = 10 ;
 	}
 }

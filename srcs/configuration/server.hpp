@@ -12,6 +12,9 @@
 #define DEFAULT_ROOT "."
 #define DEFAULT_BODY_MAX_SIZE 2048
 #define DEFAULT_PORT 80
+#define DEFAULT_READ_TIMEOUT -1
+#define DEFAULT_SERVER_BODY_SIZE 2048
+#define DEFAULT_CLIENT_HEADER_SIZE 2048
 
 class Route;
 
@@ -26,12 +29,19 @@ class Server_conf
 		int									body_max_size;
 		std::string 						root;
 		std::map<int, std::string>			error_pages;
+		int									read_timeout;
+		int									server_body_size;
+		int									client_header_size;
 
 	public:
 		Server_conf(void);
 		~Server_conf(void);
 		Server_conf(int emp);
 
+
+		int								getReadTimeOut() const;
+		int								getServerBodySize() const;
+		int								getClientHeaderSize() const;
 		std::list<short>				getPort() const;
 		std::vector<Route>				getRoutes() const;
 		std::string						getName() const;
@@ -50,4 +60,7 @@ class Server_conf
 		void							setRoot(std::string root);
 		void							setRouteRoot(std::string root);
 		void							printServer();
+		void							setReadTimeOut(int read_timeout);
+		void							setServerBodySize(int server_body_size);
+		void 							setClientHeaderSize(int client_header_size);
 };

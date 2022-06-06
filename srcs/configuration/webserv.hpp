@@ -8,12 +8,12 @@
 #include <sstream>
 #include <algorithm>
 
-#include "class/route.hpp"
+#include "../class/route.hpp"
 #include "server.hpp"
 
 class Server_conf;
 
-#define SIZE_PARSING 13
+#define SIZE_PARSING 19
 
 #define SERVER_NAME_PARSING 0
 #define LISTEN_PARSING 1
@@ -28,6 +28,12 @@ class Server_conf;
 #define SERVER_PARSING 10
 #define REWRITE_PARSING 11
 #define	AUTOINDEX_PARSING 12
+#define CGI_TIMEOUT_PARSING 13
+#define READ_TIMEOUT_PARSING 14
+#define SERVER_BODY_SIZE_PARSING 15
+#define SEND_FILE_PARSING 16
+#define FILE_LIMIT_PARSING 17
+#define CLIENT_HEADER_SIZE_PARSING 18
 
 class Webserv_conf
 {

@@ -16,7 +16,8 @@ static int return_type_parse(std::string s)
 									  "root", "index",
 									  "methods", "enable_cgi",
 									  "cgi_extension", "body_max_size", "server",
-									  "rewrite", "autoindex"};
+									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
+									  "server_body_size", "send_file", "file_limit", "client_header_size"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -251,6 +252,18 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case REWRITE_PARSING:
 			break;
 		case AUTOINDEX_PARSING:
+			break;
+		case CGI_TIMEOUT_PARSING:
+			break;
+		case READ_TIMEOUT_PARSING:
+			break;
+		case SERVER_BODY_SIZE_PARSING:
+			break;
+		case SEND_FILE_PARSING:
+			break;
+		case FILE_LIMIT_PARSING:
+			break;
+		case CLIENT_HEADER_SIZE_PARSING:
 			break;
 		default:
 			break;

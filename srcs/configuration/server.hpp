@@ -15,6 +15,7 @@
 #define DEFAULT_READ_TIMEOUT -1
 #define DEFAULT_SERVER_BODY_SIZE 2048
 #define DEFAULT_CLIENT_HEADER_SIZE 2048
+#define DEFAULT_HOST "127.0.0.1"
 
 class Route;
 
@@ -25,6 +26,7 @@ class Server_conf
 		std::list<short>					port;
 		std::vector<Route>					routes;
 		std::string							server_name;
+		std::string							host;
 		std::vector<std::string>			index;
 		int									body_max_size;
 		std::string 						root;
@@ -44,6 +46,7 @@ class Server_conf
 		int								getClientHeaderSize() const;
 		std::list<short>				getPort() const;
 		std::vector<Route>				getRoutes() const;
+		std::string						getHost() const;
 		std::string						getName() const;
 		std::vector<std::string>		getIndex() const;
 		int								getBodyMaxSize() const;
@@ -58,6 +61,7 @@ class Server_conf
 		void 							addLastRouteErrorPages(int error, std::string errorpage);
 		void							setBodyMaxSize(int body_max_size);
 		void							setRoot(std::string root);
+		void							setHost(std::string host);
 		void							setRouteRoot(std::string root);
 		void							printServer();
 		void							setReadTimeOut(int read_timeout);

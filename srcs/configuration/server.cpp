@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
+Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST) ,body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
 {
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
@@ -20,7 +20,7 @@ Server_conf::~Server_conf(void)
 }
 
 // empty
-Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
+Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST) ,body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
 {
 	(void)emp;
 }
@@ -59,6 +59,11 @@ std::vector<std::string> Server_conf::getIndex() const
 int Server_conf::getBodyMaxSize() const
 {
 	return this->body_max_size;
+}
+
+std::string Server_conf::getHost() const
+{
+	return this->host;
 }
 
 std::string Server_conf::getRoot() const
@@ -115,6 +120,12 @@ void Server_conf::setRoot(std::string root)
 {
 	this->root.clear();
 	this->root.append(root);
+}
+
+void Server_conf::setHost(std::string host)
+{
+	this->host.clear();
+	this->host.append(host);
 }
 
 void Server_conf::setRouteRoot(std::string root)
@@ -180,6 +191,7 @@ void Server_conf::printServer()
 	std::cout << "********Server********" << std::endl;
 
 	std::cout << "Server name : " << this->server_name << std::endl;
+	std::cout << "Host : " << this->host << std::endl;
 	std::cout << "Body Max Size : " << this->body_max_size << std::endl;
 	std::cout << "root : " << this->root << std::endl;
 

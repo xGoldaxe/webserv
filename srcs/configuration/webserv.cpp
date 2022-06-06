@@ -17,7 +17,8 @@ static int return_type_parse(std::string s)
 									  "methods", "enable_cgi",
 									  "cgi_extension", "body_max_size", "server",
 									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
-									  "server_body_size", "send_file", "file_limit", "client_header_size"};
+									  "server_body_size", "send_file", "file_limit", "client_header_size",
+									  "host"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -378,7 +379,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case CLIENT_HEADER_SIZE_PARSING:
 			// server int
 			if (contextlocation)
-				throw std::invalid_argument("Error parsing, encountered client_header_size in a locatoin");
+				throw std::invalid_argument("Error parsing, encountered client_header_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				server.setClientHeaderSize(std::atoi(words[it + 2].c_str()));
@@ -387,6 +388,20 @@ Webserv_conf::Webserv_conf(std::string filename)
 			else
 			{
 				throw std::invalid_argument("Error parsing client_header_size!");
+			}
+			break;
+		case HOST_PARSING:
+			// server string
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered host in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.setHost(words[it + 2]);
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing host");
 			}
 			break;
 		default:

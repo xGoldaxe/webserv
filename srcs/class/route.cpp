@@ -268,10 +268,8 @@ void Route::printRoute()
 	else
 	{
 		std::cout << "None";
+		std::cout << std::endl;
 	}
-
-	std::cout << std::endl;
-
 	std::cout << "Redirection : " << std::endl;
 	if (!this->redirections.empty())
 	{
@@ -283,9 +281,8 @@ void Route::printRoute()
 	else
 	{
 		std::cout << "None";
+		std::cout << std::endl;
 	}
-
-	std::cout << std::endl;
 
 	std::cout << "Auto Index : " << this->auto_index << std::endl;
 
@@ -298,14 +295,15 @@ void Route::printRoute()
 	{
 		for (itex = this->cgi_extension.begin(); itex != this->cgi_extension.end(); itex++)
 		{
-			std::cout << *itex << " ";
+			std::cout << *itex << " " << std::endl ;
 		}
 	}
 	else
 	{
 		std::cout << "None";
+		std::cout << std::endl;
 	}
-	std::cout << std::endl;
+
 
 	std::cout << "CGI Timeout : " << this->cgi_timeout << std::endl;
 

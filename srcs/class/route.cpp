@@ -288,7 +288,10 @@ void Route::printRoute()
 
 	std::cout << "CGI Enabled : " << this->cgi_enable << std::endl;
 
-	std::cout << "CGI Path : " << this->cgi_path << std::endl;
+	if(!this->cgi_path.empty())
+		std::cout << "CGI Path : " << this->cgi_path << std::endl;
+	else
+		std::cout << "CGI Path : Undefined " << std::endl;
 
 	std::cout << "CGI Extensions : ";
 	std::cout << std::endl;

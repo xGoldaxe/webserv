@@ -10,6 +10,7 @@ class Connection
 		Response	_res;
 		std::string	_raw_data;
 		bool		_is_init;
+		time_t	 	_begin_time;
 		Connection( void );
 
 	public:
@@ -24,9 +25,12 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	add_data( char * buffer );
+		void	queue_iteration();
 		void	process();
 		void	soft_clear();
 		bool	init_request();
+		/* error case */
+		bool	is_timeout(void);
 
 
 		/* getter */
@@ -35,4 +39,5 @@ class Connection
 		Response	get_res() const;
 		std::string	get_data() const;
 		bool		is_init() const;
+		time_t		get_time() const;
 };

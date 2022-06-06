@@ -133,12 +133,18 @@ bool	Request::is_fulfilled() const
 /* return the amount of char added to the body */
 std::size_t	Request::feed_body( std::string add_str )
 {
-	std::size_t missing = this->body_length - this->body.size();
+	if ( add_str.size() == 0 )
+		return 0;
+	std::size_t missing = this->body_length;
 	if ( missing > add_str.size() )
 	{
-		this->body += add_str;
+		// this->body += add_str;
+		std::cout << "body part [" << add_str << "]" << std::endl;
+		this->body_length -= add_str.size();
 		return add_str.size();
 	}
-	this->body += add_str.substr( 0, missing );
+	// this->body += add_str.substr( 0, missing );
+	std::cout << "body part [" << add_str.substr( 0, missing ) << "]" << std::endl;
+	this->body_length -= missing;
 	return missing;
 }

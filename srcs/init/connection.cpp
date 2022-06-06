@@ -1,15 +1,44 @@
 #include "connection.hpp"
 #include "unistd.h"
 
+#define ONREAD_TIMEOUT 30
+#define IDLE_TIMEOUT 60
+/*************************
+* @erroer case functions
+* ***********************/
+bool	Connection::is_timeout(void)
+{
+	time_t now = time(NULL);
+	if ( this->_raw_data.size() > 0 )
+	{
+		if ( now - this->_begin_time > ONREAD_TIMEOUT )
+		{
+			std::cout << "on_read" << std::endl;
+			return true;
+		}
+	}
+	if ( now - this->_begin_time > IDLE_TIMEOUT )
+	{
+		std::cout << "on_idle" << std::endl;
+		return true;
+	}
+	return false;
+}
+
 /*************************
 * @important functions
 * ***********************/
 /* like a get next line, but a "bit" more complex */
 void	Connection::add_data( char * buffer )
 {
+	// if we start to write a new request, we reset the timer!
+	if ( this->_raw_data.size() == 0 )
+		this->_begin_time = time(NULL);
 	this->_raw_data += buffer;
-	std::cout << this->_raw_data << std::endl;
+}
 
+void	Connection::queue_iteration()
+{
 	// error case
 	/*
 	if size of raw_data > MAX_HEADERS_SIZE
@@ -23,6 +52,7 @@ void	Connection::add_data( char * buffer )
 	{
         this->init_request();
 		this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
+		std::cout << "remain {" << this->_raw_data << "}" << std::endl;
 	}
 
 	// add the data to the body, only add what is required and store the remaining data
@@ -86,6 +116,7 @@ void	Connection::process()
 		this->_res.send();
 		close( this->_res.client_socket );
 	}
+	this->_begin_time = time(NULL);
 }
 
 /* clear only the things we dont want anymore */
@@ -121,13 +152,16 @@ bool	Connection::is_fulfilled()
 * @coplien
 * ***********************/
 Connection::Connection( int fd ) : _fd( fd ), _is_init( false )
-{}
+{
+	this->_begin_time = time(NULL);
+}
 
 Connection::Connection( Connection const &src ) :
 	_fd( src.get_fd() ),
 	_req( src.get_req() ),
 	_res( src.get_res() ),
-	_raw_data( src.get_data() )
+	_raw_data( src.get_data() ),
+	_begin_time( src.get_time() )
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
@@ -137,6 +171,7 @@ Connection &	Connection::operator=( Connection const & rhs )
 	this->_res = rhs.get_res();
 	this->_raw_data = rhs.get_data();
 	this->_is_init = rhs.is_init();
+	this->_begin_time = rhs.get_time();
 	return *this;
 }
 
@@ -169,4 +204,9 @@ std::string	Connection::get_data( void ) const	{
 bool	Connection::is_init( void ) const	{
 
 	return ( this->_is_init );
+}
+
+time_t	Connection::get_time( void ) const	{
+	
+	return ( this->_begin_time );
 }

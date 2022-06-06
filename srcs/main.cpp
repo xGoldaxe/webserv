@@ -91,6 +91,7 @@ int main(int argc, char **argv, char **env)
 	while (true) {
 		serv.handle_client();
 		serv.wait_for_connections();
+		serv.trigger_queue();
 	}
 	/* connections must have a lifetime */
 	return 0;

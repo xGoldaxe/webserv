@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <map>
+#include <queue>
 #include <fstream>
 #include <string>
 #include <sys/epoll.h>
@@ -38,6 +39,7 @@ class Server {
 		void    init_connection();
 		void    handle_client();
 		void    wait_for_connections();
+		void	trigger_queue(void);
 
 		// Getters
 		int     get_socket() const;
@@ -49,9 +51,11 @@ class Server {
 		int							_socket_fd;
 		int							_poll_fd;
 		std::map<int, Connection>	_connections;
+		std::queue<Connection*>		_c_queue;
 
 		short    _select_port();
 		void     _report( s_server_addr_in *server_addr );
 
 		void    read_connection( int client_socket );
+		bool	close_connection( int client_socket );
 };

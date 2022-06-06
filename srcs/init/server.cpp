@@ -42,12 +42,12 @@ void  Server::trigger_queue( void )
 
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
-		Response *res = it->second.queue_iteration();
-		if ( it->second.is_timeout() )
-		 	to_close.push( it->second );
-        else if (res)
-            this->queue_response(res);
-	}
+		bool should_queue_res = it->second.queue_iteration();
+		if (it->second.is_timeout())
+		 	to_close.push(it->second);
+        else if (should_queue_res)
+            this->queue_response(it->second.get_res());
+    }
 	while (!to_close.empty())
 	{
 		this->close_connection( to_close.front().get_fd() );

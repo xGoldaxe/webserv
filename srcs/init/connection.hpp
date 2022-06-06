@@ -25,8 +25,8 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	add_data( char * buffer );
-		Response	*queue_iteration();
-		Response *process();
+		bool	queue_iteration();
+		void	process();
 		void	soft_clear();
 		bool	init_request();
 		/* error case */

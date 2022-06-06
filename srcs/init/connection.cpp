@@ -37,7 +37,7 @@ void	Connection::add_data( char * buffer )
 	this->_raw_data += buffer;
 }
 
-Response	*Connection::queue_iteration()
+bool	Connection::queue_iteration()
 {
 	// error case
 	/*
@@ -64,16 +64,17 @@ Response	*Connection::queue_iteration()
 
     if ( this->is_invalid_req() || this->is_fulfilled() )
 	{
-        return this->process();
+        this->process();
 		this->soft_clear();
+		return true;
 	}
 
+	return false;
 	/* maybe we have enough data to run a second consecutive request, perhaps this is
 	extremely dangerous, a user could chain many request and take all the trafic for a while.
 	Since the minimal request is "GET / HTTP/1.1\r\n\r\n"(19 bytes), and each read can be over 1000 bytes.
 	we have to process all data already reader before accept connections again. So lets create a queue with
 	all Connections with "remaining data"*/
-	return NULL;
 }
 
 /* init with conf informations, and other usefull things for req and res */
@@ -98,7 +99,7 @@ bool	Connection::init_request()
 
 /* all big work happen here */
 
-Response	*Connection::process()
+void	Connection::process()
 {
 	Webserv_conf conf;
 	
@@ -106,7 +107,7 @@ Response	*Connection::process()
 	http_header_server( this->_req, *this->_res );
 	if ( this->_req.is_request_valid() )
 	{
-		this->_req.try_url( *this->_res );
+		this->_req.try_url( this->_res );
 		/* generic headers */
 		this->_res->add_header( "Connection", "keep-alive" );
 		this->_res->add_header("Keep-Alive", "timeout=5, max=10000");
@@ -119,7 +120,6 @@ Response	*Connection::process()
 		close( this->_res->client_socket );
 	}
 	this->_begin_time = time(NULL);
-	return this->_res;
 }
 
 /* clear only the things we dont want anymore */

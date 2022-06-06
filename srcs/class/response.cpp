@@ -86,7 +86,7 @@ size_t	Response::get_size_next_chunk()
  */
 int		Response::send_chunk()
 {
-	if (this->body.size() > MAX_BODY_LENGTH)
+	if (this->_return_body_type != BODY_TYPE_FILE && this->body.size() > MAX_BODY_LENGTH)
 	{
 		std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
 		std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";

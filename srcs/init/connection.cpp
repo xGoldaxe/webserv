@@ -10,11 +10,9 @@ bool	Connection::is_timeout(void)
 {
 	time_t now = time(NULL);
 
-	if (this->_raw_data.size() > 0 && now - this->_begin_time > ONREAD_TIMEOUT)
-		return true;
-	if (now - this->_begin_time > IDLE_TIMEOUT)
-		return true;
-	return false;
+	if ( this->_raw_data.size() > 0 )
+		return ( now - this->_begin_time > ONREAD_TIMEOUT );
+	return ( now - this->_begin_time > IDLE_TIMEOUT );
 }
 
 /*************************

@@ -259,6 +259,12 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 	this->servers.push_back(server);
 
+	//Assign a default port to the first server if none defined in parsing
+	if(!this->servers.empty() && this->servers[0].getPort().empty())
+	{
+		this->servers[0].addPort(DEFAULT_PORT); 
+	}
+
 	#ifdef DEBUG
 	std::vector<Server_conf> vecdebug = this->servers;
 	unsigned int iterdebug = 0;

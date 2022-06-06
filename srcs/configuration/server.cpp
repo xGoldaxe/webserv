@@ -31,7 +31,7 @@ Server_conf::Server_conf(int emp)
 	//default body max size
 	this->body_max_size = DEFAULT_BODY_MAX_SIZE;
 	//default port
-	this->port.push_back(DEFAULT_PORT);
+	//this->port.push_back(DEFAULT_PORT);
 }
 
 std::list<short> Server_conf::getPort() const
@@ -139,7 +139,7 @@ void Server_conf::printServer()
 		std::cout << "Ports : ";
 		for (itp = this->port.begin(); itp != this->port.end(); itp++)
 		{
-			std::cout << *itp;
+			std::cout << *itp << " ";
 		}
 		std::cout << std::endl;
 	}

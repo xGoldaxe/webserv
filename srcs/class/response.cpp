@@ -1,13 +1,34 @@
 #include "response.hpp"
 
-Response::Response(int client_socket, Webserv_conf &conf, Request const &req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
-{
-	this->version = this->conf.getHttpVersion();
+Response::Response(void)
+{}
 
-	if (req.is_request_valid() == false)
-		this->set_status(400, "Bad Request");
-	else if (this->version != req.get_http_version())
-		this->set_status(505, "HTTP Version Not Supported");
+Response::Response(int client_socket, Webserv_conf conf, Request const *req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
+{
+	this->version = "HTTP/1.1";
+}
+
+Response::Response( Response const &src )
+{
+	*this = src;
+}
+
+Response &   Response::operator=( Response const & rhs )
+{
+	this->conf = rhs.conf;
+	this->version = rhs.version;
+	this->headers = rhs.headers;
+	this->req = rhs.req;
+
+	this->status_code = rhs.status_code;
+	this->status_message = rhs.status_message;
+	this->body = rhs.body;
+	this->client_socket = rhs.client_socket;
+
+	this->_return_body_type = rhs._return_body_type;
+	this->_file_len = rhs._file_len;
+
+	return *this;
 }
 
 Response::~Response(void)
@@ -33,7 +54,7 @@ void Response::set_status(int status_code, std::string msg)
 int Response::send()
 {
 	/* add some headers */
-	http_header_content_length(this->req, *this);
+	http_header_content_length(*this->req, *this);
 
 	std::string headers_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
@@ -65,7 +86,7 @@ size_t	Response::get_size_next_chunk()
  */
 int		Response::send_chunk()
 {
-	if (this->body.size() > MAX_BODY_LENGTH)
+	if (this->_return_body_type != BODY_TYPE_FILE && this->body.size() > MAX_BODY_LENGTH)
 	{
 		std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
 		std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
@@ -169,7 +190,7 @@ std::string & Response::error_body(void) {
 	try
 	{
 		//this line throw an error if page not find
-		std::string filename = this->req.route.get_error_pages().at( this->status_code );
+		std::string filename = this->req->route.get_error_pages().at( this->status_code );
 		if ( usable_file( filename ) )
 		{
 			this->_return_body_type = BODY_TYPE_FILE;

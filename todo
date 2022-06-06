@@ -1,8 +1,8 @@
-#parsing
+# alternation with reading connections and q connections
+# check how to put out socket when they havent validate a request since TIMEOUT seconds ( thats mean also very slow request that havent sent all their data )
+# add header max_size
+# secure path, secure and check method ( this work will be on request itself );
 
 
-#datack
-redefine const with a filename in webserv_conf to parse our custom conf files
-
-GET /sub/index.html HTTP/1.2
-Host: localhost:3000
+// add queue
+// tigger queue

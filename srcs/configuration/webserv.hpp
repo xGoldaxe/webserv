@@ -41,6 +41,8 @@ class Webserv_conf
 		std::string				 getHttpVersion() const;
 		static void 			testconf(char *argv);
 
+		Webserv_conf &   operator=( Webserv_conf const & rhs );
+
 /* exceptions */
         class FailedToOpenFile : public std::exception	{
             public:

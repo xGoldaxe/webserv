@@ -17,8 +17,8 @@ class Response;
 class Request
 {
 
-	private:
-		Webserv_conf							&conf;
+	protected:
+		Webserv_conf							conf;
 		std::string								method;
 		std::string								url;
 		std::string								legacy_url;
@@ -26,15 +26,15 @@ class Request
 		std::string								body;
 		std::string								version;
 		bool									request_validity;
+		std::size_t								body_length;
 
-		Request( void );
 	public:
 		bool			auto_index;
 		Route			route;
 		char			**env;
 
 		/* coplien */
-		Request( int socket_data, Webserv_conf &conf );
+		Request( void );
 		Request( Request const &src );
 		~Request( void );
 
@@ -48,7 +48,6 @@ class Request
 		void		fill_body( std::string body );
 		/* fill from parsed req */
 
-
 		std::string	getMethod(void) const;
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
@@ -59,7 +58,10 @@ class Request
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
 
-		void		try_url( Response & res );
+		std::size_t	feed_body( std::string add_str );
+		bool		is_fulfilled(void) const;
+		void		try_construct( std::string raw_request, Webserv_conf conf );
+		void		try_url( Response * res );
 		void		check_file_url(void);
 		bool		is_redirection( std::string &redir_str );
 

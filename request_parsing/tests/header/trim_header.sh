@@ -15,7 +15,6 @@ Random-header2:                 salut                  \r\n\
 Random-header3:salut\r\n\
 Random-header4:salut          \r\n\
 Random-header5:           salut\r\n\
-\r\n
 "
 
 # excepted

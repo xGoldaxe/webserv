@@ -6,8 +6,6 @@ server
 	body_max_size = 2048 ;
 	read_timeout = 10 ;
 	server_body_size = 2048;
-	send_file on ;
-	file_limit 5000;
 	client_header_size 2048;
 	location /
 	{
@@ -16,14 +14,16 @@ server
 		error_page 404 = 404.html ;
 		methods = POST GET DELETE ;
 		return /sub moved.html ;
-		autoindex on;
+		autoindex on ;
+		send_file on ;
+		file_limit 5000 ;
 	}
 	location /php 
 	{ 
 		root ./php ;
 		index = index.php ;
 		enable_cgi on ; 
-		cgi_extension = .php ;
+		cgi_extension = php js ;
 		cgi_timeout = 10 ;
 	}
 }

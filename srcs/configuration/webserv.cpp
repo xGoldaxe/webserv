@@ -221,10 +221,12 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case ENABLE_CGI_PARSING:
+			// location bool
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered enable cgi outside of location");
 			break;
 		case CGI_EXTENSION_PARSING:
+			// location cgi_extension machin machin ... ;
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered cgi extension outside of location");
 			break;
@@ -250,20 +252,55 @@ Webserv_conf::Webserv_conf(std::string filename)
 			server = Server_conf(1);
 			break;
 		case REWRITE_PARSING:
+			// location
 			break;
 		case AUTOINDEX_PARSING:
+			// location bool
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered auto index outside of location");
+			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0 && (words[it + 1].compare("on") == 0 || words[it + 1].compare("off") == 0))
+			{
+				if (words[it + 1].compare("on") == 0)
+					server.setRouteAutoIndex(true);
+				else
+					server.setRouteAutoIndex(false);
+				it = it + 2;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing autoindex");
+			}
+
 			break;
 		case CGI_TIMEOUT_PARSING:
+			// location int seconds
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered cgi timeout outside of location");
 			break;
 		case READ_TIMEOUT_PARSING:
+			// server int seconds
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
 			break;
 		case SERVER_BODY_SIZE_PARSING:
+			// server int
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered server body size in a location");
 			break;
 		case SEND_FILE_PARSING:
+			// location bool
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered send_file outside of location");
 			break;
 		case FILE_LIMIT_PARSING:
+			// location int megabytes
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered file_limit outside of location");
 			break;
 		case CLIENT_HEADER_SIZE_PARSING:
+			// server int
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered client_header_size in a locatoin");
 			break;
 		default:
 			break;
@@ -272,13 +309,13 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 	this->servers.push_back(server);
 
-	//Assign a default port to the first server if none defined in parsing
-	if(!this->servers.empty() && this->servers[0].getPort().empty())
+	// Assign a default port to the first server if none defined in parsing
+	if (!this->servers.empty() && this->servers[0].getPort().empty())
 	{
-		this->servers[0].addPort(DEFAULT_PORT); 
+		this->servers[0].addPort(DEFAULT_PORT);
 	}
 
-	#ifdef DEBUG
+#ifdef DEBUG
 	std::vector<Server_conf> vecdebug = this->servers;
 	unsigned int iterdebug = 0;
 	while (iterdebug < vecdebug.size())
@@ -286,5 +323,5 @@ Webserv_conf::Webserv_conf(std::string filename)
 		vecdebug[iterdebug].printServer();
 		iterdebug++;
 	}
-	#endif
+#endif
 }

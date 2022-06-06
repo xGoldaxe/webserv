@@ -68,6 +68,7 @@ class Route
 		void								add_redirection( std::string url, std::string redirect_url );
 		void								printRoute();
 		void								printMethods();
+		void								set_auto_index(bool auto_index);
 		void 								set_root(std::string root);
 		void								set_cgi_timeout(int cgi_timeout);
 		void								set_send_file(bool send_file);

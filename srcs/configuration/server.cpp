@@ -135,6 +135,11 @@ void Server_conf::setClientHeaderSize(int client_header_size)
 	this->client_header_size = client_header_size;
 }
 
+void Server_conf::setRouteAutoIndex(bool auto_index)
+{
+	this->routes.back().set_auto_index(auto_index);
+}
+
 void Server_conf::printServer()
 {
 #ifdef DEBUG
@@ -153,7 +158,6 @@ void Server_conf::printServer()
 	std::cout << "Read Timeout : " << this->read_timeout << std::endl;
 	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
 	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
-
 
 	if ((!this->port.empty()))
 	{

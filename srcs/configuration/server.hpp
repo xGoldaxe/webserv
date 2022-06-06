@@ -63,4 +63,6 @@ class Server_conf
 		void							setReadTimeOut(int read_timeout);
 		void							setServerBodySize(int server_body_size);
 		void 							setClientHeaderSize(int client_header_size);
+		void 							setRouteAutoIndex(bool auto_index);
+
 };

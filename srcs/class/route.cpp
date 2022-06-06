@@ -196,17 +196,21 @@ void Route::set_file_limit(int file_limit)
 	this->file_limit = file_limit;
 }
 
+void Route::set_auto_index(bool auto_index)
+{
+	this->auto_index = auto_index;
+}
+
 bool Route::is_in_extension(std::string extension)
 {
- 	std::vector<std::string>::iterator it;
+	std::vector<std::string>::iterator it;
 	it = std::find(this->cgi_extension.begin(), this->cgi_extension.end(), extension);
-	if(it == this->cgi_extension.end())
+	if (it == this->cgi_extension.end())
 	{
 		if (*it != extension)
 			return false;
 	}
 	return true;
-
 }
 
 void Route::printRoute()
@@ -218,7 +222,6 @@ void Route::printRoute()
 	std::map<int, std::string>::iterator ite;
 	std::map<std::string, std::string>::iterator itre;
 	std::vector<std::string>::iterator itex;
-
 
 	std::cout << "***Route***" << std::endl;
 

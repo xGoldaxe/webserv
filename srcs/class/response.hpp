@@ -12,6 +12,13 @@
 #include "errors/http_code.hpp"
 #include "cgi/cgi_manager.hpp"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <cstdlib>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #define MAX_BODY_LENGTH 5096
 
 #define BODY_TYPE_FILE		1
@@ -31,6 +38,9 @@ class Response
 		std::ifstream							_in_file;
 		size_t									_file_len;
 
+		Response &operator=(Response const &rhs);
+		Response(void);
+
 	public:
 		int				status_code;
 		std::string		status_message;
@@ -41,10 +51,8 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response( void );
 		Response( int client_socket, Webserv_conf conf, const Request *req );
 		Response( Response const &src );
-		Response &   operator=( Response const & rhs );
 		~Response( void );
 
 		/* end coplien */

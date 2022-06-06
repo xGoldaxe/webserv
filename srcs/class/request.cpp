@@ -105,26 +105,26 @@ and if no conditions are check it goes to check the file to serve and throw an e
 /* each case work as block that can be interchanged ( except the last one ) */
 /* nous on a que deux cas a gerer, redirection et la fallback */
 
-void Request::try_url( Response & res ) {
+void Request::try_url( Response * res ) {
 
 	try
 	{
 		std::string redir_str;
 		if ( is_redirection( redir_str ) ) {
 
-			res.set_status( 301, "Moved Permanently" );
-			res.add_header( "Location", redir_str );
+			res->set_status( 301, "Moved Permanently" );
+			res->add_header( "Location", redir_str );
 			return ;
 		}
 		// may throw errors
 		this->check_file_url();
-		res.set_status( 200, "OK" );
-		res.load_body( *this );
-		http_header_content_type( *this, res );
+		res->set_status( 200, "OK" );
+		res->load_body( *this );
+		http_header_content_type( *this, *res );
 	} 
 	catch (const HTTPError &e) {
-		res.set_status( e.getCode(), e.getDescription() );
-		res.error_body();
+		res->set_status( e.getCode(), e.getDescription() );
+		res->error_body();
 	}
 }
 

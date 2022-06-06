@@ -11,7 +11,7 @@ bool	Server::close_connection( int client_socket )
 
 	close( client_socket );
 	std::map<int, Connection>::iterator it = this->_connections.find( client_socket );
-	bool ret_val = it != this->_connections.end();
+	bool ret_val = (it != this->_connections.end());
 	if ( ret_val )
 		this->_connections.erase( it );
 	return ret_val;
@@ -42,11 +42,13 @@ void  Server::trigger_queue( void )
 
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
-		it->second.queue_iteration();
+		Response *res = it->second.queue_iteration();
 		if ( it->second.is_timeout() )
 		 	to_close.push( it->second );
+        else if (res)
+            this->queue_response(res);
 	}
-	while ( to_close.size() > 0 )
+	while (!to_close.empty())
 	{
 		this->close_connection( to_close.front().get_fd() );
 		to_close.pop();

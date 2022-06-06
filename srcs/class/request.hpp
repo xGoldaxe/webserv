@@ -61,7 +61,7 @@ class Request
 		std::size_t	feed_body( std::string add_str );
 		bool		is_fulfilled(void) const;
 		void		try_construct( std::string raw_request, Webserv_conf conf );
-		void		try_url( Response & res );
+		void		try_url( Response * res );
 		void		check_file_url(void);
 		bool		is_redirection( std::string &redir_str );
 

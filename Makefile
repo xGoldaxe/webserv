@@ -1,5 +1,4 @@
 SRCS	=	main.cpp \
-			get_response.cpp \
 			utils/file.cpp \
 			utils/string.cpp \
 			init/server.cpp \

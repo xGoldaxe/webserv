@@ -7,7 +7,7 @@ class Connection
 	private:
 		int			_fd;
 		Request		_req;
-		Response	_res;
+		Response	*_res;
 		std::string	_raw_data;
 		bool		_is_init;
 		time_t	 	_begin_time;
@@ -25,8 +25,8 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	add_data( char * buffer );
-		void	queue_iteration();
-		void	process();
+		Response	*queue_iteration();
+		Response *process();
 		void	soft_clear();
 		bool	init_request();
 		/* error case */
@@ -36,7 +36,7 @@ class Connection
 		/* getter */
 		int			get_fd() const;
 		Request 	get_req() const;
-		Response	get_res() const;
+		Response	*get_res() const;
 		std::string	get_data() const;
 		bool		is_init() const;
 		time_t		get_time() const;

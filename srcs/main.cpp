@@ -94,7 +94,7 @@ int main(int argc, char **argv, char **env)
 		serv.handle_client();
 		serv.wait_for_connections();
 		serv.trigger_queue();
-		// 	serv.handle_client();
+		serv.handle_responses();
 
 		// 	struct epoll_event evlist[SIZE];
 		// 	int nbr_req = epoll_wait(serv.get_poll_fd(), evlist, SIZE, 0);

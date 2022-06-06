@@ -45,6 +45,7 @@ class Server {
 		~Server();
 		void    init_connection();
 		void    handle_client();
+		void    handle_responses();
 		void    wait_for_connections();
 		void	trigger_queue(void);
         bool    queue_response(Response *res);

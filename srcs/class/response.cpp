@@ -1,6 +1,9 @@
 #include "response.hpp"
 
-Response::Response(int client_socket, Webserv_conf &conf, Request const *req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
+Response::Response(void)
+{}
+
+Response::Response(int client_socket, Webserv_conf conf, Request const *req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
 {
 	this->version = "HTTP/1.1";
 }
@@ -21,6 +24,10 @@ Response &   Response::operator=( Response const & rhs )
 	this->status_message = rhs.status_message;
 	this->body = rhs.body;
 	this->client_socket = rhs.client_socket;
+
+	this->_return_body_type = rhs._return_body_type;
+	this->_file_len = rhs._file_len;
+
 	return *this;
 }
 
@@ -183,7 +190,7 @@ std::string & Response::error_body(void) {
 	try
 	{
 		//this line throw an error if page not find
-		std::string filename = this->req.route.get_error_pages().at( this->status_code );
+		std::string filename = this->req->route.get_error_pages().at( this->status_code );
 		if ( usable_file( filename ) )
 		{
 			this->_return_body_type = BODY_TYPE_FILE;

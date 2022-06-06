@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-Server::Server() : _socket_fd(0), _poll_fd(0)
+Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
 {
     this->_port = 3000;
 
@@ -56,6 +56,7 @@ void Server::init_connection()
 
 bool    Server::queue_response(Response *res)
 {
+    this->_request_handled++;
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
     } else {
@@ -78,7 +79,6 @@ void    Server::handle_responses()
         } else {
             size_t exchange = res->send_chunk();
             if (exchange > 0) {
-                std::cout << exchange << std::endl;
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";
@@ -166,4 +166,9 @@ void Server::_bind_port()
         sleep(1);
         i++;
     }
+}
+
+size_t Server::countHandledRequest()
+{
+    return this->_request_handled;
 }

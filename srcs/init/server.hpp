@@ -44,6 +44,7 @@ class Server {
         // Getters
         int     get_socket() const;
         int     get_poll_fd() const;
+        size_t  countHandledRequest();
 
         bool    queue_response(Response *res);
         void    handle_responses();
@@ -54,6 +55,7 @@ class Server {
         int                     _socket_fd;
         int                     _poll_fd;
         std::queue<Response *>   _queue;
+        size_t                   _request_handled;
 
         void     _report(s_server_addr_in *server_addr);
         void     _bind_port();

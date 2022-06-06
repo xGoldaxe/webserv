@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-Server::Server() : _socket_fd(0), _poll_fd(0)
+Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
 {
     this->_port = 3000;
 
@@ -56,6 +56,7 @@ void Server::init_connection()
 
 bool    Server::queue_response(Response *res)
 {
+    this->_request_handled++;
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
     } else {
@@ -68,9 +69,12 @@ void    Server::handle_responses()
 {
     std::queue<Response *> new_queue;
 
-    while (!this->_queue.empty() && exit_code == 0) {
-        Response *res = this->_queue.front();
+    int runner_i = 0;
 
+    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && exit_code == 0)
+    {
+        Response *res = this->_queue.front();
+        
         /* with MSG_PEEK, no data will be ride of the socket */
         char buffer[256];
         if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
@@ -78,7 +82,6 @@ void    Server::handle_responses()
         } else {
             size_t exchange = res->send_chunk();
             if (exchange > 0) {
-                std::cout << exchange << std::endl;
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";
@@ -88,6 +91,14 @@ void    Server::handle_responses()
             }
         }
 
+        this->_queue.pop();
+
+        runner_i++;
+    }
+
+    while (!this->_queue.empty() && exit_code == 0) {
+        Response *res = this->_queue.front();
+        new_queue.push(res);
         this->_queue.pop();
     }
 
@@ -166,4 +177,9 @@ void Server::_bind_port()
         sleep(1);
         i++;
     }
+}
+
+size_t Server::countHandledRequest()
+{
+    return this->_request_handled;
 }

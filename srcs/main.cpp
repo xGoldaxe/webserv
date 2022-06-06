@@ -28,6 +28,8 @@ void process_request(int client_socket, char **env, Server &serv)
 	Response *res = new Response(client_socket, conf, req);
 	http_get_response(req, *res);
 
+	std::cout << "[request]" << "[" << req.getMethod() << "] [" << serv.countHandledRequest() << "] " << req.get_legacy_url() << std::endl;
+
 	serv.queue_response(res);
 }
 
@@ -66,6 +68,7 @@ int main(int argc, char **argv, char **env)
 	}
 
 	signal(SIGINT, signalHandler);
+	signal(SIGPIPE, SIG_IGN);
 
 	exit_code = 0;
 

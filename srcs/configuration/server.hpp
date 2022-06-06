@@ -67,5 +67,9 @@ class Server_conf
 		void							set_cgi_timeout(int cgi_timeout);
 		void							set_send_file(bool send_file);
 		void							set_file_limit(int file_limit);
+		void							set_enable_cgi(bool enable_cgi);
+		void							addRouteRedirection(std::string url, std::string redirect);
+		void 							addRouteCGIExtension(std::string extension);
+
 
 };

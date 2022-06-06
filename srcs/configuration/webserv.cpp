@@ -226,6 +226,18 @@ Webserv_conf::Webserv_conf(std::string filename)
 			// location bool
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered enable cgi outside of location");
+			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0 && (words[it + 1].compare("on") == 0 || words[it + 1].compare("off") == 0))
+			{
+				if (words[it + 1].compare("on") == 0)
+					server.set_enable_cgi(true);
+				else
+					server.set_enable_cgi(false);
+				it = it + 2;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing enable_cgi");
+			}
 			break;
 		case CGI_EXTENSION_PARSING:
 			// location cgi_extension machin machin ... ;
@@ -258,6 +270,19 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case REWRITE_PARSING:
 			// location
+			// rewrite url url ;
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered redirection outside of location");
+			if ((it + 3) < words.size() && words[it + 3].compare(";") == 0)
+			{
+				server.addRouteRedirection(words[it + 1], words[it + 2]);
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing rewrite!");
+			}
+			break;
 			break;
 		case AUTOINDEX_PARSING:
 			// location bool

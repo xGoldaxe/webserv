@@ -153,6 +153,21 @@ void Server_conf::set_file_limit(int file_limit)
 	this->routes.back().set_file_limit(file_limit);
 }
 
+void Server_conf::set_enable_cgi(bool enable_cgi)
+{
+	this->routes.back().set_enable_cgi(enable_cgi);
+}
+
+void Server_conf::addRouteRedirection(std::string url, std::string redirect)
+{
+	this->routes.back().add_redirection(url, redirect);
+}
+
+void Server_conf::addRouteCGIExtension(std::string extension)
+{
+	this->routes.back().add_cgi_extension(extension);
+}
+
 void Server_conf::printServer()
 {
 #ifdef DEBUG

@@ -270,6 +270,8 @@ void Route::printRoute()
 		std::cout << "None";
 	}
 
+	std::cout << std::endl;
+
 	std::cout << "Redirection : " << std::endl;
 	if (!this->redirections.empty())
 	{

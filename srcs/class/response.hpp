@@ -7,7 +7,10 @@
 
 #include "webserv.hpp"
 
+class Response;
+
 #include "request.hpp"
+
 #include "configuration/webserv.hpp"
 #include "errors/http_code.hpp"
 #include "cgi/cgi_manager.hpp"
@@ -24,16 +27,14 @@
 #define BODY_TYPE_FILE		1
 #define BODY_TYPE_STRING	2
 
-class Request;
-
 class Response
 {
-
 	protected:
 		Webserv_conf							conf;
 		std::string								version;
 		std::map<std::string, std::string>		headers;
 		const Request							*req;
+		Request									cpy_req;
 		int										_return_body_type;
 		std::ifstream							_in_file;
 		size_t									_file_len;

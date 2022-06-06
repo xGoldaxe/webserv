@@ -11,7 +11,7 @@ Server_conf::Server_conf(void)
 	routes.push_back(route1);
 	routes.push_back(route2);
 	routes.back().enable_cgi("/usr/bin/php", "php");
-	routes.at(0).add_error_page(404, "defaultPages/404.html");
+	// routes.at(0).add_error_page(404, "defaultPages/404.html");
 	this->body_max_size = 2048;
 	this->root = DEFAULT_ROOT;
 }

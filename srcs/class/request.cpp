@@ -21,7 +21,7 @@ std::string Request::getUrl(void)
 {
 	return (url);
 }
-std::string Request::get_legacy_url(void)
+std::string Request::get_legacy_url(void) const
 {
 	return this->legacy_url;
 }
@@ -65,6 +65,18 @@ bool	cat_test( std::string it, std::string &res )
 	return ( is_file( res ) == IS_FILE_NOT_FOLDER );
 }
 
+std::string go_through_it_until(std::vector<std::string> values,
+	bool (*rule)(std::string, std::string &))
+{
+	std::string res;
+	for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); ++it)
+	{
+		if (rule(*it, res))
+			return res;
+	}
+	throw HTTPCode404();
+}
+
 void	Request::check_file_url(void)
 {
 	// this->route.auto_index = false; /** @todo NEED TO DO THIS! */
@@ -80,8 +92,7 @@ void	Request::check_file_url(void)
 		store_cat_test( true, finish_by_only_one( this->url, '/' ) );
 		this->url = go_through_it_until(
 			this->conf.getServers()[0].getIndex(), /** @todo NEED TO DO THIS! */
-			&cat_test,
-			HTTPCode404()
+			&cat_test
 		);
 	}
 }
@@ -111,7 +122,6 @@ void Request::try_url( Response * res ) {
 	{
 		std::string redir_str;
 		if ( is_redirection( redir_str ) ) {
-
 			res->set_status( 301, "Moved Permanently" );
 			res->add_header( "Location", redir_str );
 			return ;

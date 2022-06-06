@@ -3,14 +3,10 @@
 #include <algorithm>
 #include <string.h>
 
-#include "utils/go_through_until.hpp"
 #include "utils/string.hpp"
 #include "utils/file.hpp"
-
 #include "route.hpp"
-#include "response.hpp"
 #include "configuration/webserv.hpp"
-#include "http_header/http_header.hpp"
 
 class Response;
 
@@ -52,7 +48,7 @@ class Request
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
 		std::string getUrl(void);
-		std::string get_legacy_url(void);
+		std::string get_legacy_url(void) const;
 		std::string getRelativeUrl(void);
 		Route		get_route(void);
 		bool		is_request_valid(void) const;
@@ -74,3 +70,6 @@ class Request
                 }
         };
 };
+
+#include "response.hpp"
+#include "http_header/http_header.hpp"

@@ -24,9 +24,6 @@ void store_data_from_raw_req(
 	if (!stored_req)
 		throw std::exception();
 
-	std::cout << parsed_first_line[0] << std::endl;
-	std::cout << parsed_first_line[1] << std::endl;
-	std::cout << parsed_first_line[2] << std::endl;
 	stored_req->fill_start_line(
 		parsed_first_line[0],
 		parsed_first_line[1],
@@ -87,7 +84,6 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 	/* find body length */
 
 	this->request_validity = true;
-	std::cout << "Well parsed" << std::endl;
 };
 
 Route find_route(std::vector<Route> routes, std::string url)
@@ -102,7 +98,6 @@ Route find_route(std::vector<Route> routes, std::string url)
 			route = Route(*it, 1);
 		}
 	}
-	// std::cout << "const " << (*route)->error_pages.begin()->second << std::endl;
 
 	return route;
 }

@@ -1,8 +1,7 @@
 #include "server.hpp"
 
-Server_conf::Server_conf(void)
+Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST) ,body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
 {
-	this->server_name = DEFAULT_SERVER_NAME;
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
 	Route route1("/", "./www");
@@ -10,10 +9,10 @@ Server_conf::Server_conf(void)
 	route1.add_redirection("/moved.html", "/sub/index.html");
 	routes.push_back(route1);
 	routes.push_back(route2);
-	routes.back().enable_cgi("/usr/bin/php", "php");
-	// routes.at(0).add_error_page(404, "defaultPages/404.html");
-	this->body_max_size = 2048;
-	this->root = DEFAULT_ROOT;
+	routes.back().set_enable_cgi(true);
+	routes.back().set_cgi_path("/usr/bin/php");
+	routes.back().add_cgi_extension("php");
+	//routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
 Server_conf::~Server_conf(void)
@@ -21,15 +20,22 @@ Server_conf::~Server_conf(void)
 }
 
 // empty
-Server_conf::Server_conf(int emp)
+Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST) ,body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
 {
 	(void)emp;
-	// default server name
-	this->server_name = DEFAULT_SERVER_NAME;
-	// default root
-	this->root = DEFAULT_ROOT;
-	//default body max size
-	this->body_max_size = DEFAULT_BODY_MAX_SIZE;
+}
+
+int Server_conf::getReadTimeOut() const
+{
+	return this->read_timeout;
+}
+int Server_conf::getServerBodySize() const
+{
+	return this->server_body_size;
+}
+int Server_conf::getClientHeaderSize() const
+{
+	return this->client_header_size;
 }
 
 std::list<short> Server_conf::getPort()
@@ -56,6 +62,11 @@ std::vector<std::string> Server_conf::getIndex() const
 int Server_conf::getBodyMaxSize() const
 {
 	return this->body_max_size;
+}
+
+std::string Server_conf::getHost() const
+{
+	return this->host;
 }
 
 std::string Server_conf::getRoot() const
@@ -114,11 +125,62 @@ void Server_conf::setRoot(std::string root)
 	this->root.append(root);
 }
 
+void Server_conf::setHost(std::string host)
+{
+	this->host.clear();
+	this->host.append(host);
+}
+
 void Server_conf::setRouteRoot(std::string root)
 {
 	this->routes.back().set_root(root);
 }
 
+void Server_conf::setReadTimeOut(int read_timeout)
+{
+	this->read_timeout = read_timeout;
+}
+void Server_conf::setServerBodySize(int server_body_size)
+{
+	this->server_body_size = server_body_size;
+}
+void Server_conf::setClientHeaderSize(int client_header_size)
+{
+	this->client_header_size = client_header_size;
+}
+
+void Server_conf::setRouteAutoIndex(bool auto_index)
+{
+	this->routes.back().set_auto_index(auto_index);
+}
+
+void Server_conf::set_cgi_timeout(int cgi_timeout)
+{
+	this->routes.back().set_cgi_timeout(cgi_timeout);
+}
+void Server_conf::set_send_file(bool send_file)
+{
+	this->routes.back().set_send_file(send_file);
+}
+void Server_conf::set_file_limit(int file_limit)
+{
+	this->routes.back().set_file_limit(file_limit);
+}
+
+void Server_conf::set_enable_cgi(bool enable_cgi)
+{
+	this->routes.back().set_enable_cgi(enable_cgi);
+}
+
+void Server_conf::addRouteRedirection(std::string url, std::string redirect)
+{
+	this->routes.back().add_redirection(url, redirect);
+}
+
+void Server_conf::addRouteCGIExtension(std::string extension)
+{
+	this->routes.back().add_cgi_extension(extension);
+}
 
 void Server_conf::printServer()
 {
@@ -132,15 +194,20 @@ void Server_conf::printServer()
 	std::cout << "********Server********" << std::endl;
 
 	std::cout << "Server name : " << this->server_name << std::endl;
+	std::cout << "Host : " << this->host << std::endl;
 	std::cout << "Body Max Size : " << this->body_max_size << std::endl;
 	std::cout << "root : " << this->root << std::endl;
+
+	std::cout << "Read Timeout : " << this->read_timeout << std::endl;
+	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
+	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
 
 	if ((!this->port.empty()))
 	{
 		std::cout << "Ports : ";
 		for (itp = this->port.begin(); itp != this->port.end(); itp++)
 		{
-			std::cout << *itp;
+			std::cout << *itp << " ";
 		}
 		std::cout << std::endl;
 	}

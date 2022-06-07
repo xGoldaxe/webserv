@@ -547,6 +547,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 	this->servers.push_back(server);
 
+	if (!this->servers.empty() && this->servers[0].getRoutes().empty())
+	{
+		throw std::invalid_argument("Configuration file has no location!");
+	}
+
 	// Assign a default port to the first server if none defined in parsing
 	if (!this->servers.empty() && this->servers[0].getPort().empty())
 	{

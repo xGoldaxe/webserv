@@ -39,15 +39,15 @@ int main(int argc, char **argv, char **env)
 	// Fill mimes
 	mimes.setDefault();
 
-	std::vector<Server> servers;
+	std::vector<Server *> servers;
 	std::vector<Server_conf> servers_config = conf.getServers();
 
 	for (std::vector<Server_conf>::iterator it = servers_config.begin(); it != servers_config.end(); it++)
 	{
-		servers.push_back(Server(env, *it));
+		servers.push_back(new Server(env, *it));
 		try
 		{
-			servers.back().init_connection();
+			servers.back()->init_connection();
 		}
 		catch (const std::exception &e)
 		{
@@ -63,14 +63,18 @@ int main(int argc, char **argv, char **env)
 
 	while (exit_code == 0)
 	{
-		for (std::vector<Server>::iterator it = servers.begin(); it != servers.end(); it++)
+		for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); it++)
 		{
-			it->handle_client();
-			it->wait_for_connections();
-			it->trigger_queue();
-			it->handle_responses();
+			(*it)->handle_client();
+			(*it)->wait_for_connections();
+			(*it)->trigger_queue();
+			(*it)->handle_responses();
 		}
+	}
+	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); it++)
+	{
+		delete (*it);
 	}
 
 	return (exit_code);
-}
+	}

@@ -19,7 +19,7 @@ bool	Server::close_connection( int client_socket )
 
 void    Server::read_connection( int client_socket )
 {
-	char buffer[32];
+    char buffer[32];
 	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
 	{
 		this->close_connection( client_socket );
@@ -32,7 +32,7 @@ void    Server::read_connection( int client_socket )
 
 	this->_connections.at(client_socket).add_data( buff );
 
-	// if ( this->_connections.at(client_socket).get_data().size() > 0 )
+    // if ( this->_connections.at(client_socket).get_data().size() > 0 )
 	// 	this->_c_queue.push( &this->_connections.at(client_socket) );
 }
 
@@ -71,9 +71,10 @@ void    Server::wait_for_connections( void )
     for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
     {
         struct epoll_event evlist[1024];
-        int nbr_req = epoll_wait(*it, evlist, 1024, 0);
-        for (int i = 0; i < nbr_req; ++i)
+        int nbr_req = epoll_wait((*it), evlist, 1024, 0);
+        for (int i = 0; i < nbr_req; ++i) { 
             this->read_connection(evlist[i].data.fd);
+        }
     }
 }
 
@@ -84,6 +85,7 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0), _env(en
     for (std::list<short>::iterator it = ports.begin(); it != ports.end(); it++)
     {
         s_server_addr_in addr;
+        std::memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         addr.sin_port = htons(*it);
         addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -91,27 +93,43 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0), _env(en
         this->_addrs.push_back(addr);
     }
 
+    this->_is_init = false;
     this->_queue = std::queue<Response *>();
+}
+
+Server::Server(const Server &rhs) : _addrs(rhs._addrs),
+                                    _socket_fds(rhs._socket_fds),
+                                    _poll_fds(rhs._poll_fds),
+                                    _connections(rhs._connections),
+                                    _c_queue(rhs._c_queue),
+                                    _queue(rhs._queue),
+                                    _request_handled(rhs._request_handled),
+                                    _env(rhs._env),
+                                    _is_init(rhs._is_init)
+{
+    this->_is_init = false;
 }
 
 Server::~Server()
 {
-    // for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
-    // {
-    //     close(*it);
-    // }
+    if (_is_init) {
+        for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
+        {
+            close(*it);
+        }
 
-    // for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
-    // {
-    //     close(*it);
-    // }
+        for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
+        {
+            close(*it);
+        }
 
-    while (!this->_queue.empty()) {
-        delete this->_queue.front();
-        this->_queue.pop();
+        while (!this->_queue.empty()) {
+            delete this->_queue.front();
+            this->_queue.pop();
+        }
+
+        std::cout << "Server closed." << std::endl;
     }
-
-    std::cout << "Server closed." << std::endl;
 }
 
 std::vector<int> Server::get_socket() const
@@ -126,21 +144,24 @@ std::vector<int> Server::get_poll_fd() const
 
 void Server::init_connection()
 {
+    this->_is_init = true;
+
     for (std::vector<s_server_addr_in>::iterator it = this->_addrs.begin(); it != this->_addrs.end(); it++) {
         int sock = socket(AF_INET, SOCK_STREAM, 0);
+        this->_socket_fds.push_back(sock);
         bool set_opt = 1;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
 
-        this->_bind_port(sock, &*it);
+        this->_bind_port(sock, *it);
 
         if (listen(sock, BACKLOG) < 0)
             throw ServerNotListeningException();
 
         this->_report(&*it);
 
-        this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
         fcntl(sock, F_SETFL, O_NONBLOCK);
-        this->_socket_fds.push_back(sock);
+
+        this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
     }
 }
 
@@ -199,6 +220,7 @@ void Server::handle_client()
 {
 	struct sockaddr_in cli_addr;
 
+    int i = 0;
     for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
     {
         // we accept some new request
@@ -234,7 +256,7 @@ void Server::handle_client()
             // ev.events = EPOLLET | EPOLLIN;
             ev.events = EPOLLIN;
             ev.data.fd = client_socket;
-            epoll_ctl(*it, EPOLL_CTL_ADD, client_socket, &ev);
+            epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
 
             this->_connections.insert(
                 std::pair<int, Connection>(client_socket, Connection(client_socket)));
@@ -262,12 +284,12 @@ void Server::_report(s_server_addr_in *server_addr)
     std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }
 
-void Server::_bind_port(int sock, s_server_addr_in *server_addr)
+void Server::_bind_port(int sock, s_server_addr_in server_addr)
 {
     int i = 0;
-    while (bind(sock, (s_server_addr)server_addr, sizeof(*server_addr)) == -1 && i < 10)
+    while (bind(sock, (s_server_addr)&server_addr, sizeof(server_addr)) == -1 && i < 10)
     {
-        std::cerr << "Can't bind port " << ntohs(server_addr->sin_port) << ". Retrying in 10sec. (Try " << i << "/10)" << std::endl;
+        std::cerr << "Can't bind port " << ntohs(server_addr.sin_port) << ". Retrying in 10sec. (Try " << i << "/10)" << std::endl;
         sleep(10);
         i++;
     }

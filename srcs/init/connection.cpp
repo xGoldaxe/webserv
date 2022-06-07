@@ -92,7 +92,7 @@ void	Connection::process()
 	
 	http_header_date( this->_req, *this->_res );
 	http_header_server( this->_req, *this->_res );
-
+	
 	if ( this->_req.is_request_valid() )
 	{
 		this->_req.try_url(this->_res);

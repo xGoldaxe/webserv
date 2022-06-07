@@ -43,6 +43,7 @@ typedef const struct sockaddr* s_server_addr;
 class Server {
 public:
 	Server(char **env, Server_conf serv_conf);
+	Server(const Server &rhs);
 	~Server();
 	void init_connection();
 	void handle_client();
@@ -65,12 +66,12 @@ private:
 	std::queue<Response *> _queue;
 	size_t _request_handled;
 	char **_env;
-	bool _is_launched;
+	bool _is_init;
 
 	Server();
 
 	void _report(s_server_addr_in *server_addr);
-	void _bind_port(int sock, s_server_addr_in *server_addr);
+	void _bind_port(int sock, s_server_addr_in server_addr);
 
 	void read_connection(int client_socket);
 	bool close_connection(int client_socket);

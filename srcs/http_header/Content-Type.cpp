@@ -2,7 +2,8 @@
 
 int	http_header_content_type( Request &req, Response &res )
 {
-	std::string ext = get_extension(req.getUrl());
+	(void)req;
+	std::string ext = get_extension(res.get_url());
 
 	try {
 		MimeType mi = mimes.getMimeForExtension(ext);

@@ -64,8 +64,8 @@ class Server {
 		int							_poll_fd;
 		std::map<int, Connection>	_connections;
 		std::queue<Connection*>		_c_queue;
-        std::queue<Response *>   _queue;
-        size_t                   _request_handled;
+        std::queue<Response *>   	_queue;
+        size_t                   	_request_handled;
 
         void     _report(s_server_addr_in *server_addr);
         void     _bind_port();
@@ -73,7 +73,7 @@ class Server {
 		void    read_connection( int client_socket );
 		bool	close_connection( int client_socket );
 
-		void   	add_response( Request * req, Response * res );
+		void   	add_response( Request * req, int fd );
 };
 
 #include "class/response.hpp"

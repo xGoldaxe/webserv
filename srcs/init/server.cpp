@@ -5,15 +5,18 @@
 
 bool	Server::close_connection( int client_socket )
 {
-    #ifdef DEBUG
-	    std::cout << "Client close remote: " << client_socket << std::endl;
-    #endif
+    // #ifdef DEBUG
+	//     std::cout << "Client close remote: " << client_socket << std::endl;
+    // #endif
 
 	close( client_socket );
 	std::map<int, Connection>::iterator it = this->_connections.find( client_socket );
 	bool ret_val = (it != this->_connections.end());
 	if ( ret_val )
+    {
 		this->_connections.erase( it );
+	    std::cout << "Client close remote: " << client_socket << std::endl;
+    }
 	return ret_val;
 }
 
@@ -25,46 +28,45 @@ void    Server::read_connection( int client_socket )
 		this->close_connection( client_socket );
 		return ;
 	}
-
-	char    buff[1024];
-	bzero( buff, 1024 );
-	recv( client_socket, buff, 1024 - 1, 0 );
-
-	this->_connections.at(client_socket).add_data( buff );
+	this->_connections.at(client_socket).read_data();
 }
 
 
-/** @todo fix req leaks */
-void    Server::add_response( Request * req, Response * res )
+void    Server::add_response( Request * req, int fd )
 {
     Webserv_conf conf;
-	
-	http_header_date( *req, *res );
-	http_header_server( *req, *res );
+    Response *res = new Response( fd, conf, *req );
 
 	if ( req->is_request_valid() )
 	{
-		req->try_url(res);
+		res->try_url();
 		/* generic headers */
 		res->add_header( "Connection", "keep-alive" );
 		res->add_header("Keep-Alive", "timeout=5, max=10000");
-		// res->send();
+        std::cout << "this request is good" << std::endl;
 	}
 	else
-	{
 		res->set_status( 400, "Bad Request" );
-		// res->send();
-		// close( res->client_socket );
-	}
-    this->queue_response( res );
+
+    http_header_date( *req, *res );
+	http_header_server( *req, *res );
+
+    this->_queue.push(res);
+    delete req;
+    req = NULL;
 }
 
 void  Server::trigger_queue( void )
 {
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
-        // will had to response_q by itslef
-        it->second.queue_iteration( this );
+        it->second.queue_iteration();
+        Request *req = it->second.extract_request();
+        if ( req != NULL )
+        {
+            std::cout << "sent to transaction!" << std::endl;
+            this->add_response( req, it->first );
+        }
     }
 }
 
@@ -170,6 +172,17 @@ void    Server::handle_responses()
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
 
+                std::cout << "fully sent!" << std::endl;
+                //UGLY
+                std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
+                if ( it != this->_connections.end() )
+                {
+                    if ( it->second.get_is_dead() == true )
+                        this->close_connection( it->first );
+                    else
+                        it->second.end_send();
+                }
+
                 delete this->_queue.front();
             }
         }
@@ -227,10 +240,11 @@ void Server::handle_client()
 		ev.data.fd = client_socket;
 		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 
-		this->_connections.insert( 
+		std::pair<std::map<int, Connection>::iterator, bool> p = this->_connections.insert( 
 			std::pair<int, Connection>(client_socket, Connection( client_socket ) )
 		);
-        std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
+        if ( p.second )
+            std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
 	}
 }
 

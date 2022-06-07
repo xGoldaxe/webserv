@@ -50,7 +50,9 @@ int main(int argc, char **argv, char **env)
 		serv.handle_client();
 		serv.wait_for_connections();
 		serv.trigger_queue();
-		// serv.handle_responses();
+		serv.handle_responses();
+		// sleep(3);
+		// std::cout << "read" << std::endl;
 	}
 
 	return (exit_code);

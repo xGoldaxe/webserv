@@ -67,8 +67,6 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 	preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
 	this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
-
-	this->url = this->route.get_root() + this->legacy_url.substr(this->legacy_url.find_first_of(this->route.get_location()) + this->route.get_location().size());
 	
 	this->auto_index = false;
 	

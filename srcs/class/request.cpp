@@ -22,18 +22,10 @@ std::string Request::getBody(void)
 {
 	return (body);
 }
-std::string Request::getUrl(void)
-{
-	return (url);
-}
+
 std::string Request::get_legacy_url(void) const
 {
 	return this->legacy_url;
-}
-std::string Request::getRelativeUrl(void)
-{
-	std::cout << "out of date" << std::endl;
-	return (this->conf.getServers()[0].getRoot() + url);
 }
 std::string Request::get_http_version(void) const
 {
@@ -55,98 +47,16 @@ bool Request::is_allowed_method(const std::string &method) const
 	return (std::find(this->route.get_methods().begin(), this->route.get_methods().end(), method) != this->route.get_methods().end());
 }
 
-void	Request::set_error_status( int status_code )
+void	Request::set_status( int status_code, std::string error_message )
 {
 	this->error_status = status_code;
+	this->error_message = error_message;
+	this->request_validity = false;
 }
 
-
-std::string	store_cat_test( bool mode, std::string value = std::string() ) {
-
-	static std::string value_stored = std::string();
-
-	if ( mode == true )
-		value_stored = value;
-	return (value_stored);
-}
-
-bool	cat_test( std::string it, std::string &res )
+std::pair<int, std::string>	Request::get_status(void) const
 {
-	res = store_cat_test( false ) + it;
-	return ( is_file( res ) == IS_FILE_NOT_FOLDER );
-}
-
-std::string go_through_it_until(std::vector<std::string> values,
-	bool (*rule)(std::string, std::string &))
-{
-	std::string res;
-	for (std::vector<std::string>::iterator it = values.begin(); it != values.end(); ++it)
-	{
-		if (rule(*it, res))
-			return res;
-	}
-	throw HTTPCode404();
-}
-
-void	Request::check_file_url(void)
-{
-	// this->route.auto_index = false; /** @todo NEED TO DO THIS! */
-	if ( /* this->route.auto_index && */ is_file( this->url ) == IS_FILE_FOLDER )
-		this->auto_index = true;
-	else if ( is_file( this->url ) == IS_FILE_NOT_FOLDER )
-	{
-		if ( !file_readable( this->url ) )
-			throw HTTPCode403();
-	}
-	else
-	{
-		store_cat_test( true, finish_by_only_one( this->url, '/' ) );
-		this->url = go_through_it_until(
-			this->conf.getServers()[0].getIndex(), /** @todo NEED TO DO THIS! */
-			&cat_test
-		);
-	}
-}
-
-bool	Request::is_redirection( std::string &redir_str ) {
-
-	try
-	{
-		redir_str = this->route.get_redirections().at( 
-			this->get_legacy_url() );
-		return true;
-	}
-	catch(const std::exception& e)
-	{
-		return false;
-	}
-}
-
-/* this function is use to route the url, and test many case ( redirection, cache ... )
-and if no conditions are check it goes to check the file to serve and throw an error if its fail */
-/* each case work as block that can be interchanged ( except the last one ) */
-/* nous on a que deux cas a gerer, redirection et la fallback */
-
-void Request::try_url( Response * res ) {
-
-	try
-	{
-		std::string redir_str;
-		if ( is_redirection( redir_str ) ) {
-			res->set_status( 301, "Moved Permanently" );
-			res->add_header( "Location", redir_str );
-			return ;
-		}
-		// may throw errors
-		this->check_file_url();
-		res->set_status( 200, "OK" );
-		res->load_body( *this );
-		http_header_content_type( *this, *res );
-	} 
-	catch (const HTTPError &e) {
-		res->set_status( e.getCode(), e.getDescription() );
-		res->error_body();
-	}
+	return std::pair<int, std::string>( this->error_status, this->error_message );
 }
 
 Request::Request( Request const &src )
@@ -160,7 +70,6 @@ Request &   Request::operator=( Request const & rhs )
 		return (*this);
 	this->conf = rhs.conf;
 	this->method = rhs.method;
-	this->url = rhs.url;
 	this->legacy_url = rhs.legacy_url;
 	this->headers = rhs.headers;
 	this->body = rhs.body;

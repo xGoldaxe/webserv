@@ -61,25 +61,11 @@ void    Server::add_response( Request * req, Response * res )
 
 void  Server::trigger_queue( void )
 {
-	std::queue<Connection> to_close;
-
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
         // will had to response_q by itslef
         it->second.queue_iteration( this );
-        // can't timeout anymore if something is sent
-		if (it->second.is_timeout())
-        {
-            std::cout << "disconected from timeout" << std::endl;
-		 	to_close.push(it->second);
-        }
     }
-	while (!to_close.empty())
-	{
-        /** @todo we dont want to close the connection, send a 408 instead, it will close the connection after the message has been sent **/
-		this->close_connection( to_close.front().get_fd() );
-		to_close.pop();
-	}
 }
 
 /* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */

@@ -30,6 +30,11 @@ void	Connection::add_data( char * buffer )
 bool	Connection::queue_iteration( Server * serv )
 {
 	// error case
+	if ( this->is_timeout() )
+	{
+		this->_req->error_status = 408;
+		serv.add_response( this->_req );
+	}
 	/*
 	if size of raw_data > MAX_HEADERS_SIZE
 		throw HTTP ERROR
@@ -79,6 +84,7 @@ bool	Connection::init_request()
 	{
 		/** @todo throw HTTPCode400(); */
 		std::cout << "ERROR 400" << std::endl;
+		this->_req->set_error_status( 400 );
 		return false;
 	}
 }

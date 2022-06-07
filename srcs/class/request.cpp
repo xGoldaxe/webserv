@@ -10,6 +10,7 @@ Request::Request(void)
 {
 	this->request_validity = false;
 	this->body_file = NULL;
+	this->error_status = 0;
 }
 
 /* end coplien */
@@ -53,6 +54,12 @@ bool Request::is_allowed_method(const std::string &method) const
 
 	return (std::find(this->route.get_methods().begin(), this->route.get_methods().end(), method) != this->route.get_methods().end());
 }
+
+void	Request::set_error_status( int status_code )
+{
+	this->error_status = status_code;
+}
+
 
 std::string	store_cat_test( bool mode, std::string value = std::string() ) {
 
@@ -164,6 +171,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->env = rhs.env;
 	this->request_validity = rhs.request_validity;
 	this->body_length = rhs.body_length;
+	this->error_status = rhs.error_status;
 	return (*this);
 }
 

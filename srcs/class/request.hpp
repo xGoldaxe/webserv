@@ -24,6 +24,7 @@ class Request
 		bool									request_validity;
 		std::size_t								body_length;
 		std::ofstream							*body_file;
+		int										error_status;
 
 	public:
 		bool			auto_index;
@@ -61,6 +62,8 @@ class Request
 		void		try_url( Response * res );
 		void		check_file_url(void);
 		bool		is_redirection( std::string &redir_str );
+
+		void		set_error_status( int status_code );
 
 
 		/* exceptions */

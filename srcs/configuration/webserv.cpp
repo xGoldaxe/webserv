@@ -251,13 +251,9 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			contextlocation = 1;
-			if ((it + 3) < words.size() && words[it + 2].compare("root") == 0)
+			if ((it + 1) < words.size())
 			{
-				server.addRoute(Route(words[it + 1], words[it + 3], 1));
-			}
-			else if (!((it + 1) < words.size()))
-			{
-				server.addRoute(Route(words[it + 1]));
+				server.addRoute(Route(words[it + 1], 1));
 			}
 			else
 			{
@@ -547,15 +543,19 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 	this->servers.push_back(server);
 
-	if (!this->servers.empty() && this->servers[0].getRoutes().empty())
+	unsigned int checkservers = 0;
+	if (checkservers < this->servers.size())
 	{
-		throw std::invalid_argument("Configuration file has no location!");
+		if(this->servers[checkservers].getRoutes().empty())
+			throw std::invalid_argument("A server has no location!");
+		checkservers++;
 	}
 
-	// Assign a default port to the first server if none defined in parsing
-	if (!this->servers.empty() && this->servers[0].getPort().empty())
+	// Assign default variables to the first server if none defined in parsing
+	if (!this->servers.empty())
 	{
-		this->servers[0].addPort(DEFAULT_PORT);
+		if(this->servers[0].getPort().empty())
+			this->servers[0].addPort(DEFAULT_PORT);	
 	}
 
 #ifdef DEBUG

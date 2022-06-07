@@ -1,24 +1,37 @@
 server
 {
 	server_name = Uno ;
+
+	location /testuno
+	{
+	}
 }
 
 server
 {
 	server_name = Duo ;
 
-	location /test
+	location /testduo
 	{
-		root ./imaginary ;
+		root ./duo ;
 	}
 }
 
 server
 {
 	server_name = Tres ;
+
+		location /testtres
+	{
+	}
 }
 
 server
 {
 	server_name = Quatros ;
+
+	location /testquatros
+	{
+	}
+
 }

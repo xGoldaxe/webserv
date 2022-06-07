@@ -40,6 +40,7 @@ class Route
 		Route(std::string root);
 		Route( std::string location, std::string root );
 		Route( std::string location, std::string root, int notdefault);
+		Route( std::string location, int notdefault);
 		Route( const Route &rhs );
 		Route(Route rhs, int notcopy);
 		

@@ -39,6 +39,11 @@ Route::Route(std::string location, std::string root, int notdefault) : root(root
 	(void)notdefault;
 }
 
+Route::Route(std::string location, int notdefault) : location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT)
+{
+	(void)notdefault;
+}
+
 Route::Route(const Route &rhs) : root(rhs.root), location(rhs.location),
 								 index(rhs.index), methods(rhs.methods), error_pages(rhs.error_pages), redirections(rhs.redirections),
 								 auto_index(rhs.auto_index), cgi_enable(rhs.cgi_enable), cgi_path(rhs.cgi_path), cgi_extension(rhs.cgi_extension), cgi_timeout(rhs.cgi_timeout),

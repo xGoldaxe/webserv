@@ -63,6 +63,11 @@ static int check_if_config_is_proper(std::string buffer)
 
 	copy.append(buffer);
 
+	copy.append("\n");
+
+	std::replace(copy.begin(), copy.end(), '\t', ' ');
+	std::replace(copy.begin(), copy.end(), '\n', ' ');
+
 	while ((pos = copy.find(" ")) != std::string::npos)
 	{
 		words.push_back(copy.substr(0, pos));
@@ -77,9 +82,45 @@ static int check_if_config_is_proper(std::string buffer)
 				return (-1);
 			insideserver = true;
 		}
-
+		if(words[it].compare("location") == 0)
+		{
+			if((insideserver && !bracketserver) || insidelocation || !bracketserver || bracketlocation)
+				return (-1);
+			insidelocation = true;
+		}
+		if(words[it].compare("{") == 0)
+		{
+			if((insideserver && insidelocation && !bracketserver) || (bracketserver && insideserver && !insidelocation) || bracketlocation || (!insideserver && !insidelocation))
+				return (-1);
+			if(!insidelocation)
+				bracketserver = true;
+			if(insidelocation)
+				bracketlocation = true;
+			
+		}
+		if(words[it].compare("}") == 0)
+		{	
+			if((!insideserver && !insidelocation) || (!insideserver && !bracketserver) || (insidelocation && !bracketlocation))
+				return (-1);
+			if(insidelocation)
+			{
+				bracketlocation = false;
+				insidelocation = false;
+			}
+			else
+			{
+				if(insideserver)
+				{
+					bracketserver = false;
+					insideserver = false;
+				}
+			}
+		}
 		it++;
 	}
+
+	if (insideserver || insidelocation || bracketserver || bracketlocation)
+		return (-1);
 	return (1);
 }
 
@@ -115,7 +156,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	buffer = s.str();
 	file.close();
 
-	if (!check_if_config_is_proper(buffer))
+	if (check_if_config_is_proper(buffer) == -1)
 		throw std::invalid_argument("The configuration file is invalid!");
 
 	// buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());

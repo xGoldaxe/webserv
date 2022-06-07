@@ -74,7 +74,7 @@ bool	Connection::init_request()
 	try
 	{
 		this->_req.try_construct( this->_raw_data, conf );
-		this->_res = new Response(this->_fd, conf, &this->_req, this->_socket_server);
+		this->_res = new Response(this->_fd, conf, &this->_req, this->_client_ip);
 		return true;
 	}
 	catch(const std::exception& e)
@@ -141,22 +141,24 @@ bool	Connection::is_fulfilled()
 /*************************
 * @coplien
 * ***********************/
-Connection::Connection(int fd, int socket_server) : _fd(fd), _socket_server(socket_server), _is_init(false)
+Connection::Connection(int fd, char *client_ip) : _fd(fd), _is_init(false), _client_ip(client_ip)
 {
 	this->_begin_time = time(NULL);
 }
 
 Connection::Connection(Connection const &src) : _fd(src.get_fd()),
-												_socket_server(src._socket_server),
 												_req(src.get_req()),
 												_res(src.get_res()),
 												_raw_data(src.get_data()),
 												_is_init(src._is_init),
-												_begin_time(src.get_time())
+												_begin_time(src.get_time()),
+												_client_ip(src._client_ip)
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
 {
+	if (&rhs == this)
+		return (*this);
 	this->_fd = rhs.get_fd();
 	this->_req = rhs.get_req();
 	this->_res = rhs.get_res();

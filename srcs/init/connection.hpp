@@ -6,17 +6,19 @@ class Connection
 
 	private:
 		int			_fd;
-		int			_socket_server;
 		Request		_req;
 		Response	*_res;
 		std::string	_raw_data;
 		bool		_is_init;
 		time_t	 	_begin_time;
+		const char	*_client_ip;
+		
 		Connection( void );
 
 	public:
+
 		/* coplien */
-		Connection( int fd, int socket_server );
+		Connection( int fd, char *client_ip );
 		Connection( Connection const &src );
 		~Connection( void );
 

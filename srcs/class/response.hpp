@@ -15,12 +15,8 @@ class Response;
 #include "configuration/webserv.hpp"
 #include "errors/http_code.hpp"
 #include "cgi/cgi_manager.hpp"
-
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
+#include <sys/un.h>
 
 #define MAX_BODY_LENGTH 5096
 
@@ -38,6 +34,7 @@ class Response
 		int										_return_body_type;
 		std::ifstream							_in_file;
 		size_t									_file_len;
+		const char								*_client_ip;
 
 		Response &operator=(Response const &rhs);
 		Response(void);
@@ -47,13 +44,12 @@ class Response
 		std::string		status_message;
 		std::string		body;
 		int				client_socket;
-		int				_socket_server;
 
 		/* typedef */
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response(int client_socket, Webserv_conf conf, const Request *req, int _socket_server);
+		Response(int client_socket, Webserv_conf conf, const Request *req, const char *client_ip);
 		Response( Response const &src );
 		~Response( void );
 
@@ -64,7 +60,7 @@ class Response
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		bool	isFile(void);
-		void output(std::string hostport);
+		void output();
 		int send(void);
 		int send_chunk(void);
 		size_t get_size_next_chunk();

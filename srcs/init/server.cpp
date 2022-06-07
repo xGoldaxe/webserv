@@ -173,7 +173,7 @@ bool    Server::queue_response(Response *res)
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
     } else {
-        this->_queue.front()->output(this->_socket_addr_eq[res->_socket_server]);
+        this->_queue.front()->output();
         delete res;
     }
     return true;
@@ -203,7 +203,7 @@ void    Server::handle_responses()
             } else {
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
-                this->_queue.front()->output(this->_socket_addr_eq[res->_socket_server]);
+                this->_queue.front()->output();
                 delete this->_queue.front();
             }
         }
@@ -265,7 +265,7 @@ void Server::handle_client()
             epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
 
             this->_connections.insert(
-                std::pair<int, Connection>(client_socket, Connection(client_socket, *it)));
+                std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr))));
         }
     }
 }

@@ -27,7 +27,7 @@ void	Connection::add_data( char * buffer )
 	this->_raw_data += buffer;
 }
 
-bool	Connection::queue_iteration( Server * serv )
+bool	Connection::queue_iteration()
 {
 	// error case
 	/*
@@ -54,10 +54,7 @@ bool	Connection::queue_iteration( Server * serv )
         // this->process();
 		std::cout << "sent to transaction!" << std::endl;
 		this->_begin_time = time(NULL);
-
-		serv->add_response( this->_req );
-
-		this->soft_clear();
+		
 		return true;
 	}
 

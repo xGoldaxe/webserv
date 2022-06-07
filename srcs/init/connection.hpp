@@ -1,6 +1,10 @@
 #pragma once
-#include "../webserv.hpp"
-#include "server.hpp"
+
+#include <string>
+#include <ctime>
+
+class Request;
+class Response;
 
 class Connection
 {
@@ -26,7 +30,7 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	add_data( char * buffer );
-		bool	queue_iteration( Server * serv );
+		bool	queue_iteration();
 		void	process();
 		void	soft_clear();
 		bool	init_request();
@@ -42,3 +46,6 @@ class Connection
 		bool		is_init() const;
 		time_t		get_time() const;
 };
+
+#include "class/request.hpp"
+#include "class/response.hpp"

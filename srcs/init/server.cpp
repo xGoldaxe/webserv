@@ -66,7 +66,10 @@ void  Server::trigger_queue( void )
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
         // will had to response_q by itslef
-        it->second.queue_iteration( this );
+        if (it->second.queue_iteration()) {
+            this->add_response(it->second.get_req(), it->second.get_res());
+            it->second.soft_clear();
+        }
         // can't timeout anymore if something is sent
 		if (it->second.is_timeout())
         {

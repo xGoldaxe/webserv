@@ -49,6 +49,41 @@ std::string Webserv_conf::getHttpVersion() const
 	return this->http_version;
 }
 
+
+static int check_if_config_is_proper(std::string buffer)
+{
+	std::vector<std::string> words;
+	size_t pos;
+	std::string copy;
+	unsigned int it = 0;
+	bool insideserver = false;
+	bool insidelocation = false;
+	bool bracketserver = false;
+	bool bracketlocation = false;
+
+	copy.append(buffer);
+
+	while ((pos = copy.find(" ")) != std::string::npos)
+	{
+		words.push_back(copy.substr(0, pos));
+		copy.erase(0, pos + 1);
+	}
+
+	while (it < words.size())
+	{
+		if(words[it].compare("server") == 0)
+		{
+			if(insideserver || insidelocation || bracketserver || bracketlocation)
+				return (-1);
+			insideserver = true;
+		}
+
+		it++;
+	}
+	return (1);
+}
+
+
 Webserv_conf::Webserv_conf(std::string filename)
 {
 	/**
@@ -80,6 +115,9 @@ Webserv_conf::Webserv_conf(std::string filename)
 	buffer = s.str();
 	file.close();
 
+	if (!check_if_config_is_proper(buffer))
+		throw std::invalid_argument("The configuration file is invalid!");
+
 	// buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
 	std::replace(buffer.begin(), buffer.end(), '{', ' ');
@@ -96,13 +134,15 @@ Webserv_conf::Webserv_conf(std::string filename)
 	if (words.empty())
 		throw std::invalid_argument("Config file is empty");
 	if (words.size() > 0 && words[0].compare("server") != 0)
-		throw std::invalid_argument("Config file does not start with 'server'");
+		throw std::invalid_argument("Configuration file does not start with 'server'");
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
 		switch (check)
 		{
 		case SERVER_NAME_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered server_name in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -116,6 +156,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case LISTEN_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered port in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -135,6 +177,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case ERROR_PAGE_PARSING:
 			// assumes syntax error_page a b ... z = "blablabla" ;
 			//  get value after =
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			tmpit = it;
 			while (it < words.size() && words[it].compare("=") != 0)
 				it++;
@@ -163,6 +207,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case LOCATION_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			contextlocation = 1;
 			if ((it + 3) < words.size() && words[it + 2].compare("root") == 0)
 			{
@@ -178,6 +224,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case ROOT_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0)
 			{
 				if (contextlocation == 0)
@@ -192,6 +240,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case INDEX_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
 			{
 				it = it + 2;
@@ -210,6 +260,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case METHODS_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered methods outside of a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
@@ -232,6 +284,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case ENABLE_CGI_PARSING:
 			// location bool
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered enable cgi outside of location");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0 && (words[it + 1].compare("on") == 0 || words[it + 1].compare("off") == 0))
@@ -249,6 +303,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case CGI_EXTENSION_PARSING:
 			// location cgi_extension machin machin ... ;
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered cgi extension outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
@@ -267,6 +323,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case BODY_MAX_SIZE_PARSING:
 			// server int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered body_max_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -292,6 +350,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 		case REWRITE_PARSING:
 			// location
 			// rewrite url url ;
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered redirection outside of location");
 			if ((it + 3) < words.size() && words[it + 3].compare(";") == 0)
@@ -306,6 +366,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case AUTOINDEX_PARSING:
 			// location bool
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered auto index outside of location");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0 && (words[it + 1].compare("on") == 0 || words[it + 1].compare("off") == 0))
@@ -324,6 +386,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case CGI_TIMEOUT_PARSING:
 			// location int seconds
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered cgi timeout outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -338,6 +402,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case READ_TIMEOUT_PARSING:
 			// server int seconds
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -352,6 +418,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case SERVER_BODY_SIZE_PARSING:
 			// server int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered server body size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -366,6 +434,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case SEND_FILE_PARSING:
 			// location bool
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered send_file outside of location");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0 && (words[it + 1].compare("on") == 0 || words[it + 1].compare("off") == 0))
@@ -383,6 +453,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case FILE_LIMIT_PARSING:
 			// location int megabytes
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered file_limit outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -397,6 +469,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case CLIENT_HEADER_SIZE_PARSING:
 			// server int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered client_header_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
@@ -411,6 +485,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case HOST_PARSING:
 			// server string
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered host in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)

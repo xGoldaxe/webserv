@@ -62,6 +62,8 @@ private:
 	std::vector<int> _socket_fds;
 	std::vector<int> _poll_fds;
 	std::map<int, Connection> _connections;
+	std::map<int, int> _poll_socket_eq;
+	std::map<int, std::string> _socket_addr_eq;
 	std::queue<Connection *> _c_queue;
 	std::queue<Response *> _queue;
 	size_t _request_handled;
@@ -70,7 +72,7 @@ private:
 
 	Server();
 
-	void _report(s_server_addr_in *server_addr);
+	void _report(int sock, s_server_addr_in server_addr);
 	void _bind_port(int sock, s_server_addr_in server_addr);
 
 	void read_connection(int client_socket);

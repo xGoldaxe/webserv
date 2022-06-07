@@ -3,7 +3,7 @@
 Response::Response(void)
 {}
 
-Response::Response(int client_socket, Webserv_conf conf, Request const *req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
+Response::Response(int client_socket, Webserv_conf conf, Request const *req, int socket_server) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket), _socket_server(socket_server)
 {
 	this->cpy_req = *(this->req);
 	this->version = "HTTP/1.1";
@@ -30,12 +30,17 @@ Response &   Response::operator=( Response const & rhs )
 	this->_return_body_type = rhs._return_body_type;
 	this->_file_len = rhs._file_len;
 
+	this->_socket_server = rhs._socket_server;
+
 	return *this;
 }
 
 Response::~Response(void)
+{}
+
+void Response::output(std::string hostport)
 {
-	std::cout << "[" << this->version << "][" << this->cpy_req.getMethod() << "][" << this->get_str_code() << "] " << this->cpy_req.get_legacy_url() << std::endl;
+	std::cout << "[" << this->version << "][http://" << hostport << "][" << this->cpy_req.getMethod() << "][" << this->get_str_code() << "] " << this->cpy_req.get_legacy_url() << std::endl;
 }
 
 std::string Response::get_str_code(void)

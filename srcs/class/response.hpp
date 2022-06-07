@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <vector>
+#include <cstdlib>
 
 #include "webserv.hpp"
 
@@ -17,7 +18,6 @@ class Response;
 
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <cstdlib>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -47,12 +47,13 @@ class Response
 		std::string		status_message;
 		std::string		body;
 		int				client_socket;
+		int				_socket_server;
 
 		/* typedef */
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response( int client_socket, Webserv_conf conf, const Request *req );
+		Response(int client_socket, Webserv_conf conf, const Request *req, int _socket_server);
 		Response( Response const &src );
 		~Response( void );
 
@@ -63,7 +64,8 @@ class Response
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		bool	isFile(void);
-		int		send(void);
+		void output(std::string hostport);
+		int send(void);
 		int send_chunk(void);
 		size_t get_size_next_chunk();
 		const Webserv_conf &get_conf() const;

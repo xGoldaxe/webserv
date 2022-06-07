@@ -157,11 +157,13 @@ void Server::init_connection()
         if (listen(sock, BACKLOG) < 0)
             throw ServerNotListeningException();
 
-        this->_report(&*it);
+        this->_report(sock, *it);
 
         fcntl(sock, F_SETFL, O_NONBLOCK);
 
         this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
+
+        this->_poll_socket_eq.insert(std::pair<int, int>(this->_poll_fds.back(), sock));
     }
 }
 
@@ -171,6 +173,7 @@ bool    Server::queue_response(Response *res)
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
     } else {
+        this->_queue.front()->output(this->_socket_addr_eq[res->_socket_server]);
         delete res;
     }
     return true;
@@ -188,16 +191,19 @@ void    Server::handle_responses()
         
         /* with MSG_PEEK, no data will be ride of the socket */
         char buffer[256];
-        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
+        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
+        {
             delete this->_queue.front();
-        } else {
+        }
+        else
+        {
             size_t exchange = res->send_chunk();
             if (exchange > 0) {
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
-
+                this->_queue.front()->output(this->_socket_addr_eq[res->_socket_server]);
                 delete this->_queue.front();
             }
         }
@@ -259,18 +265,18 @@ void Server::handle_client()
             epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
 
             this->_connections.insert(
-                std::pair<int, Connection>(client_socket, Connection(client_socket)));
+                std::pair<int, Connection>(client_socket, Connection(client_socket, *it)));
         }
     }
 }
 
-void Server::_report(s_server_addr_in *server_addr)
+void Server::_report(int sock, s_server_addr_in server_addr)
 {
     char host_buffer[INET6_ADDRSTRLEN];
     char service_buffer[NI_MAXSERV];
-    socklen_t addr_len = sizeof(*server_addr);
+    socklen_t addr_len = sizeof(server_addr);
     int err = getnameinfo(
-        (s_server_addr)server_addr,
+        (s_server_addr)&server_addr,
         addr_len,
         host_buffer,
         sizeof(host_buffer),
@@ -281,6 +287,7 @@ void Server::_report(s_server_addr_in *server_addr)
     {
         std::cout << "It's not working!" << std::endl;
     }
+    this->_socket_addr_eq.insert(std::pair<int, std::string>(sock, std::string(host_buffer) + ":" + std::string(service_buffer)));
     std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }
 

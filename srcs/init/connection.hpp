@@ -6,6 +6,7 @@ class Connection
 
 	private:
 		int			_fd;
+		int			_socket_server;
 		Request		_req;
 		Response	*_res;
 		std::string	_raw_data;
@@ -15,7 +16,7 @@ class Connection
 
 	public:
 		/* coplien */
-		Connection( int fd );
+		Connection( int fd, int socket_server );
 		Connection( Connection const &src );
 		~Connection( void );
 

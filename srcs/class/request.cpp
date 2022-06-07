@@ -1,11 +1,15 @@
 #include "request.hpp"
 
 Request::~Request(void)
-{}
+{
+	// if ( this->body_file )
+	// 	delete this->body_file;
+}
 
 Request::Request(void)
 {
 	this->request_validity = false;
+	this->body_file = NULL;
 }
 
 /* end coplien */
@@ -168,21 +172,36 @@ bool	Request::is_fulfilled() const
 	return ( this->request_validity == true
 				&& this->body.size() == this->body_length );
 }
+
+#include <fstream> 
+std::ofstream	*create_unique_file( std::string path )
+{
+	static int i = 0;
+	
+	std::ofstream *File = new std::ofstream;
+	File->open( std::string(path + to_string(i) + ".mem").c_str() );
+	if ( File->is_open() )
+		std::cout << std::string(path + to_string(i) + ".mem") << std::endl;
+	else
+		std::cout << "cant open" << std::endl;
+	++i;
+	return File;
+}
 /* return the amount of char added to the body */
 std::size_t	Request::feed_body( std::string add_str )
 {
+	if ( this->body_file == NULL )
+		this->body_file = create_unique_file( "memory/" );
+
 	if ( add_str.size() == 0 )
 		return 0;
-	std::size_t missing = this->body_length;
-	if ( missing > add_str.size() )
-	{
-		// this->body += add_str;
-		std::cout << "body part [" << add_str << "]" << std::endl;
-		this->body_length -= add_str.size();
-		return add_str.size();
-	}
-	// this->body += add_str.substr( 0, missing );
+
+	std::cout << this->body_file->is_open();
+
+	std::size_t missing = std::min( this->body_length, add_str.size() );
+	
 	std::cout << "body part [" << add_str.substr( 0, missing ) << "]" << std::endl;
+	*(this->body_file) << add_str.substr( 0, missing );
 	this->body_length -= missing;
 	return missing;
 }

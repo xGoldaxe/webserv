@@ -33,7 +33,7 @@ class Response
 		Webserv_conf							conf;
 		std::string								version;
 		std::map<std::string, std::string>		headers;
-		const Request							*req;
+		Request									req;
 		Request									cpy_req;
 		int										_return_body_type;
 		std::ifstream							_in_file;
@@ -52,7 +52,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response( int client_socket, Webserv_conf conf, const Request *req );
+		Response( int client_socket, Webserv_conf conf, const Request req );
 		Response( Response const &src );
 		~Response( void );
 

@@ -23,6 +23,7 @@ class Request
 		std::string								version;
 		bool									request_validity;
 		std::size_t								body_length;
+		std::ofstream							*body_file;
 
 	public:
 		bool			auto_index;

@@ -31,9 +31,32 @@ void    Server::read_connection( int client_socket )
 	recv( client_socket, buff, 1024 - 1, 0 );
 
 	this->_connections.at(client_socket).add_data( buff );
+}
 
-	// if ( this->_connections.at(client_socket).get_data().size() > 0 )
-	// 	this->_c_queue.push( &this->_connections.at(client_socket) );
+
+/** @todo fix req leaks */
+void    Server::add_response( Request * req, Response * res )
+{
+    Webserv_conf conf;
+	
+	http_header_date( *req, *res );
+	http_header_server( *req, *res );
+
+	if ( req->is_request_valid() )
+	{
+		req->try_url(res);
+		/* generic headers */
+		res->add_header( "Connection", "keep-alive" );
+		res->add_header("Keep-Alive", "timeout=5, max=10000");
+		// res->send();
+	}
+	else
+	{
+		res->set_status( 400, "Bad Request" );
+		// res->send();
+		// close( res->client_socket );
+	}
+    this->queue_response( res );
 }
 
 void  Server::trigger_queue( void )
@@ -42,28 +65,22 @@ void  Server::trigger_queue( void )
 
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
-		bool should_queue_res = it->second.queue_iteration();
+        // will had to response_q by itslef
+        it->second.queue_iteration( this );
+        // can't timeout anymore if something is sent
 		if (it->second.is_timeout())
+        {
+            std::cout << "disconected from timeout" << std::endl;
 		 	to_close.push(it->second);
-        else if (should_queue_res)
-            this->queue_response(it->second.get_res());
+        }
     }
 	while (!to_close.empty())
 	{
+        /** @todo we dont want to close the connection, send a 408 instead, it will close the connection after the message has been sent **/
 		this->close_connection( to_close.front().get_fd() );
 		to_close.pop();
 	}
 }
-// for Connections in queue where depth < MAX_CALL_REQUEST
-//     this->_connections.at(client_socket).queue_iteration();
-//     if connection buffer_size > 0
-//         then add_to_queue( connection )
-
-// if queue_not_empty
-//     trigger_queue
-// else
-//     for Connections in queue
-//         Connections depth set to 0
 
 /* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
 void    Server::wait_for_connections( void )
@@ -71,7 +88,10 @@ void    Server::wait_for_connections( void )
 	struct epoll_event evlist[1024];
 	int nbr_req = epoll_wait( this->get_poll_fd(), evlist, 1024, 0 );
 	for (int i = 0; i < nbr_req; ++i)
+    {
+        std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
 		this->read_connection( evlist[i].data.fd );
+    }
 }
 
 Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
@@ -139,6 +159,9 @@ bool    Server::queue_response(Response *res)
     return true;
 }
 
+/** @todo stop looking for deconnection, instead look if connection is still alive in _connections **/
+/** @todo trigger an event when everything is sent ( used mainly to close connection when its required (400, 408) ) **/
+/** @todo while its sending, it must also reset the timeout of the connection **/
 void    Server::handle_responses()
 {
     std::queue<Response *> new_queue;
@@ -221,6 +244,7 @@ void Server::handle_client()
 		this->_connections.insert( 
 			std::pair<int, Connection>(client_socket, Connection( client_socket ) )
 		);
+        std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
 	}
 }
 

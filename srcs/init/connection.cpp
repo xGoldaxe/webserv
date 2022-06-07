@@ -27,14 +27,12 @@ void	Connection::add_data( char * buffer )
 	this->_raw_data += buffer;
 }
 
-bool	Connection::queue_iteration()
+bool	Connection::queue_iteration( Server * serv )
 {
 	// error case
 	/*
 	if size of raw_data > MAX_HEADERS_SIZE
 		throw HTTP ERROR
-	if request isnt ready AND start request longere than TIMEOUT_MAX
-		throw HTTP ERROR 408 and close connection from socket ( at catch level )
 	*/
 
 	// we can create a request
@@ -47,23 +45,23 @@ bool	Connection::queue_iteration()
 	// add the data to the body, only add what is required and store the remaining data
 	if ( this->_is_init && this->is_invalid_req() == false )
 	{
-		std::size_t read_until = this->_req.feed_body( this->_raw_data );
+		std::size_t read_until = this->_req->feed_body( this->_raw_data );
 		this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
 	}
 
     if ( this->is_invalid_req() || this->is_fulfilled() )
 	{
-        this->process();
+        // this->process();
+		std::cout << "sent to transaction!" << std::endl;
+		this->_begin_time = time(NULL);
+
+		serv->add_response( this->_req );
+
 		this->soft_clear();
 		return true;
 	}
 
 	return false;
-	/* maybe we have enough data to run a second consecutive request, perhaps this is
-	extremely dangerous, a user could chain many request and take all the trafic for a while.
-	Since the minimal request is "GET / HTTP/1.1\r\n\r\n"(19 bytes), and each read can be over 1000 bytes.
-	we have to process all data already reader before accept connections again. So lets create a queue with
-	all Connections with "remaining data"*/
 }
 
 /* init with conf informations, and other usefull things for req and res */
@@ -73,49 +71,50 @@ bool	Connection::init_request()
 	this->_is_init = true;
 	try
 	{
-		this->_req.try_construct( this->_raw_data, conf );
-		this->_res = new Response( this->_fd, conf, &this->_req );
+		this->_req = new Request();
+		this->_req->try_construct( this->_raw_data, conf );
 		return true;
 	}
 	catch(const std::exception& e)
 	{
 		/** @todo throw HTTPCode400(); */
+		std::cout << "ERROR 400" << std::endl;
 		return false;
 	}
 }
 
 /* all big work happen here */
 
-void	Connection::process()
-{
-	Webserv_conf conf;
+// void	Connection::process()
+// {
+// 	Webserv_conf conf;
 	
-	http_header_date( this->_req, *this->_res );
-	http_header_server( this->_req, *this->_res );
+// 	http_header_date( *this->_req, *this->_res );
+// 	http_header_server( *this->_req, *this->_res );
 
-	if ( this->_req.is_request_valid() )
-	{
-		this->_req.try_url(this->_res);
-		/* generic headers */
-		this->_res->add_header( "Connection", "keep-alive" );
-		this->_res->add_header("Keep-Alive", "timeout=5, max=10000");
-		this->_res->send();
-	}
-	else
-	{
-		this->_res->set_status( 400, "Bad Request" );
-		this->_res->send();
-		close( this->_res->client_socket );
-	}
-	this->_begin_time = time(NULL);
-}
+// 	if ( this->_req->is_request_valid() )
+// 	{
+// 		this->_req->try_url(this->_res);
+// 		/* generic headers */
+// 		this->_res->add_header( "Connection", "keep-alive" );
+// 		this->_res->add_header("Keep-Alive", "timeout=5, max=10000");
+// 		this->_res->send();
+// 	}
+// 	else
+// 	{
+// 		this->_res->set_status( 400, "Bad Request" );
+// 		this->_res->send();
+// 		close( this->_res->client_socket );
+// 	}
+// 	this->_begin_time = time(NULL);
+// }
 
 /* clear only the things we dont want anymore */
 
 void	Connection::soft_clear()
 {
-	this->_req = Request();
 	this->_is_init = false;
+	this->_req = NULL;
 }
 
 /*************************
@@ -129,12 +128,12 @@ bool	Connection::is_ready( void )
 
 bool	Connection::is_invalid_req()
 {
-	return this->_is_init && this->_req.is_request_valid() == false;
+	return this->_req && this->_req->is_request_valid() == false;
 }
 
 bool	Connection::is_fulfilled()
 {
-	return this->_req.is_request_valid() && this->_req.is_fulfilled();
+	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
 
 
@@ -144,6 +143,8 @@ bool	Connection::is_fulfilled()
 Connection::Connection( int fd ) : _fd( fd ), _is_init( false )
 {
 	this->_begin_time = time(NULL);
+	this->_req = NULL;
+	this->_res = NULL;
 }
 
 Connection::Connection(Connection const &src) : _fd(src.get_fd()),
@@ -176,7 +177,7 @@ int	Connection::get_fd( void ) const	{
 	return ( this->_fd );
 }
 
-Request		Connection::get_req( void ) const	{
+Request		*Connection::get_req( void ) const	{
 
 	return ( this->_req );
 }

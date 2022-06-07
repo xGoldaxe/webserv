@@ -1,12 +1,13 @@
 #pragma once
 #include "../webserv.hpp"
+#include "server.hpp"
 
 class Connection
 {
 
 	private:
 		int			_fd;
-		Request		_req;
+		Request		*_req;
 		Response	*_res;
 		std::string	_raw_data;
 		bool		_is_init;
@@ -25,7 +26,7 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	add_data( char * buffer );
-		bool	queue_iteration();
+		bool	queue_iteration( Server * serv );
 		void	process();
 		void	soft_clear();
 		bool	init_request();
@@ -35,7 +36,7 @@ class Connection
 
 		/* getter */
 		int			get_fd() const;
-		Request 	get_req() const;
+		Request 	*get_req() const;
 		Response	*get_res() const;
 		std::string	get_data() const;
 		bool		is_init() const;

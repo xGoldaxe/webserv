@@ -3,9 +3,9 @@
 Response::Response(void)
 {}
 
-Response::Response(int client_socket, Webserv_conf conf, Request const *req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
+Response::Response(int client_socket, Webserv_conf conf, Request const req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
 {
-	this->cpy_req = *(this->req);
+	this->cpy_req = this->req;
 	this->version = "HTTP/1.1";
 }
 
@@ -20,7 +20,7 @@ Response &   Response::operator=( Response const & rhs )
 	this->version = rhs.version;
 	this->headers = rhs.headers;
 	this->req = rhs.req;
-	this->cpy_req = *(this->req);
+	this->cpy_req = this->req;
 
 	this->status_code = rhs.status_code;
 	this->status_message = rhs.status_message;
@@ -58,7 +58,7 @@ void Response::set_status(int status_code, std::string msg)
 int Response::send()
 {
 	/* add some headers */
-	http_header_content_length(*this->req, *this);
+	http_header_content_length(this->req, *this);
 
 	std::string headers_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)

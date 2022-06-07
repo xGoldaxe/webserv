@@ -1,6 +1,6 @@
 #pragma once
-#include "../webserv.hpp"
 #include "connection.hpp"
+#include "../webserv.hpp"
 
 #include <cstring>
 #include <unistd.h>
@@ -70,4 +70,6 @@ class Server {
 
 		void    read_connection( int client_socket );
 		bool	close_connection( int client_socket );
+
+		void   	add_response( Request * req, Response * res );
 };

@@ -12,7 +12,7 @@ Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_
 	routes.back().set_enable_cgi(true);
 	routes.back().set_cgi_path("/usr/bin/php");
 	routes.back().add_cgi_extension("php");
-	routes.at(0).add_error_page(404, "defaultPages/404.html");
+	//routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
 Server_conf::~Server_conf(void)

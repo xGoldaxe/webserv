@@ -56,22 +56,34 @@ void Request::fill_body(std::string body)
 
 Route find_route(std::vector<Route> routes, std::string url);
 
-Request::Request(int socket_data, Webserv_conf &conf) : conf(conf)
+// change it through the config
+#define MAX_BUFFER_SIZE 16384
+#define TIMEOUT_TIME 3
+void	Request::try_construct( std::string raw_request, Webserv_conf conf) 
 {
-
+	this->conf = conf;
 	store_req(true, this);
-	preq::parse_request(socket_data, &(store_data_from_raw_req));
 
-	// file informations
-	request_validity = true;
+	preq::parse_request( raw_request, &(store_data_from_raw_req) );
+
 	this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
 
-
 	this->url = this->route.get_root() + this->legacy_url.substr(this->legacy_url.find_first_of(this->route.get_location()) + this->route.get_location().size());
-	this->url = this->url.substr(0, this->url.size());
 	
-
 	this->auto_index = false;
+	
+	/* find body_length */
+	std::map<std::string, std::string> ::iterator it = this->headers.find( "Content-Length" );
+	if ( it != this->headers.end() )
+	{
+		char	*end_ptr;
+		this->body_length = strtoul( (it->second).c_str(), &end_ptr, 10 );
+	}
+	else
+		this->body_length = 0;
+	/* find body length */
+
+	this->request_validity = true;
 };
 
 Route find_route(std::vector<Route> routes, std::string url)
@@ -86,7 +98,6 @@ Route find_route(std::vector<Route> routes, std::string url)
 			route = Route(*it, 1);
 		}
 	}
-	// std::cout << "const " << (*route)->error_pages.begin()->second << std::endl;
 
 	return route;
 }

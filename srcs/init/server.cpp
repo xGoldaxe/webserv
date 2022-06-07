@@ -1,6 +1,80 @@
 #include "server.hpp"
 
-Server::Server() : _socket_fd(0), _poll_fd(0)
+#include <cstring>
+#include "../webserv.hpp"
+
+bool	Server::close_connection( int client_socket )
+{
+    #ifdef DEBUG
+	    std::cout << "Client close remote: " << client_socket << std::endl;
+    #endif
+
+	close( client_socket );
+	std::map<int, Connection>::iterator it = this->_connections.find( client_socket );
+	bool ret_val = (it != this->_connections.end());
+	if ( ret_val )
+		this->_connections.erase( it );
+	return ret_val;
+}
+
+void    Server::read_connection( int client_socket )
+{
+	char buffer[32];
+	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	{
+		this->close_connection( client_socket );
+		return ;
+	}
+
+	char    buff[1024];
+	bzero( buff, 1024 );
+	recv( client_socket, buff, 1024 - 1, 0 );
+
+	this->_connections.at(client_socket).add_data( buff );
+
+	// if ( this->_connections.at(client_socket).get_data().size() > 0 )
+	// 	this->_c_queue.push( &this->_connections.at(client_socket) );
+}
+
+void  Server::trigger_queue( void )
+{
+	std::queue<Connection> to_close;
+
+	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
+	{
+		bool should_queue_res = it->second.queue_iteration();
+		if (it->second.is_timeout())
+		 	to_close.push(it->second);
+        else if (should_queue_res)
+            this->queue_response(it->second.get_res());
+    }
+	while (!to_close.empty())
+	{
+		this->close_connection( to_close.front().get_fd() );
+		to_close.pop();
+	}
+}
+// for Connections in queue where depth < MAX_CALL_REQUEST
+//     this->_connections.at(client_socket).queue_iteration();
+//     if connection buffer_size > 0
+//         then add_to_queue( connection )
+
+// if queue_not_empty
+//     trigger_queue
+// else
+//     for Connections in queue
+//         Connections depth set to 0
+
+/* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
+void    Server::wait_for_connections( void )
+{
+	struct epoll_event evlist[1024];
+	int nbr_req = epoll_wait( this->get_poll_fd(), evlist, 1024, 0 );
+	for (int i = 0; i < nbr_req; ++i)
+		this->read_connection( evlist[i].data.fd );
+}
+
+Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
 {
     this->_port = 3000;
 
@@ -29,12 +103,12 @@ Server::~Server()
 
 int Server::get_socket() const
 {
-    return this->_socket_fd;
+	return this->_socket_fd;
 }
 
 int Server::get_poll_fd() const
 {
-    return this->_poll_fd;
+	return this->_poll_fd;
 }
 
 void Server::init_connection()
@@ -56,6 +130,7 @@ void Server::init_connection()
 
 bool    Server::queue_response(Response *res)
 {
+    this->_request_handled++;
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
     } else {
@@ -68,9 +143,12 @@ void    Server::handle_responses()
 {
     std::queue<Response *> new_queue;
 
-    while (!this->_queue.empty() && exit_code == 0) {
-        Response *res = this->_queue.front();
+    int runner_i = 0;
 
+    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && exit_code == 0)
+    {
+        Response *res = this->_queue.front();
+        
         /* with MSG_PEEK, no data will be ride of the socket */
         char buffer[256];
         if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
@@ -78,7 +156,6 @@ void    Server::handle_responses()
         } else {
             size_t exchange = res->send_chunk();
             if (exchange > 0) {
-                std::cout << exchange << std::endl;
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";
@@ -89,6 +166,14 @@ void    Server::handle_responses()
         }
 
         this->_queue.pop();
+
+        runner_i++;
+    }
+
+    while (!this->_queue.empty() && exit_code == 0) {
+        Response *res = this->_queue.front();
+        new_queue.push(res);
+        this->_queue.pop();
     }
 
     this->_queue = new_queue;
@@ -96,42 +181,47 @@ void    Server::handle_responses()
 
 void Server::handle_client()
 {
-    struct sockaddr_in cli_addr;
+	struct sockaddr_in cli_addr;
 
-    // we accept some new request
-    while (true)
-    {
-        socklen_t clilen = sizeof(cli_addr);
-        int client_socket = accept(this->get_socket(), (struct sockaddr *)&cli_addr, &clilen);
-        if (client_socket == -1)
-            break;
+	// we accept some new request
+	while (true)
+	{
+		socklen_t clilen = sizeof(cli_addr);
+		int client_socket = accept(this->get_socket(), (struct sockaddr *)&cli_addr, &clilen);
+		if (client_socket == -1)
+			break;
 
-        int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
-        int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
-        int interval = 75; /* How often in seconds to resend an unacked KeepAlive probe. */
-        int count = 9;     /* How many times to resend a KA probe if previous probe was unacked. */
+		int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
+		int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
+		int interval = 75; /* How often in seconds to resend an unacked KeepAlive probe. */
+		int count = 9;     /* How many times to resend a KA probe if previous probe was unacked. */
 
-        /* Switch KeepAlive on or off for this side of the socket. */
-        setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
+		/* Switch KeepAlive on or off for this side of the socket. */
+		setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
 
-        if (swtch)
-        {
-            /* Set the number of seconds the connection must be idle before sending a KA probe. */
-            setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
+		if (swtch)
+		{
+			/* Set the number of seconds the connection must be idle before sending a KA probe. */
+			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
 
-            /* Set how often in seconds to resend an unacked KA probe. */
-            setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
+			/* Set how often in seconds to resend an unacked KA probe. */
+			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
 
-            /* Set how many times to resend a KA probe if previous probe was unacked. */
-            setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
-        }
+			/* Set how many times to resend a KA probe if previous probe was unacked. */
+			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
+		}
 
-        struct epoll_event ev;
-        bzero(&ev, sizeof(ev));
-        ev.events = EPOLLET | EPOLLIN;
-        ev.data.fd = client_socket;
-        epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
-    }
+		struct epoll_event ev;
+		bzero(&ev, sizeof(ev));
+		// ev.events = EPOLLET | EPOLLIN;
+		ev.events = EPOLLIN;
+		ev.data.fd = client_socket;
+		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
+
+		this->_connections.insert( 
+			std::pair<int, Connection>(client_socket, Connection( client_socket ) )
+		);
+	}
 }
 
 void Server::_report(s_server_addr_in *server_addr)
@@ -166,4 +256,9 @@ void Server::_bind_port()
         sleep(1);
         i++;
     }
+}
+
+size_t Server::countHandledRequest()
+{
+    return this->_request_handled;
 }

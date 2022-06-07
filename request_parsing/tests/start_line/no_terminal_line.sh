@@ -11,4 +11,11 @@ GET / HTTP/1.1\r\n\
 
 # excepted
 OUTPUT=$1
-echo -en $ERROR_RES > $OUTPUT
+echo -en "\
+METHOD: GET
+PATH: /
+VERSION: HTTP/1.1
+==>[Content-Length]: [0]
+<==={START BODY}===>
+<==={END BODY}===>
+" > $OUTPUT

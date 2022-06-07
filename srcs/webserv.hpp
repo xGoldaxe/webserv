@@ -3,8 +3,8 @@
 #include "internal/mime_types.hpp"
 
 #include "class/route.hpp"
-#include "class/response.hpp"
 #include "class/request.hpp"
+#include "class/response.hpp"
 #include "configuration/webserv.hpp"
 #include "cgi/cgi_manager.hpp"
 

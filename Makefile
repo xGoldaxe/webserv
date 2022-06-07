@@ -1,8 +1,8 @@
 SRCS	=	main.cpp \
-			get_response.cpp \
 			utils/file.cpp \
 			utils/string.cpp \
 			init/server.cpp \
+			init/connection.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \
 			class/request_constructor.cpp \
@@ -16,7 +16,8 @@ SRCS	=	main.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
 			cgi/cgi_manager.cpp \
-			errors/http_code.cpp
+			errors/http_code.cpp \
+			class/response_error_page.cpp \
 
 HEADERS =	errors/http_code.hpp \
 			init/exception_server_not_listening.hpp \
@@ -30,7 +31,6 @@ HEADERS =	errors/http_code.hpp \
 			configuration/server.hpp \
 			cgi/cgi_manager.hpp \
 			internal/mime_types.hpp \
-			utils/go_through_until.hpp \
 			utils/file.hpp \
 			utils/string.hpp \
 
@@ -39,7 +39,7 @@ DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG # -g -O2
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG -g -O2
 
 RM		=	rm -rf
 

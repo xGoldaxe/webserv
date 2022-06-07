@@ -68,30 +68,43 @@ void  Server::trigger_queue( void )
 /* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
 void    Server::wait_for_connections( void )
 {
-	struct epoll_event evlist[1024];
-	int nbr_req = epoll_wait( this->get_poll_fd(), evlist, 1024, 0 );
-	for (int i = 0; i < nbr_req; ++i)
-		this->read_connection( evlist[i].data.fd );
+    for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
+    {
+        struct epoll_event evlist[1024];
+        int nbr_req = epoll_wait(*it, evlist, 1024, 0);
+        for (int i = 0; i < nbr_req; ++i)
+            this->read_connection(evlist[i].data.fd);
+    }
 }
 
-Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
+Server::Server(char **env, Server_conf serv_conf) : _request_handled(0), _env(env)
 {
-    this->_port = 3000;
+    std::list<short> ports = serv_conf.getPort();
+
+    for (std::list<short>::iterator it = ports.begin(); it != ports.end(); it++)
+    {
+        s_server_addr_in addr;
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(*it);
+        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+        this->_addrs.push_back(addr);
+    }
 
     this->_queue = std::queue<Response *>();
-
-    this->_addr.sin_family = AF_INET;
-    this->_addr.sin_port = htons(this->_port);
-    this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 }
 
 Server::~Server()
 {
-    if (this->_poll_fd > 0)
-        close(this->_poll_fd);
+    // for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
+    // {
+    //     close(*it);
+    // }
 
-    if (this->_socket_fd > 0)
-        close(this->_socket_fd);
+    // for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
+    // {
+    //     close(*it);
+    // }
 
     while (!this->_queue.empty()) {
         delete this->_queue.front();
@@ -101,31 +114,34 @@ Server::~Server()
     std::cout << "Server closed." << std::endl;
 }
 
-int Server::get_socket() const
+std::vector<int> Server::get_socket() const
 {
-	return this->_socket_fd;
+	return this->_socket_fds;
 }
 
-int Server::get_poll_fd() const
+std::vector<int> Server::get_poll_fd() const
 {
-	return this->_poll_fd;
+	return this->_poll_fds;
 }
 
 void Server::init_connection()
 {
-    this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    bool set_opt = 1;
-    setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+    for (std::vector<s_server_addr_in>::iterator it = this->_addrs.begin(); it != this->_addrs.end(); it++) {
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        bool set_opt = 1;
+        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
 
-    this->_bind_port();
+        this->_bind_port(sock, &*it);
 
-    if (listen(this->_socket_fd, BACKLOG) < 0)
-        throw ServerNotListeningException();
+        if (listen(sock, BACKLOG) < 0)
+            throw ServerNotListeningException();
 
-    this->_report(&this->_addr);
+        this->_report(&*it);
 
-    this->_poll_fd = epoll_create1(O_CLOEXEC);
-    fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
+        this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
+        fcntl(sock, F_SETFL, O_NONBLOCK);
+        this->_socket_fds.push_back(sock);
+    }
 }
 
 bool    Server::queue_response(Response *res)
@@ -183,45 +199,47 @@ void Server::handle_client()
 {
 	struct sockaddr_in cli_addr;
 
-	// we accept some new request
-	while (true)
-	{
-		socklen_t clilen = sizeof(cli_addr);
-		int client_socket = accept(this->get_socket(), (struct sockaddr *)&cli_addr, &clilen);
-		if (client_socket == -1)
-			break;
+    for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
+    {
+        // we accept some new request
+        while (true)
+        {
+            socklen_t clilen = sizeof(cli_addr);
+            int client_socket = accept(*it, (struct sockaddr *)&cli_addr, &clilen);
+            if (client_socket == -1)
+                break;
 
-		int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
-		int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
-		int interval = 75; /* How often in seconds to resend an unacked KeepAlive probe. */
-		int count = 9;     /* How many times to resend a KA probe if previous probe was unacked. */
+            int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
+            int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
+            int interval = 75; /* How often in seconds to resend an unacked KeepAlive probe. */
+            int count = 9;     /* How many times to resend a KA probe if previous probe was unacked. */
 
-		/* Switch KeepAlive on or off for this side of the socket. */
-		setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
+            /* Switch KeepAlive on or off for this side of the socket. */
+            setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
 
-		if (swtch)
-		{
-			/* Set the number of seconds the connection must be idle before sending a KA probe. */
-			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
+            if (swtch)
+            {
+                /* Set the number of seconds the connection must be idle before sending a KA probe. */
+                setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
 
-			/* Set how often in seconds to resend an unacked KA probe. */
-			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
+                /* Set how often in seconds to resend an unacked KA probe. */
+                setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
 
-			/* Set how many times to resend a KA probe if previous probe was unacked. */
-			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
-		}
+                /* Set how many times to resend a KA probe if previous probe was unacked. */
+                setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
+            }
 
-		struct epoll_event ev;
-		bzero(&ev, sizeof(ev));
-		// ev.events = EPOLLET | EPOLLIN;
-		ev.events = EPOLLIN;
-		ev.data.fd = client_socket;
-		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
+            struct epoll_event ev;
+            bzero(&ev, sizeof(ev));
+            // ev.events = EPOLLET | EPOLLIN;
+            ev.events = EPOLLIN;
+            ev.data.fd = client_socket;
+            epoll_ctl(*it, EPOLL_CTL_ADD, client_socket, &ev);
 
-		this->_connections.insert( 
-			std::pair<int, Connection>(client_socket, Connection( client_socket ) )
-		);
-	}
+            this->_connections.insert(
+                std::pair<int, Connection>(client_socket, Connection(client_socket)));
+        }
+    }
 }
 
 void Server::_report(s_server_addr_in *server_addr)
@@ -244,16 +262,13 @@ void Server::_report(s_server_addr_in *server_addr)
     std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }
 
-void Server::_bind_port()
+void Server::_bind_port(int sock, s_server_addr_in *server_addr)
 {
     int i = 0;
-    while (bind(this->_socket_fd, (s_server_addr) & this->_addr, sizeof(this->_addr)) == -1 && i < 100)
+    while (bind(sock, (s_server_addr)server_addr, sizeof(*server_addr)) == -1 && i < 10)
     {
-        if (i % 10 == 0)
-        {
-            std::cerr << "Can't bind port " << this->_port << ". Retrying in 10sec. (Try " << (i / 10) << "/10)" << std::endl;
-        }
-        sleep(1);
+        std::cerr << "Can't bind port " << ntohs(server_addr->sin_port) << ". Retrying in 10sec. (Try " << i << "/10)" << std::endl;
+        sleep(10);
         i++;
     }
 }

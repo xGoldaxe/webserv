@@ -30,12 +30,13 @@ Server_conf::Server_conf(int emp)
 	this->root = DEFAULT_ROOT;
 	//default body max size
 	this->body_max_size = DEFAULT_BODY_MAX_SIZE;
-	//default port
-	this->port.push_back(DEFAULT_PORT);
 }
 
-std::list<short> Server_conf::getPort() const
+std::list<short> Server_conf::getPort()
 {
+	if (this->port.empty()) {
+		this->addPort(DEFAULT_PORT);
+	}
 	return this->port;
 }
 std::vector<Route> Server_conf::getRoutes() const

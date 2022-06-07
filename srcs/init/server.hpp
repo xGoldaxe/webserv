@@ -32,6 +32,7 @@
 
 #include "exception_server_not_listening.hpp"
 #include "class/response.hpp"
+#include "configuration/webserv.hpp"
 
 #define BACKLOG 10
 #define MAX_RUNNERS 20
@@ -40,34 +41,37 @@ typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
 
 class Server {
-	public:
-		Server();
-		~Server();
-		void    init_connection();
-		void    handle_client();
-		void    handle_responses();
-		void    wait_for_connections();
-		void	trigger_queue(void);
-        bool    queue_response(Response *res);
-        size_t  countHandledRequest();
+public:
+	Server(char **env, Server_conf serv_conf);
+	~Server();
+	void init_connection();
+	void handle_client();
+	void handle_responses();
+	void wait_for_connections();
+	void trigger_queue(void);
+	bool queue_response(Response *res);
+	size_t countHandledRequest();
 
-		// Getters
-		int     get_socket() const;
-		int     get_poll_fd() const;
+	// Getters
+	std::vector<int> get_socket() const;
+	std::vector<int> get_poll_fd() const;
 
-	private:
-		short						_port;
-		s_server_addr_in			_addr;
-		int							_socket_fd;
-		int							_poll_fd;
-		std::map<int, Connection>	_connections;
-		std::queue<Connection*>		_c_queue;
-        std::queue<Response *>   _queue;
-        size_t                   _request_handled;
+private:
+	std::vector<s_server_addr_in> _addrs;
+	std::vector<int> _socket_fds;
+	std::vector<int> _poll_fds;
+	std::map<int, Connection> _connections;
+	std::queue<Connection *> _c_queue;
+	std::queue<Response *> _queue;
+	size_t _request_handled;
+	char **_env;
+	bool _is_launched;
 
-        void     _report(s_server_addr_in *server_addr);
-        void     _bind_port();
+	Server();
 
-		void    read_connection( int client_socket );
-		bool	close_connection( int client_socket );
+	void _report(s_server_addr_in *server_addr);
+	void _bind_port(int sock, s_server_addr_in *server_addr);
+
+	void read_connection(int client_socket);
+	bool close_connection(int client_socket);
 };

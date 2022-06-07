@@ -32,7 +32,7 @@ class Server_conf
 		~Server_conf(void);
 		Server_conf(int emp);
 
-		std::list<short>				getPort() const;
+		std::list<short>				getPort();
 		std::vector<Route>				getRoutes() const;
 		std::string						getName() const;
 		std::vector<std::string>		getIndex() const;

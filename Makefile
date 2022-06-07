@@ -16,7 +16,8 @@ SRCS	=	main.cpp \
 			http_header/Content-Type.cpp \
 			internal/mime_types.cpp \
 			cgi/cgi_manager.cpp \
-			errors/http_code.cpp
+			errors/http_code.cpp \
+			class/response_error_page.cpp \
 
 HEADERS =	errors/http_code.hpp \
 			init/exception_server_not_listening.hpp \
@@ -30,7 +31,6 @@ HEADERS =	errors/http_code.hpp \
 			configuration/server.hpp \
 			cgi/cgi_manager.hpp \
 			internal/mime_types.hpp \
-			utils/go_through_until.hpp \
 			utils/file.hpp \
 			utils/string.hpp \
 

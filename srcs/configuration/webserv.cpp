@@ -98,8 +98,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 	while (it < words.size())
 	{
 		check = return_type_parse(words[it]);
-		//		std::cout << words[it] << "|"
-		//				  << check << std::endl;
 		switch (check)
 		{
 		case SERVER_NAME_PARSING:

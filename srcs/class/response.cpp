@@ -5,6 +5,7 @@ Response::Response(void)
 
 Response::Response(int client_socket, Webserv_conf conf, Request const *req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
 {
+	this->cpy_req = *(this->req);
 	this->version = "HTTP/1.1";
 }
 
@@ -19,6 +20,7 @@ Response &   Response::operator=( Response const & rhs )
 	this->version = rhs.version;
 	this->headers = rhs.headers;
 	this->req = rhs.req;
+	this->cpy_req = *(this->req);
 
 	this->status_code = rhs.status_code;
 	this->status_message = rhs.status_message;
@@ -32,7 +34,9 @@ Response &   Response::operator=( Response const & rhs )
 }
 
 Response::~Response(void)
-{}
+{
+	std::cout << "[" << this->version << "][" << this->cpy_req.getMethod() << "][" << this->get_str_code() << "] " << this->cpy_req.get_legacy_url() << std::endl;
+}
 
 std::string Response::get_str_code(void)
 {
@@ -86,7 +90,7 @@ size_t	Response::get_size_next_chunk()
  */
 int		Response::send_chunk()
 {
-	if (this->_return_body_type != BODY_TYPE_FILE && this->body.size() > MAX_BODY_LENGTH)
+	if (this->_return_body_type == BODY_TYPE_STRING)
 	{
 		std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
 		std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
@@ -129,9 +133,6 @@ bool Response::isFile()
 
 std::string auto_index_template(std::string url, std::string legacy_url);
 
-/**
- * @todo free all string_to_char
- */
 std::string Response::load_body( Request &req )
 {
 	if (req.auto_index) {
@@ -154,60 +155,8 @@ std::string Response::load_body( Request &req )
 			/** @todo On peut renvoyer une erreur 404 ici! */
 		}
 	}
+	this->cpy_req = req;
 	return this->body;
-}
-
-std::string error_template(std::string error_code, std::string message) {
-
-	return std::string(std::string("<!DOCTYPE html>\
-	<html lang=\"en\">\
-	<head>\
-		<meta charset=\"UTF-8\">\
-		<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\
-		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
-		<title>Webserv - ") +
-					   error_code + std::string("</title>\
-		\
-		<style>\
-		p, h1 {\
-			text-align: center;\
-		}\
-		</style>\
-	</head>\
-	<body>\
-		<h1>WEBSERV ERROR - ") +
-					   error_code + std::string("</h1>\
-		<hr />\
-		<p>") + message +
-					   std::string("</p>\
-	</body>\
-	</html>"));
-}
-
-std::string & Response::error_body(void) {
-
-	this->add_header("Content-Type", "text/html");
-	try
-	{
-		//this line throw an error if page not find
-		std::string filename = this->req->route.get_error_pages().at( this->status_code );
-		if ( usable_file( filename ) )
-		{
-			this->_return_body_type = BODY_TYPE_FILE;
-			this->body = filename;
-		}
-		else
-		{
-			this->set_status( 500, "Internal Server Error" );
-			this->body = error_template(this->get_str_code(), this->status_message);
-		}
-	}
-	catch(const std::exception& e)
-	{
-		this->body = error_template(this->get_str_code(), this->status_message);
-	}
-	
-	return (this->body);
 }
 
 std::string auto_index_template(std::string url, std::string legacy_url)
@@ -236,7 +185,7 @@ std::string auto_index_template(std::string url, std::string legacy_url)
 			<meta charset=\"UTF-8\">\
 			<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\
 			<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
-			p, h1 {\
+		</head>\
 		<body>\
 			<h1>Index of ") +
 					   legacy_url + std::string("</h1>\

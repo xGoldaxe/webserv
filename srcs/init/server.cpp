@@ -71,10 +71,7 @@ void    Server::wait_for_connections( void )
 	struct epoll_event evlist[1024];
 	int nbr_req = epoll_wait( this->get_poll_fd(), evlist, 1024, 0 );
 	for (int i = 0; i < nbr_req; ++i)
-	{
-		std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
 		this->read_connection( evlist[i].data.fd );
-	}
 }
 
 Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
@@ -221,11 +218,9 @@ void Server::handle_client()
 		ev.data.fd = client_socket;
 		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 
-		std::pair<std::map<int, Connection>::iterator, bool> pair = this->_connections.insert( 
+		this->_connections.insert( 
 			std::pair<int, Connection>(client_socket, Connection( client_socket ) )
 		);
-		if (pair.second == true)
-			std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
 	}
 }
 

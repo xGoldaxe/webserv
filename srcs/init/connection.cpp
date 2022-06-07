@@ -9,20 +9,10 @@
 bool	Connection::is_timeout(void)
 {
 	time_t now = time(NULL);
+
 	if ( this->_raw_data.size() > 0 )
-	{
-		if ( now - this->_begin_time > ONREAD_TIMEOUT )
-		{
-			std::cout << "on_read" << std::endl;
-			return true;
-		}
-	}
-	if ( now - this->_begin_time > IDLE_TIMEOUT )
-	{
-		std::cout << "on_idle" << std::endl;
-		return true;
-	}
-	return false;
+		return ( now - this->_begin_time > ONREAD_TIMEOUT );
+	return ( now - this->_begin_time > IDLE_TIMEOUT );
 }
 
 /*************************
@@ -52,7 +42,6 @@ bool	Connection::queue_iteration()
 	{
         this->init_request();
 		this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
-		std::cout << "remain {" << this->_raw_data << "}" << std::endl;
 	}
 
 	// add the data to the body, only add what is required and store the remaining data
@@ -81,18 +70,16 @@ bool	Connection::queue_iteration()
 bool	Connection::init_request()
 {
 	Webserv_conf conf;
-	std::cout << this->_raw_data;
 	this->_is_init = true;
 	try
 	{
 		this->_req.try_construct( this->_raw_data, conf );
 		this->_res = new Response( this->_fd, conf, &this->_req );
-		std::cout << "valid request" << std::endl;
 		return true;
 	}
 	catch(const std::exception& e)
 	{
-		std::cout << "not valid request" << std::endl;
+		/** @todo throw HTTPCode400(); */
 		return false;
 	}
 }
@@ -105,9 +92,10 @@ void	Connection::process()
 	
 	http_header_date( this->_req, *this->_res );
 	http_header_server( this->_req, *this->_res );
+
 	if ( this->_req.is_request_valid() )
 	{
-		this->_req.try_url( this->_res );
+		this->_req.try_url(this->_res);
 		/* generic headers */
 		this->_res->add_header( "Connection", "keep-alive" );
 		this->_res->add_header("Keep-Alive", "timeout=5, max=10000");

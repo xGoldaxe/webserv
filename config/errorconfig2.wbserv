@@ -1,0 +1,11 @@
+server 
+{
+	location /
+	{
+		root ./ ;
+		index = index.html index.htm ;
+		error_page 404 = 404.html ;
+		methods = POST GET DELETE ;
+		rewrite  /sub  moved.html ;
+		autoindex on ;
+}

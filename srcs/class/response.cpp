@@ -38,13 +38,11 @@ Response::~Response(void)
 
 void Response::output()
 {
-	std::cout << "Host: " << this->cpy_req.get_header_value("Host") << std::endl;
-
 	std::cout << "[" << this->version << "]";
 	std::cout << "[http://" << this->cpy_req.get_header_value("Host") << "]";
-	std::cout << "[" << this->_client_ip << "]" << std::endl;
-	std::cout << "[" << this->cpy_req.getMethod() << "]";
+	std::cout << "[" << this->_client_ip << "]";
 	std::cout << "[" << this->get_str_code() << "]";
+	std::cout << " " << this->cpy_req.getMethod();
 	std::cout << " " << this->cpy_req.get_legacy_url() << std::endl;
 }
 

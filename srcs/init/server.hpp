@@ -31,13 +31,15 @@
 #include <queue>
 
 #include "exception_server_not_listening.hpp"
-#include "class/response.hpp"
+#include "init/connection.hpp"
 
 #define BACKLOG 10
 #define MAX_RUNNERS 20
 
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
+
+class Response;
 
 class Server {
 	public:
@@ -73,3 +75,5 @@ class Server {
 
 		void   	add_response( Request * req, Response * res );
 };
+
+#include "class/response.hpp"

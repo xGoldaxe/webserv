@@ -90,9 +90,9 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
                                                     _server_body_size(serv_conf.getServerBodySize()),
                                                     _client_header_size(serv_conf.getClientHeaderSize())
 {
-    std::list<short> ports = serv_conf.getPort();
+    std::vector<short> ports = serv_conf.getPort();
 
-    for (std::list<short>::iterator it = ports.begin(); it != ports.end(); it++)
+    for (std::vector<short>::iterator it = ports.begin(); it != ports.end(); it++)
     {
         s_server_addr_in addr;
         std::memset(&addr, 0, sizeof(addr));

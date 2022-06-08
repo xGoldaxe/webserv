@@ -1,0 +1,22 @@
+server
+{
+	listen = 3060 ;
+	listen = 3030 ;
+	listen = 3000 ;
+
+	location /testuno
+	{
+	}
+}
+
+server
+{
+	listen = 3090 ;
+	listen = 3030 ;
+	listen = 3040 ;
+	
+	location /testuno
+	{
+	}
+
+}

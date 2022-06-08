@@ -101,8 +101,8 @@ bool	Request::is_redirection( std::string &redir_str ) {
 
 	try
 	{
-		redir_str = this->route.get_redirections().at( 
-			this->get_legacy_url() );
+		redir_str = this->route.return_redirect_url(this->get_legacy_url());
+		std::cout << redir_str << std::endl;
 		return true;
 	}
 	catch(const std::exception& e)

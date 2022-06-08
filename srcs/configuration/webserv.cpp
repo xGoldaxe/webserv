@@ -577,6 +577,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 	{
 		if(this->servers[0].getPort().empty())
 			this->servers[0].addPort(DEFAULT_PORT);	
+		if(this->servers[0].getIndex().empty())
+			this->servers[0].addIndex(DEFAULT_INDEX_SERVER);
 	}
 
 #ifdef DEBUG

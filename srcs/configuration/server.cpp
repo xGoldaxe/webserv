@@ -40,7 +40,7 @@ int Server_conf::getClientHeaderSize() const
 	return this->client_header_size;
 }
 
-std::list<short> Server_conf::getPort() const
+std::vector<short> Server_conf::getPort() const
 {
 	return this->port;
 }
@@ -76,7 +76,6 @@ std::string Server_conf::getRoot() const
 void Server_conf::addPort(short port)
 {
 	this->port.push_back(port);
-	this->port.sort();
 }
 
 void Server_conf::addMethods(std::string methods)
@@ -186,7 +185,7 @@ void Server_conf::printServer()
 {
 #ifdef DEBUG
 
-	std::list<short>::iterator itp;
+	std::vector<short>::iterator itp;
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
 	unsigned int itr = 0;

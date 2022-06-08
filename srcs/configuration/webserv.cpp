@@ -1,6 +1,6 @@
 #include "webserv.hpp"
 
-Webserv_conf &  Webserv_conf::operator=( Webserv_conf const & rhs )
+Webserv_conf &Webserv_conf::operator=(Webserv_conf const &rhs)
 {
 	this->servers = rhs.getServers();
 	this->http_version = rhs.getHttpVersion();
@@ -49,7 +49,6 @@ std::string Webserv_conf::getHttpVersion() const
 	return this->http_version;
 }
 
-
 static int check_if_config_is_proper(std::string buffer)
 {
 	std::vector<std::string> words;
@@ -76,40 +75,39 @@ static int check_if_config_is_proper(std::string buffer)
 
 	while (it < words.size())
 	{
-		if(words[it].compare("server") == 0)
+		if (words[it].compare("server") == 0)
 		{
-			if(insideserver || insidelocation || bracketserver || bracketlocation)
+			if (insideserver || insidelocation || bracketserver || bracketlocation)
 				return (-1);
 			insideserver = true;
 		}
-		if(words[it].compare("location") == 0)
+		if (words[it].compare("location") == 0)
 		{
-			if((insideserver && !bracketserver) || insidelocation || !bracketserver || bracketlocation)
+			if ((insideserver && !bracketserver) || insidelocation || !bracketserver || bracketlocation)
 				return (-1);
 			insidelocation = true;
 		}
-		if(words[it].compare("{") == 0)
+		if (words[it].compare("{") == 0)
 		{
-			if((insideserver && insidelocation && !bracketserver) || (bracketserver && insideserver && !insidelocation) || bracketlocation || (!insideserver && !insidelocation))
+			if ((insideserver && insidelocation && !bracketserver) || (bracketserver && insideserver && !insidelocation) || bracketlocation || (!insideserver && !insidelocation))
 				return (-1);
-			if(!insidelocation)
+			if (!insidelocation)
 				bracketserver = true;
-			if(insidelocation)
+			if (insidelocation)
 				bracketlocation = true;
-			
 		}
-		if(words[it].compare("}") == 0)
-		{	
-			if((!insideserver && !insidelocation) || (!insideserver && !bracketserver) || (insidelocation && !bracketlocation))
+		if (words[it].compare("}") == 0)
+		{
+			if ((!insideserver && !insidelocation) || (!insideserver && !bracketserver) || (insidelocation && !bracketlocation))
 				return (-1);
-			if(insidelocation)
+			if (insidelocation)
 			{
 				bracketlocation = false;
 				insidelocation = false;
 			}
 			else
 			{
-				if(insideserver)
+				if (insideserver)
 				{
 					bracketserver = false;
 					insideserver = false;
@@ -123,7 +121,6 @@ static int check_if_config_is_proper(std::string buffer)
 		return (-1);
 	return (1);
 }
-
 
 Webserv_conf::Webserv_conf(std::string filename)
 {
@@ -396,7 +393,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 				if (std::atoi(words[it + 1].c_str()) > 399 || std::atoi(words[it + 1].c_str()) < 300)
 					throw std::invalid_argument("Error parsing, provided redirection code is outside the range");
-				server.addRouteRedirection(std::atoi(words[it + 1].c_str()) ,words[it + 2], words[it + 3]);
+				server.addRouteRedirection(std::atoi(words[it + 1].c_str()), words[it + 2], words[it + 3]);
 				it = it + 4;
 			}
 			else
@@ -586,25 +583,39 @@ Webserv_conf::Webserv_conf(std::string filename)
 	unsigned int checkservers = 0;
 	while (checkservers < this->servers.size())
 	{
-		if(this->servers[checkservers].getRoutes().empty())
+		if (this->servers[checkservers].getRoutes().empty())
 			throw std::invalid_argument("A server has no location!");
-		if(this->servers[checkservers].getPort().empty())
-			this->servers[checkservers].addPort(DEFAULT_PORT);	
-		if(this->servers[checkservers].getIndex().empty())
+		if (this->servers[checkservers].getPort().empty())
+			this->servers[checkservers].addPort(DEFAULT_PORT);
+		if (this->servers[checkservers].getIndex().empty())
 			this->servers[checkservers].addIndex(DEFAULT_INDEX_SERVER);
 		checkservers++;
 	}
 
+	//Duplicate server_name and duplicate port check
 	unsigned int i_checkservdupe = 0;
 	unsigned int j_checkservdupe = 1;
-
+	unsigned int i_checkportdupe = 0;
+	unsigned int j_checkportdupe = 0;
 	while (i_checkservdupe < this->servers.size())
 	{
 		while (j_checkservdupe < this->servers.size())
 		{
-			if (this->servers[i_checkservdupe].getName().compare(this->servers[j_checkservdupe].getName()) == 0
-			&& this->servers[i_checkservdupe].getPort() == this->servers[j_checkservdupe].getPort())
-				throw std::invalid_argument("Parsing error, duplicate server detected!");
+			if (this->servers[i_checkservdupe].getName().compare(this->servers[j_checkservdupe].getName()) == 0)
+			{
+				while(i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
+				{
+					while (j_checkportdupe < this->servers[j_checkservdupe].getPort().size())
+					{
+						if(this->servers[i_checkservdupe].getPort()[i_checkportdupe] == this->servers[j_checkservdupe].getPort()[j_checkportdupe])
+							throw std::invalid_argument("Parsing error, duplicate port detected!");
+						j_checkportdupe++;
+					}
+					j_checkportdupe = 0;
+					i_checkportdupe++;
+				}
+				i_checkportdupe = 0;
+			}
 			j_checkservdupe++;
 		}
 		i_checkservdupe++;

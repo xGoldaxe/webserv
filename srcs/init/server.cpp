@@ -5,10 +5,6 @@
 
 bool	Server::close_connection( int client_socket )
 {
-    // #ifdef DEBUG
-	//     std::cout << "Client close remote: " << client_socket << std::endl;
-    // #endif
-
 	close( client_socket );
 	std::map<int, Connection>::iterator it = this->_connections.find( client_socket );
 	bool ret_val = (it != this->_connections.end());
@@ -212,40 +208,47 @@ void Server::handle_client()
 		int client_socket = accept(this->get_socket(), (struct sockaddr *)&cli_addr, &clilen);
 		if (client_socket == -1)
 			break;
+        if ( this->_connections.size() > BACKLOG )
+        {
+            close( client_socket );
+        }
+        else
+        {
 
-		int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
-		int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
-		int interval = 75; /* How often in seconds to resend an unacked KeepAlive probe. */
-		int count = 9;     /* How many times to resend a KA probe if previous probe was unacked. */
+            int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
+            int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
+            int interval = 75; /* How often in seconds to resend an unacked KeepAlive probe. */
+            int count = 9;     /* How many times to resend a KA probe if previous probe was unacked. */
 
-		/* Switch KeepAlive on or off for this side of the socket. */
-		setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
+            /* Switch KeepAlive on or off for this side of the socket. */
+            setsockopt(client_socket, SOL_SOCKET, SO_KEEPALIVE, &swtch, sizeof(swtch));
 
-		if (swtch)
-		{
-			/* Set the number of seconds the connection must be idle before sending a KA probe. */
-			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
+            if (swtch)
+            {
+                /* Set the number of seconds the connection must be idle before sending a KA probe. */
+                setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPIDLE, &idle, sizeof(idle));
 
-			/* Set how often in seconds to resend an unacked KA probe. */
-			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
+                /* Set how often in seconds to resend an unacked KA probe. */
+                setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPINTVL, &interval, sizeof(interval));
 
-			/* Set how many times to resend a KA probe if previous probe was unacked. */
-			setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
-		}
+                /* Set how many times to resend a KA probe if previous probe was unacked. */
+                setsockopt(client_socket, IPPROTO_TCP, TCP_KEEPCNT, &count, sizeof(count));
+            }
 
-		struct epoll_event ev;
-		bzero(&ev, sizeof(ev));
-		// ev.events = EPOLLET | EPOLLIN;
-		ev.events = EPOLLIN;
-		ev.data.fd = client_socket;
-		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
+            struct epoll_event ev;
+            bzero(&ev, sizeof(ev));
+            // ev.events = EPOLLET | EPOLLIN;
+            ev.events = EPOLLIN;
+            ev.data.fd = client_socket;
+            epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 
-		std::pair<std::map<int, Connection>::iterator, bool> p = this->_connections.insert( 
-			std::pair<int, Connection>(client_socket, Connection( client_socket ) )
-		);
-        if ( p.second )
-            std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
-	}
+            std::pair<std::map<int, Connection>::iterator, bool> p = this->_connections.insert( 
+                std::pair<int, Connection>(client_socket, Connection( client_socket ) )
+            );
+            if ( p.second )
+                std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
+        }
+    }
 }
 
 void Server::_report(s_server_addr_in *server_addr)

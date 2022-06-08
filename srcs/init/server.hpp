@@ -33,7 +33,7 @@
 #include "exception_server_not_listening.hpp"
 #include "init/connection.hpp"
 
-#define BACKLOG 10
+#define BACKLOG 1
 #define MAX_RUNNERS 20
 
 typedef struct sockaddr_in s_server_addr_in;

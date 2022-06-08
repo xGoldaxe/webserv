@@ -1,8 +1,10 @@
 #include "connection.hpp"
 #include "unistd.h"
 
-#define ONREAD_TIMEOUT 3
+#define ONREAD_TIMEOUT 20
 #define IDLE_TIMEOUT 60
+#define MAX_SIZE 5000
+#define MAX_REQUESTS 5000
 /*************************
 * @erroer case functions
 * ***********************/
@@ -53,13 +55,13 @@ bool	Connection::check_state()
 		error_status = 408;
 		error_message = "Request Time-out";
 	}
-	if ( this->_raw_data.size() > 100 )
+	if ( this->_raw_data.size() > MAX_SIZE )
 	{
 		std::cout << "trigger max size" << std::endl;
 		error_status = 413;
 		error_message = " 	Request Entity Too Large";
 	}
-	if ( this->_requests.size() > 2 )
+	if ( this->_requests.size() > MAX_REQUESTS )
 	{
 		std::cout << "trigger too much requests" << std::endl;
 		error_status = 429;
@@ -109,14 +111,22 @@ void	Connection::queue_iteration()
 		// add the data to the body, only add what is required and store the remaining data
 		if ( this->_is_init && this->is_invalid_req() == false )
 		{
-			std::size_t read_until = this->_req->feed_body( this->_raw_data );
+			std::size_t read_until = this->_req->feed_body( this->_raw_data ); // may invalid the request
 			this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
 		}
 
-		if ( this->is_invalid_req() || this->is_fulfilled() )
+		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
 		{
 			this->_begin_time = time(NULL);
+
 			this->_requests.push( this->_req );
+
+			if ( this->is_invalid_req() )
+			{
+				this->_is_dead = true;
+				break ;
+			}
+
 			this->soft_clear();
 			keep_going = true;
 		}
@@ -128,18 +138,11 @@ bool	Connection::init_request()
 {
 	Webserv_conf conf;
 	this->_is_init = true;
-	try
-	{
-		this->_req = new Request();
-		this->_req->try_construct( this->_raw_data, conf );
-		return true;
-	}
-	catch(const std::exception& e)
-	{
-		this->_req->set_status( 400, "Bad Request" );
-		this->_is_dead = true;
-		return false;
-	}
+
+	this->_req = new Request();
+	this->_req->try_construct( this->_raw_data, conf ); // set the request to valid in case of success
+
+	return this->_req->is_request_valid();
 }
 
 /* clear only the things we dont want anymore */

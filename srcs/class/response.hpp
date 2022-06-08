@@ -27,7 +27,7 @@ class Response
 		Webserv_conf							conf;
 		std::string								version;
 		std::map<std::string, std::string>		headers;
-		Request									req;
+		Request									*req;
 		Request									cpy_req;
 		int										_return_body_type;
 		std::ifstream							_in_file;
@@ -50,8 +50,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response(int client_socket, Webserv_conf conf, const Request *req, const char *client_ip, size_t max_size);
-		Response( Response const &src );
+		Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size);
 		~Response( void );
 
 		/* end coplien */
@@ -59,7 +58,7 @@ class Response
 		std::string	get_url(void);
 		int	add_header( std::string key, std::string value );
 		void set_status( int status_code, std::string msg );
-		std::string	load_body( Request &req );
+		std::string	load_body();
 		std::string & error_body(void);
 		bool	isFile(void);
 		void output(const size_t req_id);

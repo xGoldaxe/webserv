@@ -285,7 +285,7 @@ std::string &Response::error_body(void)
     try
     {
         // this line throw an error if page not find
-        std::string filename = this->req.route.get_error_pages().at(this->status_code);
+        std::string filename = this->req->route.get_error_pages().at(this->status_code);
         if (usable_file(filename))
         {
             this->_return_body_type = BODY_TYPE_FILE;

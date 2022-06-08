@@ -4,7 +4,7 @@ Response::Response(void)
 {
 }
 
-Response::Response(int client_socket, Webserv_conf conf, Request const *req, const char *client_ip, size_t max_size)
+Response::Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size)
 	: conf(conf),
 	  req(req),
 	  _return_body_type(BODY_TYPE_STRING),
@@ -13,15 +13,15 @@ Response::Response(int client_socket, Webserv_conf conf, Request const *req, con
 	  status_code(-1),
 	  client_socket(client_socket)
 {
-	this->cpy_req = this->req;
+	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";
-	if ( req.is_request_valid() )
+	if ( this->req->is_request_valid() )
 	{
-		this->url = this->req.route.get_root() + 
-			req.get_legacy_url().substr(req.get_legacy_url().find_first_of(this->req.route.get_location())
-			+ this->req.route.get_location().size());
+		this->url = this->req->route.get_root() + 
+			this->req->get_legacy_url().substr(this->req->get_legacy_url().find_first_of(this->req->route.get_location())
+			+ this->req->route.get_location().size());
 	}
-	this->set_status( req.get_status().first, req.get_status().second );
+	this->set_status( this->req->get_status().first, this->req->get_status().second );
 }
 
 Response::Response( Response const &src )
@@ -36,7 +36,7 @@ Response &   Response::operator=( Response const & rhs )
 	this->version = rhs.version;
 	this->headers = rhs.headers;
 	this->req = rhs.req;
-	this->cpy_req = this->req;
+	this->cpy_req = rhs.cpy_req;
 
 	this->status_code = rhs.status_code;
 	this->status_message = rhs.status_message;
@@ -95,7 +95,7 @@ std::string Response::get_url(void)
 int Response::send()
 {
 	/* add some headers */
-	http_header_content_length(this->req, *this);
+	http_header_content_length(*this->req, *this);
 
 	std::string headers_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
@@ -170,16 +170,16 @@ bool Response::isFile()
 
 std::string auto_index_template(std::string url, std::string legacy_url);
 
-std::string Response::load_body( Request &req )
+std::string Response::load_body()
 {
-	if (req.auto_index) {
+	if (this->req->auto_index) {
 		this->add_header("Content-Type", "text/html");
-		this->body = auto_index_template( this->url, req.get_legacy_url() );
+		this->body = auto_index_template( this->url, this->req->get_legacy_url() );
 	}
-	else if (req.get_route().get_cgi_enable() && req.get_route().is_in_extension(get_extension(this->url.c_str())))
+	else if (this->req->get_route().get_cgi_enable() && this->req->get_route().is_in_extension(get_extension(this->url.c_str())))
 	{
-		CGIManager cgi(req.get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
-		this->body = cgi.exec(req);
+		CGIManager cgi(this->req->get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
+		this->body = cgi.exec(*this->req);
 		this->add_header("Content-Type", "text/html");
 	} else {
 		try {
@@ -194,7 +194,6 @@ std::string Response::load_body( Request &req )
 			/** @todo On peut renvoyer une erreur 404 ici! */
 		}
 	}
-	this->cpy_req = req;
 	return this->body;
 }
 
@@ -278,7 +277,7 @@ void	Response::check_file_url(void)
 {
 	// this->route.auto_index = false; /** @todo NEED TO DO THIS! */
 	if ( /* this->route.auto_index && */ is_file( this->url ) == IS_FILE_FOLDER )
-		this->req.auto_index = true;
+		this->req->auto_index = true;
 	else if ( is_file( this->url ) == IS_FILE_NOT_FOLDER )
 	{
 		if ( !file_readable( this->url ) )
@@ -295,11 +294,11 @@ void	Response::check_file_url(void)
 }
 
 bool	Response::is_redirection( std::string &redir_str ) {
-
+	(void)redir_str;
 	try
 	{
-		redir_str = this->req.route.get_redirections().at( 
-			this->req.get_legacy_url() );
+		// redir_str = this->req->route.get_redirections().at( 
+		// 	this->req->get_legacy_url() );
 		return true;
 	}
 	catch(const std::exception& e)
@@ -326,8 +325,8 @@ void Response::try_url() {
 		// may throw errors
 		this->check_file_url();
 		this->set_status( 200, "OK" );
-		this->load_body( this->req ); ////
-		http_header_content_type( this->req, *this );
+		this->load_body(); ////
+		http_header_content_type( *this->req, *this );
 	} 
 	catch (const HTTPError &e) {
 		this->set_status( e.getCode(), e.getDescription() );

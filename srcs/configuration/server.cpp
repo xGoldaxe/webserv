@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
+Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST)
 {
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
@@ -20,7 +20,7 @@ Server_conf::~Server_conf(void)
 }
 
 // empty
-Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
+Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST)
 {
 	(void)emp;
 }

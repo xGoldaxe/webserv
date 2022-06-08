@@ -547,6 +547,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered max_amount_of_request in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing, the provided max_amount_of_request is inferior to 1!");
 				server.set_max_amount_of_request(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}

@@ -6,3 +6,4 @@ ubuntu_tester
 ubuntu_cgi_tester
 www/heavy.txt
 siege-*/
+memory/

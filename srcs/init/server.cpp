@@ -196,7 +196,7 @@ bool    Server::queue_response(Response *res)
         return true;
     }
 
-    res->output();
+    res->output(this->countHandledRequest());
     delete res;
     return false;
 }
@@ -225,7 +225,7 @@ void    Server::handle_responses()
             } else {
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
-                this->_queue.front()->output();
+                this->_queue.front()->output(this->countHandledRequest());
                 delete this->_queue.front();
             }
         }

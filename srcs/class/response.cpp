@@ -3,7 +3,14 @@
 Response::Response(void)
 {}
 
-Response::Response(int client_socket, Webserv_conf conf, Request const *req, const char *client_ip, size_t max_size) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), _client_ip(client_ip), _body_max_size(max_size), status_code(-1), client_socket(client_socket)
+Response::Response(int client_socket, Webserv_conf conf, Request const *req, const char *client_ip, size_t max_size)
+	: conf(conf),
+	  req(req),
+	  _return_body_type(BODY_TYPE_STRING),
+	  _client_ip(client_ip),
+	  _body_max_size(max_size),
+	  status_code(-1),
+	  client_socket(client_socket)
 {
 	this->cpy_req = *(this->req);
 	this->version = "HTTP/1.1";
@@ -38,13 +45,18 @@ Response &   Response::operator=( Response const & rhs )
 Response::~Response(void)
 {}
 
-void Response::output()
+void Response::output(const size_t req_id)
 {
-	std::cout << "[" << this->version << "]";
+	#ifdef DEBUG
+		std::cout << "[" << this->version << "]";
+	#endif
 	std::cout << "[http://" << this->cpy_req.get_header_value("Host") << "]";
 	std::cout << "[" << this->_client_ip << "]";
 	std::cout << "[" << this->get_str_code() << "]";
-	std::cout << "[" << this->_body_max_size << "]";
+	std::cout << "[" << req_id << "]";
+	#ifdef DEBUG
+		std::cout << "[" << this->_body_max_size << "]";
+	#endif
 	std::cout << " " << this->cpy_req.getMethod();
 	std::cout << " " << this->cpy_req.get_legacy_url() << std::endl;
 }

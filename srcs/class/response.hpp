@@ -59,7 +59,7 @@ class Response
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		bool	isFile(void);
-		void output();
+		void output(const size_t req_id);
 		int send(void);
 		int send_chunk(void);
 		size_t get_size_next_chunk();

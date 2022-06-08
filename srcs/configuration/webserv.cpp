@@ -386,15 +386,18 @@ Webserv_conf::Webserv_conf(std::string filename)
 			break;
 		case REWRITE_PARSING:
 			// location
-			// rewrite url url ;
+			// rewrite int url url ;
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if (!contextlocation)
 				throw std::invalid_argument("Error parsing, encountered redirection outside of location");
-			if ((it + 3) < words.size() && words[it + 3].compare(";") == 0)
+			if ((it + 4) < words.size() && words[it + 4].compare(";") == 0)
 			{
-				server.addRouteRedirection(words[it + 1], words[it + 2]);
-				it = it + 3;
+
+				if (std::atoi(words[it + 1].c_str()) > 399 || std::atoi(words[it + 1].c_str()) < 300)
+					throw std::invalid_argument("Error parsing, provided redirection code is outside the range");
+				server.addRouteRedirection(std::atoi(words[it + 1].c_str()) ,words[it + 2], words[it + 3]);
+				it = it + 4;
 			}
 			else
 			{

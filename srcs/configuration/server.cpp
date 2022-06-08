@@ -6,7 +6,7 @@ Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_
 	this->index.push_back("index.html");
 	Route route1("/", "./www");
 	Route route2("/php", "./cgi");
-	route1.add_redirection("/moved.html", "/sub/index.html");
+	route1.add_redirection(401,"/moved.html", "/sub/index.html");
 	routes.push_back(route1);
 	routes.push_back(route2);
 	routes.back().set_enable_cgi(true);
@@ -169,9 +169,9 @@ void Server_conf::set_enable_cgi(bool enable_cgi)
 	this->routes.back().set_enable_cgi(enable_cgi);
 }
 
-void Server_conf::addRouteRedirection(std::string url, std::string redirect)
+void Server_conf::addRouteRedirection(int redirect_code, std::string url, std::string redirect)
 {
-	this->routes.back().add_redirection(url, redirect);
+	this->routes.back().add_redirection(redirect_code, url, redirect);
 }
 
 void Server_conf::addRouteCGIExtension(std::string extension)

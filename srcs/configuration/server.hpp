@@ -72,7 +72,7 @@ class Server_conf
 		void							set_send_file(bool send_file);
 		void							set_file_limit(int file_limit);
 		void							set_enable_cgi(bool enable_cgi);
-		void							addRouteRedirection(std::string url, std::string redirect);
+		void							addRouteRedirection(int redirect_code, std::string url, std::string redirect);
 		void 							addRouteCGIExtension(std::string extension);
 		int								get_max_amount_of_request() const;
 		void							set_max_amount_of_request(int max_amount_of_request);

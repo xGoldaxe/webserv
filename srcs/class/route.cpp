@@ -107,7 +107,7 @@ std::vector<std::string> Route::get_methods(void) const
 {
 	return this->methods;
 }
-std::map<std::string, std::string> &Route::get_redirections(void)
+std::vector<Redirection> &Route::get_redirections(void)
 {
 	return this->redirections;
 }
@@ -161,11 +161,9 @@ void Route::add_index(std::string index)
 	this->index.push_back(index);
 }
 
-void Route::add_redirection(std::string url, std::string redirect_url)
+void Route::add_redirection(int redirect_code,std::string url, std::string redirect_url)
 {
-
-	std::pair<std::string, std::string> pair(url, redirect_url);
-	this->redirections.insert(pair);
+	this->redirections.push_back(Redirection(redirect_code, url, redirect_url));
 }
 
 void Route::printMethods()
@@ -225,7 +223,7 @@ void Route::printRoute()
 	std::vector<std::string>::iterator itp;
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
-	std::map<std::string, std::string>::iterator itre;
+	unsigned int itre = 0;
 	std::vector<std::string>::iterator itex;
 
 	std::cout << "***Route***" << std::endl;
@@ -278,9 +276,12 @@ void Route::printRoute()
 	std::cout << "Redirection : " << std::endl;
 	if (!this->redirections.empty())
 	{
-		for (itre = this->redirections.begin(); itre != this->redirections.end(); itre++)
+		while(itre < this->redirections.size())
 		{
-			std::cout << itre->first << " " << itre->second << std::endl;
+			std::cout << this->redirections[itre].get_redirect_code() << " " << 
+			this->redirections[itre].get_url() << " " <<
+			this->redirections[itre].get_redirect_url() <<  std::endl;
+			itre++;
 		}
 	}
 	else
@@ -321,4 +322,18 @@ void Route::printRoute()
 
 	std::cout << std::endl;
 #endif
+}
+
+std::string Route::return_redirect_url(std::string url) const
+{
+	unsigned int i = 0;
+	std::string res;
+
+	while(i < this->redirections.size())
+	{
+		if(this->redirections[i].get_url().compare(url) == 0)
+			return this->redirections[i].get_redirect_url();
+		i++;
+	}
+	throw std::out_of_range("");
 }

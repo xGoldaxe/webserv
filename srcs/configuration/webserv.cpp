@@ -25,7 +25,7 @@ static int return_type_parse(std::string s)
 									  "cgi_extension", "body_max_size", "server",
 									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
-									  "host"};
+									  "host", "max_amount_of_request"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -534,6 +534,22 @@ Webserv_conf::Webserv_conf(std::string filename)
 			else
 			{
 				throw std::invalid_argument("Error parsing host");
+			}
+			break;
+		case MAX_AMOUNT_OF_REQUEST_PARSING:
+			// server int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered max_amount_of_request in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.set_max_amount_of_request(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing max_amount_of_request");
 			}
 			break;
 		default:

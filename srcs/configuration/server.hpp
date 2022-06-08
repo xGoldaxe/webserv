@@ -34,7 +34,7 @@ class Server_conf
 		int									read_timeout;
 		int									server_body_size;
 		int									client_header_size;
-
+		int									max_amount_of_request;
 	public:
 		Server_conf(void);
 		~Server_conf(void);
@@ -74,6 +74,6 @@ class Server_conf
 		void							set_enable_cgi(bool enable_cgi);
 		void							addRouteRedirection(std::string url, std::string redirect);
 		void 							addRouteCGIExtension(std::string extension);
-
-
+		int								get_max_amount_of_request() const;
+		void							set_max_amount_of_request(int max_amount_of_request);
 };

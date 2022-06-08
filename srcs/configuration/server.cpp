@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST) ,body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
+Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
 {
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
@@ -12,7 +12,7 @@ Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_
 	routes.back().set_enable_cgi(true);
 	routes.back().set_cgi_path("/usr/bin/php");
 	routes.back().add_cgi_extension("php");
-	//routes.at(0).add_error_page(404, "defaultPages/404.html");
+	// routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
 Server_conf::~Server_conf(void)
@@ -20,7 +20,7 @@ Server_conf::~Server_conf(void)
 }
 
 // empty
-Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST) ,body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
+Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE)
 {
 	(void)emp;
 }
@@ -198,6 +198,7 @@ void Server_conf::printServer()
 	std::cout << "Read Timeout : " << this->read_timeout << std::endl;
 	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
 	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
+	std::cout << "Max Amount of Requests : " << this->max_amount_of_request << std::endl;
 
 	if ((!this->port.empty()))
 	{
@@ -237,4 +238,14 @@ void Server_conf::printServer()
 	}
 	std::cout << std::endl;
 #endif
+}
+
+int Server_conf::get_max_amount_of_request() const
+{
+	return this->max_amount_of_request;
+}
+
+void Server_conf::set_max_amount_of_request(int max_amount_of_request)
+{
+	this->max_amount_of_request = max_amount_of_request;
 }

@@ -1,0 +1,22 @@
+server
+{
+	server_name = Uno ;
+
+	location /testuno
+	{
+	}
+}
+
+server
+{
+	location /testuno
+	{
+	}
+}
+
+server
+{
+	location /testuno
+	{
+	}
+}

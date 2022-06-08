@@ -582,21 +582,33 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 	this->servers.push_back(server);
 
+	// Assign default variables to servers if none defined in parsing
 	unsigned int checkservers = 0;
-	if (checkservers < this->servers.size())
+	while (checkservers < this->servers.size())
 	{
 		if(this->servers[checkservers].getRoutes().empty())
 			throw std::invalid_argument("A server has no location!");
+		if(this->servers[checkservers].getPort().empty())
+			this->servers[checkservers].addPort(DEFAULT_PORT);	
+		if(this->servers[checkservers].getIndex().empty())
+			this->servers[checkservers].addIndex(DEFAULT_INDEX_SERVER);
 		checkservers++;
 	}
 
-	// Assign default variables to the first server if none defined in parsing
-	if (!this->servers.empty())
+	unsigned int i_checkservdupe = 0;
+	unsigned int j_checkservdupe = 1;
+
+	while (i_checkservdupe < this->servers.size())
 	{
-		if(this->servers[0].getPort().empty())
-			this->servers[0].addPort(DEFAULT_PORT);	
-		if(this->servers[0].getIndex().empty())
-			this->servers[0].addIndex(DEFAULT_INDEX_SERVER);
+		while (j_checkservdupe < this->servers.size())
+		{
+			if (this->servers[i_checkservdupe].getName().compare(this->servers[j_checkservdupe].getName()) == 0
+			&& this->servers[i_checkservdupe].getPort() == this->servers[j_checkservdupe].getPort())
+				throw std::invalid_argument("Parsing error, duplicate server detected!");
+			j_checkservdupe++;
+		}
+		i_checkservdupe++;
+		j_checkservdupe = i_checkservdupe + 1;
 	}
 
 #ifdef DEBUG

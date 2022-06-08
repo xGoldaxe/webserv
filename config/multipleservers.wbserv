@@ -3,6 +3,10 @@ server
 	host = 127.0.0.1 ;
 	listen = 3000 ;
 	server_name = Uno ;
+
+	location /testuno
+	{
+	}
 }
 
 server
@@ -10,9 +14,9 @@ server
 	listen = 3001 ;
 	server_name = Duo ;
 
-	location /test
+	location /testduo
 	{
-		root ./imaginary ;
+		root ./duo ;
 	}
 }
 
@@ -20,6 +24,10 @@ server
 {
 	listen = 3002 ;
 	server_name = Tres ;
+
+		location /testtres
+	{
+	}
 }
 
 server
@@ -27,4 +35,9 @@ server
 	host = 0.0.0.0 ;
 	listen = 3003 ;
 	server_name = Quatros ;
+
+	location /testquatros
+	{
+	}
+
 }

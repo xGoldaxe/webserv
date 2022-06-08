@@ -39,6 +39,11 @@ Route::Route(std::string location, std::string root, int notdefault) : root(root
 	(void)notdefault;
 }
 
+Route::Route(std::string location, int notdefault) : location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT)
+{
+	(void)notdefault;
+}
+
 Route::Route(const Route &rhs) : root(rhs.root), location(rhs.location),
 								 index(rhs.index), methods(rhs.methods), error_pages(rhs.error_pages), redirections(rhs.redirections),
 								 auto_index(rhs.auto_index), cgi_enable(rhs.cgi_enable), cgi_path(rhs.cgi_path), cgi_extension(rhs.cgi_extension), cgi_timeout(rhs.cgi_timeout),
@@ -102,7 +107,7 @@ std::vector<std::string> Route::get_methods(void) const
 {
 	return this->methods;
 }
-std::map<std::string, std::string> &Route::get_redirections(void)
+std::vector<Redirection> &Route::get_redirections(void)
 {
 	return this->redirections;
 }
@@ -156,11 +161,9 @@ void Route::add_index(std::string index)
 	this->index.push_back(index);
 }
 
-void Route::add_redirection(std::string url, std::string redirect_url)
+void Route::add_redirection(int redirect_code,std::string url, std::string redirect_url)
 {
-
-	std::pair<std::string, std::string> pair(url, redirect_url);
-	this->redirections.insert(pair);
+	this->redirections.push_back(Redirection(redirect_code, url, redirect_url));
 }
 
 void Route::printMethods()
@@ -220,7 +223,7 @@ void Route::printRoute()
 	std::vector<std::string>::iterator itp;
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
-	std::map<std::string, std::string>::iterator itre;
+	unsigned int itre = 0;
 	std::vector<std::string>::iterator itex;
 
 	std::cout << "***Route***" << std::endl;
@@ -273,9 +276,12 @@ void Route::printRoute()
 	std::cout << "Redirection : " << std::endl;
 	if (!this->redirections.empty())
 	{
-		for (itre = this->redirections.begin(); itre != this->redirections.end(); itre++)
+		while(itre < this->redirections.size())
 		{
-			std::cout << itre->first << " " << itre->second << std::endl;
+			std::cout << this->redirections[itre].get_redirect_code() << " " << 
+			this->redirections[itre].get_url() << " " <<
+			this->redirections[itre].get_redirect_url() <<  std::endl;
+			itre++;
 		}
 	}
 	else
@@ -316,4 +322,18 @@ void Route::printRoute()
 
 	std::cout << std::endl;
 #endif
+}
+
+std::string Route::return_redirect_url(std::string url) const
+{
+	unsigned int i = 0;
+	std::string res;
+
+	while(i < this->redirections.size())
+	{
+		if(this->redirections[i].get_url().compare(url) == 0)
+			return this->redirections[i].get_redirect_url();
+		i++;
+	}
+	throw std::out_of_range("");
 }

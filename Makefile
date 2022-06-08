@@ -9,6 +9,7 @@ SRCS	=	main.cpp \
 			class/request_constructor.cpp \
 			class/response.cpp \
 			class/route.cpp \
+			configuration/redirection.cpp \
 			configuration/webserv.cpp \
 			configuration/server.cpp \
 			http_header/Date.cpp \

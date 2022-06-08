@@ -13,7 +13,7 @@
 
 class Server_conf;
 
-#define SIZE_PARSING 20
+#define SIZE_PARSING 22
 
 #define SERVER_NAME_PARSING 0
 #define LISTEN_PARSING 1
@@ -35,7 +35,8 @@ class Server_conf;
 #define FILE_LIMIT_PARSING 17
 #define CLIENT_HEADER_SIZE_PARSING 18
 #define HOST_PARSING 19
-
+#define MAX_AMOUNT_OF_REQUEST_PARSING 20
+#define MAX_URI_SIZE_PARSING 21
 
 class Webserv_conf
 {

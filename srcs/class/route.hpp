@@ -5,6 +5,7 @@
 #include <map>
 #include <algorithm>
 #include "../utils/string.hpp"
+#include "../configuration/redirection.hpp"
 
 #ifdef DEBUG
 # include <iostream>
@@ -24,7 +25,7 @@ class Route
 		std::vector<std::string>			index;
 		std::vector<std::string>			methods;
 		std::map<int, std::string>			error_pages;
-		std::map<std::string, std::string>	redirections;
+		std::vector<Redirection>			redirections;
 		bool								auto_index;
 		/* cgi*/
 		bool								cgi_enable;
@@ -40,6 +41,7 @@ class Route
 		Route(std::string root);
 		Route( std::string location, std::string root );
 		Route( std::string location, std::string root, int notdefault);
+		Route( std::string location, int notdefault);
 		Route( const Route &rhs );
 		Route(Route rhs, int notcopy);
 		
@@ -54,7 +56,7 @@ class Route
 		std::string							get_location(void);
 		std::string 						get_root(void);
 		std::vector<std::string> 			get_methods(void) const;
-		std::map<std::string, std::string>  &get_redirections(void);
+		std::vector<Redirection>			&get_redirections(void);
 		bool								get_cgi_enable(void);
 		std::vector<std::string>			get_cgi_extension(void);
 		std::string							get_cgi_path(void);
@@ -65,7 +67,7 @@ class Route
 		void								add_error_page( int status_code, std::string error_message );
 		void								add_methods( std::string methods );
 		void								add_index( std::string index );
-		void								add_redirection( std::string url, std::string redirect_url );
+		void								add_redirection( int redirect_code, std::string url, std::string redirect_url );
 		void								printRoute();
 		void								printMethods();
 		void								set_auto_index(bool auto_index);
@@ -74,5 +76,6 @@ class Route
 		void								set_send_file(bool send_file);
 		void								set_file_limit(int file_limit);
 		bool								is_in_extension(std::string extension);
+		std::string 						return_redirect_url(std::string url) const;
 };
 

@@ -11,11 +11,15 @@
 #define DEFAULT_SERVER_NAME "webserv (42) v0.1-dev"
 #define DEFAULT_ROOT "."
 #define DEFAULT_BODY_MAX_SIZE 2048
-#define DEFAULT_PORT 80
+#define DEFAULT_PORT 3000
 #define DEFAULT_READ_TIMEOUT -1
+#define DEFAULT_MAX_AMOUNT_OF_REQUEST 10
 #define DEFAULT_SERVER_BODY_SIZE 2048
 #define DEFAULT_CLIENT_HEADER_SIZE 2048
 #define DEFAULT_HOST "127.0.0.1"
+#define DEFAULT_INDEX_SERVER "index.html"
+#define DEFAULT_MAX_URI_SIZE 50
+
 
 class Route;
 
@@ -23,7 +27,7 @@ class Server_conf
 {
 
 	private:
-		std::list<short>					port;
+		std::vector<short>					port;
 		std::vector<Route>					routes;
 		std::string							server_name;
 		std::string							host;
@@ -34,6 +38,8 @@ class Server_conf
 		int									read_timeout;
 		int									server_body_size;
 		int									client_header_size;
+		int									max_amount_of_request;
+		int									max_uri_size;
 
 	public:
 		Server_conf(void);
@@ -44,7 +50,7 @@ class Server_conf
 		int								getReadTimeOut() const;
 		int								getServerBodySize() const;
 		int								getClientHeaderSize() const;
-		std::list<short>				getPort();
+		std::vector<short>				getPort() const;
 		std::vector<Route>				getRoutes() const;
 		std::string						getHost() const;
 		std::string						getName() const;
@@ -72,8 +78,10 @@ class Server_conf
 		void							set_send_file(bool send_file);
 		void							set_file_limit(int file_limit);
 		void							set_enable_cgi(bool enable_cgi);
-		void							addRouteRedirection(std::string url, std::string redirect);
+		void							addRouteRedirection(int redirect_code, std::string url, std::string redirect);
 		void 							addRouteCGIExtension(std::string extension);
-
-
+		int								get_max_amount_of_request() const;
+		void							set_max_amount_of_request(int max_amount_of_request);
+		int								get_max_uri_size() const;
+		void							set_max_uri_size(int max_uri_size);
 };

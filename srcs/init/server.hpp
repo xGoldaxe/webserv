@@ -58,18 +58,31 @@ public:
 	std::vector<int> get_poll_fd() const;
 
 private:
-	std::vector<s_server_addr_in> _addrs;
-	std::vector<int> _socket_fds;
-	std::vector<int> _poll_fds;
-	std::map<int, Connection> _connections;
-	std::map<int, int> _poll_socket_eq;
-	std::map<int, std::string> _socket_addr_eq;
-	std::queue<Connection *> _c_queue;
-	std::queue<Response *> _queue;
-	size_t _request_handled;
-	char **_env;
-	bool _is_init;
+	// Internal variables
+	std::vector<s_server_addr_in>	_addrs;
+	std::vector<int> 				_socket_fds;
+	std::vector<int>				_poll_fds;
+	std::map<int, Connection>		_connections;
+	std::map<int, int>				_poll_socket_eq;
+	std::map<int, std::string>		_socket_addr_eq;
+	std::queue<Connection *>		_c_queue;
+	std::queue<Response *>			_queue;
+	size_t							_request_handled;
+	char							**_env;
+	bool							_is_init;
 
+	// Configuration
+	std::string						_server_name;
+	std::string						_host;
+	std::vector<std::string>		_index;
+	int								_body_max_size;
+	std::string 					_root;
+	std::map<int, std::string>		_error_pages;
+	int								_read_timeout;
+	int								_server_body_size;
+	int								_client_header_size;
+
+	// Methods
 	Server();
 
 	void _report(int sock, s_server_addr_in server_addr);

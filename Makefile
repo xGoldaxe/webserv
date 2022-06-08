@@ -39,7 +39,7 @@ DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG # -g -O2
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG -g -O2
 
 RM		=	rm -rf
 

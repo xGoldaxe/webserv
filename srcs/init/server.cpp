@@ -78,7 +78,17 @@ void    Server::wait_for_connections( void )
     }
 }
 
-Server::Server(char **env, Server_conf serv_conf) : _request_handled(0), _env(env)
+Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
+                                                    _env(env),
+                                                    _server_name(serv_conf.getName()),
+                                                    _host(serv_conf.getHost()),
+                                                    _index(serv_conf.getIndex()),
+                                                    _body_max_size(serv_conf.getBodyMaxSize()),
+                                                    _root(serv_conf.getRoot()),
+                                                    // _error_pages(serv_conf.error),
+                                                    _read_timeout(serv_conf.getReadTimeOut()),
+                                                    _server_body_size(serv_conf.getServerBodySize()),
+                                                    _client_header_size(serv_conf.getClientHeaderSize())
 {
     std::list<short> ports = serv_conf.getPort();
 
@@ -105,7 +115,15 @@ Server::Server(const Server &rhs) : _addrs(rhs._addrs),
                                     _queue(rhs._queue),
                                     _request_handled(rhs._request_handled),
                                     _env(rhs._env),
-                                    _is_init(rhs._is_init)
+                                    _is_init(rhs._is_init),
+                                    _server_name(rhs._server_name),
+                                    _host(rhs._host),
+                                    _index(rhs._index),
+                                    _body_max_size(rhs._body_max_size),
+                                    _root(rhs._root),
+                                    _read_timeout(rhs._read_timeout),
+                                    _server_body_size(rhs._server_body_size),
+                                    _client_header_size(rhs._client_header_size)
 {
     this->_is_init = false;
 }
@@ -172,11 +190,12 @@ bool    Server::queue_response(Response *res)
     this->_request_handled++;
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
-    } else {
-        this->_queue.front()->output();
-        delete res;
+        return true;
     }
-    return true;
+
+    res->output();
+    delete res;
+    return false;
 }
 
 void    Server::handle_responses()
@@ -214,8 +233,7 @@ void    Server::handle_responses()
     }
 
     while (!this->_queue.empty() && exit_code == 0) {
-        Response *res = this->_queue.front();
-        new_queue.push(res);
+        new_queue.push(this->_queue.front());
         this->_queue.pop();
     }
 
@@ -265,7 +283,7 @@ void Server::handle_client()
             epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
 
             this->_connections.insert(
-                std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr))));
+                std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_body_size)));
         }
     }
 }

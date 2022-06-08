@@ -18,8 +18,6 @@ class Response;
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#define MAX_BODY_LENGTH 5096
-
 #define BODY_TYPE_FILE		1
 #define BODY_TYPE_STRING	2
 
@@ -35,9 +33,11 @@ class Response
 		std::ifstream							_in_file;
 		size_t									_file_len;
 		const char								*_client_ip;
+		size_t									_body_max_size;
 
 		Response &operator=(Response const &rhs);
 		Response(void);
+		Response( Response const &src );
 
 	public:
 		int				status_code;
@@ -49,8 +49,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response(int client_socket, Webserv_conf conf, const Request *req, const char *client_ip);
-		Response( Response const &src );
+		Response(int client_socket, Webserv_conf conf, const Request *req, const char *client_ip, size_t max_size);
 		~Response( void );
 
 		/* end coplien */
@@ -64,5 +63,6 @@ class Response
 		int send(void);
 		int send_chunk(void);
 		size_t get_size_next_chunk();
+		size_t getChunkMaxSize();
 		const Webserv_conf &get_conf() const;
 };

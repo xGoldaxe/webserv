@@ -74,7 +74,7 @@ bool	Connection::init_request()
 	try
 	{
 		this->_req.try_construct( this->_raw_data, conf );
-		this->_res = new Response(this->_fd, conf, &this->_req, this->_client_ip);
+		this->_res = new Response(this->_fd, conf, &this->_req, this->_client_ip, this->_response_max_size);
 		return true;
 	}
 	catch(const std::exception& e)
@@ -141,7 +141,7 @@ bool	Connection::is_fulfilled()
 /*************************
 * @coplien
 * ***********************/
-Connection::Connection(int fd, char *client_ip) : _fd(fd), _is_init(false), _client_ip(client_ip)
+Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _fd(fd), _is_init(false), _client_ip(client_ip), _response_max_size(response_chunk_size)
 {
 	this->_begin_time = time(NULL);
 }
@@ -152,7 +152,8 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_raw_data(src.get_data()),
 												_is_init(src._is_init),
 												_begin_time(src.get_time()),
-												_client_ip(src._client_ip)
+												_client_ip(src._client_ip),
+												_response_max_size(src._response_max_size)
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )

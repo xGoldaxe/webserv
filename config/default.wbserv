@@ -9,6 +9,7 @@ server
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
 	location /
 	{
 		root ./ ;

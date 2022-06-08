@@ -1,6 +1,8 @@
 #include "server.hpp"
 
-Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST)
+Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT),
+read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE),
+max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST), max_uri_size(DEFAULT_MAX_URI_SIZE)
 {
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
@@ -20,7 +22,7 @@ Server_conf::~Server_conf(void)
 }
 
 // empty
-Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST)
+Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST), max_uri_size(DEFAULT_MAX_URI_SIZE)
 {
 	(void)emp;
 }
@@ -199,6 +201,7 @@ void Server_conf::printServer()
 	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
 	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
 	std::cout << "Max Amount of Requests : " << this->max_amount_of_request << std::endl;
+	std::cout << "Max URI Size : " << this->max_uri_size << std::endl;
 
 	if ((!this->port.empty()))
 	{
@@ -248,4 +251,14 @@ int Server_conf::get_max_amount_of_request() const
 void Server_conf::set_max_amount_of_request(int max_amount_of_request)
 {
 	this->max_amount_of_request = max_amount_of_request;
+}
+
+int Server_conf::get_max_uri_size() const
+{
+	return this->max_uri_size;
+}
+
+void Server_conf::set_max_uri_size(int max_uri_size)
+{
+	this->max_uri_size = max_uri_size ;
 }

@@ -18,6 +18,7 @@
 #define DEFAULT_CLIENT_HEADER_SIZE 2048
 #define DEFAULT_HOST "127.0.0.1"
 #define DEFAULT_INDEX_SERVER "index.html"
+#define DEFAULT_MAX_URI_SIZE 50
 
 
 class Route;
@@ -38,6 +39,8 @@ class Server_conf
 		int									server_body_size;
 		int									client_header_size;
 		int									max_amount_of_request;
+		int									max_uri_size;
+
 	public:
 		Server_conf(void);
 		~Server_conf(void);
@@ -79,4 +82,6 @@ class Server_conf
 		void 							addRouteCGIExtension(std::string extension);
 		int								get_max_amount_of_request() const;
 		void							set_max_amount_of_request(int max_amount_of_request);
+		int								get_max_uri_size() const;
+		void							set_max_uri_size(int max_uri_size);
 };

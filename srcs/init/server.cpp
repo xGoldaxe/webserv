@@ -98,7 +98,10 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
         std::memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         addr.sin_port = htons(*it);
-        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        
+        if (inet_aton(this->_host.c_str(), &addr.sin_addr) == 0) {
+            throw std::invalid_argument("Unexisting host");
+        }
 
         this->_addrs.push_back(addr);
     }
@@ -204,7 +207,7 @@ void    Server::handle_responses()
 
     int runner_i = 0;
 
-    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && exit_code == 0)
+    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && !shouldQuit())
     {
         Response *res = this->_queue.front();
         

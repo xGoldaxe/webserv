@@ -1,18 +1,8 @@
 #include "webserv.hpp"
-#include "init/server.hpp"
 
 #define SIZE 1024
 
 MimeTypes mimes;
-int exit_code;
-
-void signalHandler(int signum)
-{
-	std::cout << std::endl
-			  << "Goodbye! That was cool to have you :)" << std::endl;
-
-	exit_code = signum;
-}
 
 int main(int argc, char **argv, char **env)
 {
@@ -57,13 +47,11 @@ int main(int argc, char **argv, char **env)
 		}
 	}
 
-	exit_code = 0;
-	signal(SIGINT, signalHandler);
-	signal(SIGPIPE, SIG_IGN);
+	handleExit();
 
-	while (exit_code == 0)
+	while (!shouldQuit())
 	{
-		for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); it++)
+		for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end() && !shouldQuit(); it++)
 		{
 			(*it)->handle_client();
 			(*it)->wait_for_connections();
@@ -71,10 +59,9 @@ int main(int argc, char **argv, char **env)
 			(*it)->handle_responses();
 		}
 	}
+
 	for (std::vector<Server *>::iterator it = servers.begin(); it != servers.end(); it++)
-	{
 		delete (*it);
-	}
 
 	return (exit_code);
-	}
+}

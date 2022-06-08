@@ -1,5 +1,8 @@
 #pragma once
-#include "../webserv.hpp"
+
+#include "class/request.hpp"
+
+class Response;
 
 class Connection
 {

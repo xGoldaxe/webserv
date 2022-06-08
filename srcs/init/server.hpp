@@ -1,6 +1,4 @@
 #pragma once
-#include "../webserv.hpp"
-#include "connection.hpp"
 
 #include <cstring>
 #include <unistd.h>
@@ -31,12 +29,15 @@
 #include <queue>
 
 #include "exception_server_not_listening.hpp"
-#include "class/response.hpp"
 #include "configuration/webserv.hpp"
+
+class Connection;
+#include "connection.hpp"
 
 #define BACKLOG 10
 #define MAX_RUNNERS 20
 
+class Response;
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
 
@@ -91,3 +92,5 @@ private:
 	void read_connection(int client_socket);
 	bool close_connection(int client_socket);
 };
+
+#include "class/response.hpp"

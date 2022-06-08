@@ -1,6 +1,9 @@
 #pragma once
 
+#include "exit_handle.hpp"
+
 #include "internal/mime_types.hpp"
+#include "init/server.hpp"
 
 #include "class/route.hpp"
 #include "class/request.hpp"
@@ -13,7 +16,3 @@
 #include "http_header/http_header.hpp"
 
 extern MimeTypes mimes;
-extern int exit_code;
-
-/* http */
-int http_get_response( Request &req, Response &res );

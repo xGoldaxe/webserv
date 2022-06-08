@@ -28,6 +28,13 @@ std::string Request::get_legacy_url(void) const
 {
 	return this->legacy_url;
 }
+std::string Request::get_header_value(std::string name) const
+{
+	std::map<std::string, std::string>::const_iterator it = this->headers.find(name);
+	if (it == this->headers.end())
+		return "";
+	return this->headers.at(name);
+}
 std::string Request::get_http_version(void) const
 {
 	return this->version;

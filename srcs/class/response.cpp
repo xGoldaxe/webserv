@@ -4,7 +4,14 @@ Response::Response(void)
 {
 }
 
-Response::Response(int client_socket, Webserv_conf conf, Request const req) : conf(conf), req(req), _return_body_type(BODY_TYPE_STRING), status_code(-1), client_socket(client_socket)
+Response::Response(int client_socket, Webserv_conf conf, Request const *req, const char *client_ip, size_t max_size)
+	: conf(conf),
+	  req(req),
+	  _return_body_type(BODY_TYPE_STRING),
+	  _client_ip(client_ip),
+	  _body_max_size(max_size),
+	  status_code(-1),
+	  client_socket(client_socket)
 {
 	this->cpy_req = this->req;
 	this->version = "HTTP/1.1";
@@ -20,6 +27,7 @@ Response::Response(int client_socket, Webserv_conf conf, Request const req) : co
 Response::Response( Response const &src )
 {
 	*this = src;
+	std::cout << "FORBIDDEN CALL!" << std::endl;
 }
 
 Response &   Response::operator=( Response const & rhs )
@@ -32,6 +40,7 @@ Response &   Response::operator=( Response const & rhs )
 
 	this->status_code = rhs.status_code;
 	this->status_message = rhs.status_message;
+	this->_body_max_size = rhs._body_max_size;
 	this->body = rhs.body;
 	this->client_socket = rhs.client_socket;
 
@@ -42,8 +51,22 @@ Response &   Response::operator=( Response const & rhs )
 }
 
 Response::~Response(void)
+{}
+
+void Response::output(const size_t req_id)
 {
-	std::cout << "[" << this->version << "][" << this->cpy_req.getMethod() << "][" << this->get_str_code() << "] " << this->cpy_req.get_legacy_url() << std::endl;
+	#ifdef DEBUG
+		std::cout << "[" << this->version << "]";
+	#endif
+	std::cout << "[http://" << this->cpy_req.get_header_value("Host") << "]";
+	std::cout << "[" << this->_client_ip << "]";
+	std::cout << "[" << this->get_str_code() << "]";
+	std::cout << "[" << req_id << "]";
+	#ifdef DEBUG
+		std::cout << "[" << this->_body_max_size << "]";
+	#endif
+	std::cout << " " << this->cpy_req.getMethod();
+	std::cout << " " << this->cpy_req.get_legacy_url() << std::endl;
 }
 
 std::string Response::get_str_code(void)
@@ -79,7 +102,7 @@ int Response::send()
 		headers_response += "\n" + it->first + ": " + it->second;
 	headers_response += "\r\n\n";
 
-	if (this->_return_body_type == BODY_TYPE_STRING && this->body.size() < MAX_BODY_LENGTH) {
+	if (this->_return_body_type == BODY_TYPE_STRING && this->body.size() < this->_body_max_size) {
 		headers_response += this->body + "\r\n";
 	}
 
@@ -90,9 +113,9 @@ int Response::send()
 size_t	Response::get_size_next_chunk()
 {
 	if (this->_return_body_type == BODY_TYPE_FILE) {
-		return std::min<size_t>(MAX_BODY_LENGTH, this->_file_len);
+		return std::min<size_t>(this->_body_max_size, this->_file_len);
 	}
-	return std::min<size_t>(MAX_BODY_LENGTH, this->body.size());
+	return std::min<size_t>(this->_body_max_size, this->body.size());
 }
 
 /**
@@ -106,9 +129,9 @@ int		Response::send_chunk()
 {
 	if (this->_return_body_type == BODY_TYPE_STRING)
 	{
-		std::string response_body(this->body, 0, std::min<size_t>(MAX_BODY_LENGTH, this->body.size()));
+		std::string response_body(this->body, 0, std::min<size_t>(this->_body_max_size, this->body.size()));
 		std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
-		this->body.erase(0, MAX_BODY_LENGTH);
+		this->body.erase(0, this->_body_max_size);
 		::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
 		return this->body.size();
 	}
@@ -117,8 +140,8 @@ int		Response::send_chunk()
 		if (!this->_in_file.is_open())
 			return -1;
 
-		char buf[MAX_BODY_LENGTH + 1];
-		memset(buf, 0, MAX_BODY_LENGTH + 1);
+		char buf[this->_body_max_size + 1];
+		memset(buf, 0, this->_body_max_size + 1);
 
 		size_t transmit_size = this->get_size_next_chunk();
 		this->_in_file.read(buf, transmit_size);
@@ -152,7 +175,9 @@ std::string Response::load_body( Request &req )
 	if (req.auto_index) {
 		this->add_header("Content-Type", "text/html");
 		this->body = auto_index_template( this->url, req.get_legacy_url() );
-	} else if (req.get_route().get_cgi_enable() && get_extension( this->url.c_str() ) == req.get_route().get_cgi_extension()) {
+	}
+	else if (req.get_route().get_cgi_enable() && req.get_route().is_in_extension(get_extension(this->url.c_str())))
+	{
 		CGIManager cgi(req.get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
 		this->body = cgi.exec(req);
 		this->add_header("Content-Type", "text/html");
@@ -308,4 +333,8 @@ void Response::try_url() {
 		this->set_status( e.getCode(), e.getDescription() );
 		this->error_body();
 	}
+}
+size_t Response::getChunkMaxSize()
+{
+	return this->_body_max_size;
 }

@@ -180,7 +180,7 @@ bool	Connection::is_fulfilled()
 /*************************
 * @coplien
 * ***********************/
-Connection::Connection( int fd ) : _fd( fd ), _is_init( false )
+Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _fd(fd), _is_init(false), _client_ip(client_ip), _response_max_size(response_chunk_size)
 {
 	this->_begin_time = time(NULL);
 	this->_req = NULL;
@@ -194,11 +194,15 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_is_init(src._is_init),
 												_begin_time(src.get_time()),
 												_is_sending_data( src.get_is_sending_data() ),
-												_is_dead( src.get_is_dead())
+												_is_dead( src.get_is_dead()),
+												_client_ip(src._client_ip),
+												_response_max_size(src._response_max_size)
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
 {
+	if (&rhs == this)
+		return (*this);
 	this->_fd = rhs.get_fd();
 	this->_req = rhs.get_req();
 	this->_raw_data = rhs.get_data();

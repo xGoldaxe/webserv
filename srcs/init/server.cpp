@@ -1,8 +1,5 @@
 #include "server.hpp"
 
-#include <cstring>
-#include "../webserv.hpp"
-
 bool	Server::close_connection( int client_socket )
 {
 	close( client_socket );
@@ -18,7 +15,7 @@ bool	Server::close_connection( int client_socket )
 
 void    Server::read_connection( int client_socket )
 {
-	char buffer[32];
+    char buffer[32];
 	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
 	{
 		this->close_connection( client_socket );
@@ -31,7 +28,7 @@ void    Server::read_connection( int client_socket )
 void    Server::add_response( Request * req, int fd )
 {
     Webserv_conf conf;
-    Response *res = new Response( fd, conf, *req );
+    Response *res = new Response( fd, conf, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size );
 
 	if ( req->is_request_valid() )
 	{
@@ -69,67 +66,124 @@ void  Server::trigger_queue( void )
 /* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
 void    Server::wait_for_connections( void )
 {
-	struct epoll_event evlist[1024];
-	int nbr_req = epoll_wait( this->get_poll_fd(), evlist, 1024, 0 );
-	for (int i = 0; i < nbr_req; ++i)
+    for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
     {
-        std::cout << "read from, fd: " << evlist[i].data.fd << std::endl;
-		this->read_connection( evlist[i].data.fd );
+        struct epoll_event evlist[1024];
+        int nbr_req = epoll_wait((*it), evlist, 1024, 0);
+        for (int i = 0; i < nbr_req; ++i) { 
+            this->read_connection(evlist[i].data.fd);
+        }
     }
 }
 
-Server::Server() : _socket_fd(0), _poll_fd(0), _request_handled(0)
+Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
+                                                    _env(env),
+                                                    _server_name(serv_conf.getName()),
+                                                    _host(serv_conf.getHost()),
+                                                    _index(serv_conf.getIndex()),
+                                                    _body_max_size(serv_conf.getBodyMaxSize()),
+                                                    _root(serv_conf.getRoot()),
+                                                    // _error_pages(serv_conf.error),
+                                                    _read_timeout(serv_conf.getReadTimeOut()),
+                                                    _server_body_size(serv_conf.getServerBodySize()),
+                                                    _client_header_size(serv_conf.getClientHeaderSize())
 {
-    this->_port = 3000;
+    std::vector<short> ports = serv_conf.getPort();
 
+    for (std::vector<short>::iterator it = ports.begin(); it != ports.end(); it++)
+    {
+        s_server_addr_in addr;
+        std::memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(*it);
+        
+        if (inet_aton(this->_host.c_str(), &addr.sin_addr) == 0) {
+            throw std::invalid_argument("Unexisting host");
+        }
+
+        this->_addrs.push_back(addr);
+    }
+
+    this->_is_init = false;
     this->_queue = std::queue<Response *>();
+}
 
-    this->_addr.sin_family = AF_INET;
-    this->_addr.sin_port = htons(this->_port);
-    this->_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+Server::Server(const Server &rhs) : _addrs(rhs._addrs),
+                                    _socket_fds(rhs._socket_fds),
+                                    _poll_fds(rhs._poll_fds),
+                                    _connections(rhs._connections),
+                                    _c_queue(rhs._c_queue),
+                                    _queue(rhs._queue),
+                                    _request_handled(rhs._request_handled),
+                                    _env(rhs._env),
+                                    _is_init(rhs._is_init),
+                                    _server_name(rhs._server_name),
+                                    _host(rhs._host),
+                                    _index(rhs._index),
+                                    _body_max_size(rhs._body_max_size),
+                                    _root(rhs._root),
+                                    _read_timeout(rhs._read_timeout),
+                                    _server_body_size(rhs._server_body_size),
+                                    _client_header_size(rhs._client_header_size)
+{
+    this->_is_init = false;
 }
 
 Server::~Server()
 {
-    if (this->_poll_fd > 0)
-        close(this->_poll_fd);
+    if (_is_init) {
+        for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
+        {
+            close(*it);
+        }
 
-    if (this->_socket_fd > 0)
-        close(this->_socket_fd);
+        for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
+        {
+            close(*it);
+        }
 
-    while (!this->_queue.empty()) {
-        delete this->_queue.front();
-        this->_queue.pop();
+        while (!this->_queue.empty()) {
+            delete this->_queue.front();
+            this->_queue.pop();
+        }
+
+        std::cout << "Server closed." << std::endl;
     }
-
-    std::cout << "Server closed." << std::endl;
 }
 
-int Server::get_socket() const
+std::vector<int> Server::get_socket() const
 {
-	return this->_socket_fd;
+	return this->_socket_fds;
 }
 
-int Server::get_poll_fd() const
+std::vector<int> Server::get_poll_fd() const
 {
-	return this->_poll_fd;
+	return this->_poll_fds;
 }
 
 void Server::init_connection()
 {
-    this->_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    bool set_opt = 1;
-    setsockopt(this->_socket_fd, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+    this->_is_init = true;
 
-    this->_bind_port();
+    for (std::vector<s_server_addr_in>::iterator it = this->_addrs.begin(); it != this->_addrs.end(); it++) {
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        this->_socket_fds.push_back(sock);
+        bool set_opt = 1;
+        setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
 
-    if (listen(this->_socket_fd, BACKLOG) < 0)
-        throw ServerNotListeningException();
+        this->_bind_port(sock, *it);
 
-    this->_report(&this->_addr);
+        if (listen(sock, BACKLOG) < 0)
+            throw ServerNotListeningException();
 
-    this->_poll_fd = epoll_create1(O_CLOEXEC);
-    fcntl(this->get_socket(), F_SETFL, O_NONBLOCK);
+        this->_report(sock, *it);
+
+        fcntl(sock, F_SETFL, O_NONBLOCK);
+
+        this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
+
+        this->_poll_socket_eq.insert(std::pair<int, int>(this->_poll_fds.back(), sock));
+    }
 }
 
 bool    Server::queue_response(Response *res)
@@ -137,10 +191,12 @@ bool    Server::queue_response(Response *res)
     this->_request_handled++;
     if (res->get_size_next_chunk() > 0) {
         this->_queue.push(res);
-    } else {
-        delete res;
+        return true;
     }
-    return true;
+
+    res->output(this->countHandledRequest());
+    delete res;
+    return false;
 }
 
 /** @todo stop looking for deconnection, instead look if connection is still alive in _connections **/
@@ -152,15 +208,18 @@ void    Server::handle_responses()
 
     int runner_i = 0;
 
-    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && exit_code == 0)
+    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && !shouldQuit())
     {
         Response *res = this->_queue.front();
         
         /* with MSG_PEEK, no data will be ride of the socket */
         char buffer[256];
-        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0) {
+        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
+        {
             delete this->_queue.front();
-        } else {
+        }
+        else
+        {
             size_t exchange = res->send_chunk();
             if (exchange > 0) {
                 new_queue.push(res);
@@ -179,6 +238,7 @@ void    Server::handle_responses()
                         it->second.end_send();
                 }
 
+                this->_queue.front()->output(this->countHandledRequest());
                 delete this->_queue.front();
             }
         }
@@ -189,8 +249,7 @@ void    Server::handle_responses()
     }
 
     while (!this->_queue.empty() && exit_code == 0) {
-        Response *res = this->_queue.front();
-        new_queue.push(res);
+        new_queue.push(this->_queue.front());
         this->_queue.pop();
     }
 
@@ -201,19 +260,22 @@ void Server::handle_client()
 {
 	struct sockaddr_in cli_addr;
 
-	// we accept some new request
-	while (true)
-	{
-		socklen_t clilen = sizeof(cli_addr);
-		int client_socket = accept(this->get_socket(), (struct sockaddr *)&cli_addr, &clilen);
-		if (client_socket == -1)
-			break;
-        if ( this->_connections.size() > BACKLOG )
+    int i = 0;
+    for (std::vector<int>::iterator it = this->_socket_fds.begin(); it != this->_socket_fds.end(); it++)
+    {
+        // we accept some new request
+        while (true)
         {
-            close( client_socket );
-        }
-        else
-        {
+            socklen_t clilen = sizeof(cli_addr);
+            int client_socket = accept(*it, (struct sockaddr *)&cli_addr, &clilen);
+            if (client_socket == -1)
+                break;
+
+            if (this->_connections.size() > BACKLOG)
+            {
+                close(client_socket);
+                continue;
+            }
 
             int swtch = 1;     /* 1=KeepAlive On, 0=KeepAlive Off. */
             int idle = 7200;   /* Number of idle seconds before sending a KeepAlive probe. */
@@ -240,24 +302,22 @@ void Server::handle_client()
             // ev.events = EPOLLET | EPOLLIN;
             ev.events = EPOLLIN;
             ev.data.fd = client_socket;
-            epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
+            epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
 
-            std::pair<std::map<int, Connection>::iterator, bool> p = this->_connections.insert( 
-                std::pair<int, Connection>(client_socket, Connection( client_socket ) )
-            );
-            if ( p.second )
-                std::cout << "========>new registered connection(" << client_socket <<")!<========" << std::endl;
+            this->_connections.insert(
+                std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_body_size)));
+            this->_socket_addr_eq[client_socket] = inet_ntoa(cli_addr.sin_addr);
         }
     }
 }
 
-void Server::_report(s_server_addr_in *server_addr)
+void Server::_report(int sock, s_server_addr_in server_addr)
 {
     char host_buffer[INET6_ADDRSTRLEN];
     char service_buffer[NI_MAXSERV];
-    socklen_t addr_len = sizeof(*server_addr);
+    socklen_t addr_len = sizeof(server_addr);
     int err = getnameinfo(
-        (s_server_addr)server_addr,
+        (s_server_addr)&server_addr,
         addr_len,
         host_buffer,
         sizeof(host_buffer),
@@ -268,19 +328,17 @@ void Server::_report(s_server_addr_in *server_addr)
     {
         std::cout << "It's not working!" << std::endl;
     }
+    this->_socket_addr_eq.insert(std::pair<int, std::string>(sock, std::string(host_buffer) + ":" + std::string(service_buffer)));
     std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }
 
-void Server::_bind_port()
+void Server::_bind_port(int sock, s_server_addr_in server_addr)
 {
     int i = 0;
-    while (bind(this->_socket_fd, (s_server_addr) & this->_addr, sizeof(this->_addr)) == -1 && i < 100)
+    while (bind(sock, (s_server_addr)&server_addr, sizeof(server_addr)) == -1 && i < 10)
     {
-        if (i % 10 == 0)
-        {
-            std::cerr << "Can't bind port " << this->_port << ". Retrying in 10sec. (Try " << (i / 10) << "/10)" << std::endl;
-        }
-        sleep(1);
+        std::cerr << "Can't bind port " << ntohs(server_addr.sin_port) << ". Retrying in 10sec. (Try " << i << "/10)" << std::endl;
+        sleep(10);
         i++;
     }
 }

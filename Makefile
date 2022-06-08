@@ -1,4 +1,5 @@
 SRCS	=	main.cpp \
+			exit_handle.cpp \
 			utils/file.cpp \
 			utils/string.cpp \
 			init/server.cpp \
@@ -8,6 +9,7 @@ SRCS	=	main.cpp \
 			class/request_constructor.cpp \
 			class/response.cpp \
 			class/route.cpp \
+			configuration/redirection.cpp \
 			configuration/webserv.cpp \
 			configuration/server.cpp \
 			http_header/Date.cpp \
@@ -20,6 +22,7 @@ SRCS	=	main.cpp \
 			class/response_error_page.cpp \
 
 HEADERS =	errors/http_code.hpp \
+			exit_handle.hpp \
 			init/exception_server_not_listening.hpp \
 			init/server.hpp \
 			http_header/http_header.hpp \

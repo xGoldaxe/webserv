@@ -19,15 +19,18 @@ class Connection
 		std::queue<Request *>	_requests;
 		bool					_is_sending_data;
 		bool					_is_dead;
+		const char				*_client_ip;
+		size_t					_response_max_size;
 
 		Connection( void );
 		Connection &   operator=( Connection const & rhs );
 
 	public:
+
 		/* coplien */
-		Connection( int fd );
-		~Connection( void );
+		Connection( int fd, char *client_ip, size_t response_chunk_size );
 		Connection( Connection const &src );
+		~Connection( void );
 
 		/* end coplien */
 		bool	is_ready();

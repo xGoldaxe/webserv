@@ -63,6 +63,8 @@ class Request
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
 
+		std::string get_header_value(std::string name) const;
+
 		std::size_t	feed_body( std::string add_str );
 		bool		is_fulfilled(void) const;
 		void		try_construct( std::string raw_request, Webserv_conf conf );

@@ -8,10 +8,13 @@ server
 		methods = POST GET DELETE ;
 		rewrite  301 /sub  moved.html ;
 		autoindex on ;
-	}
-}
 
-server
-{
+	location 
 	
+	{
+
+	}
+
+	}
+
 }

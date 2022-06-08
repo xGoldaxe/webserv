@@ -1,5 +1,8 @@
 #pragma once
-#include "../webserv.hpp"
+
+#include "class/request.hpp"
+
+class Response;
 
 class Connection
 {
@@ -11,11 +14,15 @@ class Connection
 		std::string	_raw_data;
 		bool		_is_init;
 		time_t	 	_begin_time;
+		const char	*_client_ip;
+		size_t		_response_max_size;
+		
 		Connection( void );
 
 	public:
+
 		/* coplien */
-		Connection( int fd );
+		Connection( int fd, char *client_ip, size_t response_chunk_size );
 		Connection( Connection const &src );
 		~Connection( void );
 

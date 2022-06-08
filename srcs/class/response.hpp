@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <vector>
+#include <cstdlib>
 
 #include "webserv.hpp"
 
@@ -14,15 +15,8 @@ class Response;
 #include "configuration/webserv.hpp"
 #include "errors/http_code.hpp"
 #include "cgi/cgi_manager.hpp"
-
-#include <sys/types.h>
 #include <sys/socket.h>
-#include <cstdlib>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-
-#define MAX_BODY_LENGTH 5096
+#include <sys/un.h>
 
 #define BODY_TYPE_FILE		1
 #define BODY_TYPE_STRING	2
@@ -38,9 +32,12 @@ class Response
 		int										_return_body_type;
 		std::ifstream							_in_file;
 		size_t									_file_len;
+		const char								*_client_ip;
+		size_t									_body_max_size;
 
 		Response &operator=(Response const &rhs);
 		Response(void);
+		Response( Response const &src );
 
 	public:
 		int				status_code;
@@ -52,8 +49,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response( int client_socket, Webserv_conf conf, const Request *req );
-		Response( Response const &src );
+		Response(int client_socket, Webserv_conf conf, const Request *req, const char *client_ip, size_t max_size);
 		~Response( void );
 
 		/* end coplien */
@@ -63,8 +59,10 @@ class Response
 		std::string	load_body( Request &req );
 		std::string & error_body(void);
 		bool	isFile(void);
-		int		send(void);
+		void output(const size_t req_id);
+		int send(void);
 		int send_chunk(void);
 		size_t get_size_next_chunk();
+		size_t getChunkMaxSize();
 		const Webserv_conf &get_conf() const;
 };

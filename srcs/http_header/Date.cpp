@@ -4,13 +4,11 @@
 static inline std::string get_formatted_datetime()
 {
 	time_t rawtime;
-	struct tm *timeinfo;
 	char buffer[80];
 
 	time(&rawtime);
-	timeinfo = localtime(&rawtime);
 
-	strftime(buffer, 80, "%a, %d %b %G %T GMT", timeinfo);
+	strftime(buffer, 80, "%a, %d %b %G %T GMT", std::gmtime(&rawtime));
 
 	return buffer;
 }

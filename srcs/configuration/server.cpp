@@ -42,6 +42,9 @@ int Server_conf::getClientHeaderSize() const
 
 std::vector<short> Server_conf::getPort() const
 {
+	if (this->port.empty()) {
+		this->addPort(DEFAULT_PORT);
+	}
 	return this->port;
 }
 std::vector<Route> Server_conf::getRoutes() const

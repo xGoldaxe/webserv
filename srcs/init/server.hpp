@@ -1,6 +1,4 @@
 #pragma once
-#include "../webserv.hpp"
-#include "connection.hpp"
 
 #include <cstring>
 #include <unistd.h>
@@ -31,43 +29,68 @@
 #include <queue>
 
 #include "exception_server_not_listening.hpp"
-#include "class/response.hpp"
+#include "configuration/webserv.hpp"
+
+class Connection;
+#include "connection.hpp"
 
 #define BACKLOG 10
 #define MAX_RUNNERS 20
 
+class Response;
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
 
 class Server {
-	public:
-		Server();
-		~Server();
-		void    init_connection();
-		void    handle_client();
-		void    handle_responses();
-		void    wait_for_connections();
-		void	trigger_queue(void);
-        bool    queue_response(Response *res);
-        size_t  countHandledRequest();
+public:
+	Server(char **env, Server_conf serv_conf);
+	Server(const Server &rhs);
+	~Server();
+	void init_connection();
+	void handle_client();
+	void handle_responses();
+	void wait_for_connections();
+	void trigger_queue(void);
+	bool queue_response(Response *res);
+	size_t countHandledRequest();
 
-		// Getters
-		int     get_socket() const;
-		int     get_poll_fd() const;
+	// Getters
+	std::vector<int> get_socket() const;
+	std::vector<int> get_poll_fd() const;
 
-	private:
-		short						_port;
-		s_server_addr_in			_addr;
-		int							_socket_fd;
-		int							_poll_fd;
-		std::map<int, Connection>	_connections;
-		std::queue<Connection*>		_c_queue;
-        std::queue<Response *>   _queue;
-        size_t                   _request_handled;
+private:
+	// Internal variables
+	std::vector<s_server_addr_in>	_addrs;
+	std::vector<int> 				_socket_fds;
+	std::vector<int>				_poll_fds;
+	std::map<int, Connection>		_connections;
+	std::map<int, int>				_poll_socket_eq;
+	std::map<int, std::string>		_socket_addr_eq;
+	std::queue<Connection *>		_c_queue;
+	std::queue<Response *>			_queue;
+	size_t							_request_handled;
+	char							**_env;
+	bool							_is_init;
 
-        void     _report(s_server_addr_in *server_addr);
-        void     _bind_port();
+	// Configuration
+	std::string						_server_name;
+	std::string						_host;
+	std::vector<std::string>		_index;
+	int								_body_max_size;
+	std::string 					_root;
+	std::map<int, std::string>		_error_pages;
+	int								_read_timeout;
+	int								_server_body_size;
+	int								_client_header_size;
 
-		void    read_connection( int client_socket );
-		bool	close_connection( int client_socket );
+	// Methods
+	Server();
+
+	void _report(int sock, s_server_addr_in server_addr);
+	void _bind_port(int sock, s_server_addr_in server_addr);
+
+	void read_connection(int client_socket);
+	bool close_connection(int client_socket);
 };
+
+#include "class/response.hpp"

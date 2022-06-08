@@ -74,7 +74,7 @@ bool	Connection::init_request()
 	try
 	{
 		this->_req.try_construct( this->_raw_data, conf );
-		this->_res = new Response( this->_fd, conf, &this->_req );
+		this->_res = new Response(this->_fd, conf, &this->_req, this->_client_ip, this->_response_max_size);
 		return true;
 	}
 	catch(const std::exception& e)
@@ -92,7 +92,7 @@ void	Connection::process()
 	
 	http_header_date( this->_req, *this->_res );
 	http_header_server( this->_req, *this->_res );
-
+	
 	if ( this->_req.is_request_valid() )
 	{
 		this->_req.try_url(this->_res);
@@ -141,7 +141,7 @@ bool	Connection::is_fulfilled()
 /*************************
 * @coplien
 * ***********************/
-Connection::Connection( int fd ) : _fd( fd ), _is_init( false )
+Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _fd(fd), _is_init(false), _client_ip(client_ip), _response_max_size(response_chunk_size)
 {
 	this->_begin_time = time(NULL);
 }
@@ -151,11 +151,15 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_res(src.get_res()),
 												_raw_data(src.get_data()),
 												_is_init(src._is_init),
-												_begin_time(src.get_time())
+												_begin_time(src.get_time()),
+												_client_ip(src._client_ip),
+												_response_max_size(src._response_max_size)
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
 {
+	if (&rhs == this)
+		return (*this);
 	this->_fd = rhs.get_fd();
 	this->_req = rhs.get_req();
 	this->_res = rhs.get_res();

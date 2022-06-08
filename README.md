@@ -9,4 +9,7 @@ Pour utiliser les tests:
  3. Dans un autre terminal, lancez le client `./client.sh`
  4. (*optionnel*) Uniquement les logs du client sont sauvegardées (cf. Dossier `logs/`).
 
+D'autres testeurs génériques:
+ - [siege](https://linux.die.net/man/1/siege): un testeur de monté en charge (stress-test) vraiment puissant et complet.
+ 
 /!\ Pensez à couper votre serveur après des tests pour éviter les collisions /!\

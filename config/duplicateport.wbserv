@@ -1,0 +1,20 @@
+server
+{
+	listen = 80 ;
+	listen = 3030 ;
+	
+	location /testuno
+	{
+	}
+}
+
+server
+{
+	listen = 3030 ;
+	listen = 80 ;
+	
+	location /testuno
+	{
+	}
+
+}

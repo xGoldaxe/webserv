@@ -76,6 +76,7 @@ std::string Server_conf::getRoot() const
 void Server_conf::addPort(short port)
 {
 	this->port.push_back(port);
+	this->port.sort();
 }
 
 void Server_conf::addMethods(std::string methods)

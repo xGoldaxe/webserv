@@ -13,11 +13,12 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root ./ ;
+		root ./www/ ;
 		index = index.html index.htm ;
 		error_page 404 = 404.html ;
 		methods = POST GET DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		autoindex on ;
 		send_file on ;
 		file_limit = 100 ;

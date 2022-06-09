@@ -46,12 +46,13 @@ Route Request::get_route(void)
 
 bool Request::is_request_valid(void) const
 {
+	return true;
+	/** @todo @xGoldaxe */
 	return request_validity;
 }
 
 bool Request::is_allowed_method(const std::string &method) const
 {
-
 	return (std::find(this->route.get_methods().begin(), this->route.get_methods().end(), method) != this->route.get_methods().end());
 }
 
@@ -98,8 +99,6 @@ Request &   Request::operator=( Request const & rhs )
 
 bool	Request::is_fulfilled() const
 {
-	std::cout << "this->request_validity = " << this->request_validity << std::endl;
-	std::cout << "this->fulfilled = " << this->fulfilled << std::endl;
 	return this->request_validity && this->fulfilled;
 }
 

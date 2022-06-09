@@ -42,7 +42,7 @@ DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG -g -O2
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG # -g -O2
 
 RM		=	rm -rf
 
@@ -52,7 +52,7 @@ CXX		=	c++
 NONE			= \033[0m
 CL_LINE			= \033[2K
 B_RED			= \033[1;31m
-B_GREEN			= \033[1;32m
+B_GREEN			= \033[1;32m 
 B_MAGENTA 		= \033[1;35m
 B_CYAN 			= \033[1;36m
 

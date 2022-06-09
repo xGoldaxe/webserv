@@ -81,6 +81,7 @@ private:
 	std::vector<std::string>		_index;
 	int								_body_max_size;
 	std::string 					_root;
+	std::vector<Route>				_routes;
 	std::map<int, std::string>		_error_pages;
 	int								_read_timeout;
 	int								_server_body_size;

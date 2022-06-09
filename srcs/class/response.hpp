@@ -35,6 +35,7 @@ class Response
 		std::string								url;
 		const char								*_client_ip;
 		size_t									_body_max_size;
+		Route									_route;
 
 		Response &operator=(Response const &rhs);
 		Response(void);
@@ -50,7 +51,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size);
+		Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size, Route route);
 		~Response( void );
 
 		/* end coplien */

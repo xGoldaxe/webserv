@@ -28,7 +28,15 @@ void    Server::read_connection( int client_socket )
 void    Server::add_response( Request * req, int fd )
 {
     Webserv_conf conf;
-    Response *res = new Response( fd, conf, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size );
+
+    Route route;
+    try {
+        route = find_route(this->_routes, req->get_legacy_url());
+    } catch (const HTTPError &e) {
+        req->set_status(e.getCode(), e.getDescription());
+    }
+    
+    Response *res = new Response( fd, conf, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, route);
 
 	if ( req->is_request_valid() )
 	{
@@ -85,6 +93,7 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
                                                     _index(serv_conf.getIndex()),
                                                     _body_max_size(serv_conf.getBodyMaxSize()),
                                                     _root(serv_conf.getRoot()),
+                                                    _routes(serv_conf.getRoutes()),
                                                     // _error_pages(serv_conf.error),
                                                     _read_timeout(serv_conf.getReadTimeOut()),
                                                     _server_body_size(serv_conf.getServerBodySize()),
@@ -124,6 +133,7 @@ Server::Server(const Server &rhs) : _addrs(rhs._addrs),
                                     _index(rhs._index),
                                     _body_max_size(rhs._body_max_size),
                                     _root(rhs._root),
+                                    _routes(rhs._routes),
                                     _read_timeout(rhs._read_timeout),
                                     _server_body_size(rhs._server_body_size),
                                     _client_header_size(rhs._client_header_size)
@@ -184,19 +194,6 @@ void Server::init_connection()
         this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
         this->_poll_socket_eq.insert(std::pair<int, int>(this->_poll_fds.back(), sock));
     }
-}
-
-bool    Server::queue_response(Response *res)
-{
-    this->_request_handled++;
-    if (res->get_size_next_chunk() > 0) {
-        this->_queue.push(res);
-        return true;
-    }
-
-    res->output(this->countHandledRequest());
-    delete res;
-    return false;
 }
 
 /** @todo stop looking for deconnection, instead look if connection is still alive in _connections **/

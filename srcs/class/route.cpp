@@ -324,7 +324,7 @@ void Route::printRoute()
 #endif
 }
 
-std::string Route::return_redirect_url(std::string url) const
+Redirection Route::return_redirect_url(std::string url) const
 {
 	unsigned int i = 0;
 	std::string res;
@@ -332,8 +332,31 @@ std::string Route::return_redirect_url(std::string url) const
 	while(i < this->redirections.size())
 	{
 		if(this->redirections[i].get_url().compare(url) == 0)
-			return this->redirections[i].get_redirect_url();
+			return this->redirections[i];
 		i++;
 	}
 	throw std::out_of_range("");
+}
+
+bool Route::has_redirection(std::string url) const
+{
+	for (std::vector<Redirection>::const_iterator it = this->redirections.begin(); it != this->redirections.end(); it++)
+	{
+		std::string redirection_url = finish_by_only_one(it->get_url(), '/');
+		if(redirection_url == url)
+			return true;
+	}
+	return false;
+}
+
+Route find_route(std::vector<Route> routes, std::string url)
+{
+	Route route;
+	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
+	{
+		std::string test_url = finish_by_only_one(url, '/');
+		if (test_url == it->get_location() || it->has_redirection(test_url))
+			return Route(*it, 1);
+	}
+	throw HTTPCode404();
 }

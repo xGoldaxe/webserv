@@ -52,9 +52,6 @@ void Request::fill_body(std::string body)
 
 	this->body = body;
 }
-/* fill data from request */
-
-Route find_route(std::vector<Route> routes, std::string url);
 
 // change it through the config
 #define MAX_BUFFER_SIZE 16384
@@ -101,19 +98,3 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 		this->set_status( 400, "Bad Request" );
 	}
 };
-
-Route find_route(std::vector<Route> routes, std::string url)
-{
-
-	Route route;
-	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
-	{
-		std::string test_url = finish_by_only_one(url, '/');
-		if (strncmp(test_url.c_str(), it->get_location().c_str(), it->get_location().size() - 1) == 0)
-		{
-			route = Route(*it, 1);
-		}
-	}
-
-	return route;
-}

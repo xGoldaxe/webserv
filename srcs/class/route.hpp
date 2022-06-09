@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "../utils/string.hpp"
 #include "../configuration/redirection.hpp"
+#include "errors/http_code.hpp"
 
 #ifdef DEBUG
 # include <iostream>
@@ -76,6 +77,8 @@ class Route
 		void								set_send_file(bool send_file);
 		void								set_file_limit(int file_limit);
 		bool								is_in_extension(std::string extension);
-		std::string 						return_redirect_url(std::string url) const;
+		Redirection 						return_redirect_url(std::string url) const;
+		bool		 						has_redirection(std::string url) const;
 };
 
+Route find_route(std::vector<Route> routes, std::string url);

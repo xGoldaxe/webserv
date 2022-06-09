@@ -621,14 +621,4 @@ Webserv_conf::Webserv_conf(std::string filename)
 		i_checkservdupe++;
 		j_checkservdupe = i_checkservdupe + 1;
 	}
-
-#ifdef DEBUG
-	std::vector<Server_conf> vecdebug = this->servers;
-	unsigned int iterdebug = 0;
-	while (iterdebug < vecdebug.size())
-	{
-		vecdebug[iterdebug].printServer();
-		iterdebug++;
-	}
-#endif
 }

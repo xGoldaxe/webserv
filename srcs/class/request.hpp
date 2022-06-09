@@ -69,7 +69,6 @@ class Request
 		bool		is_fulfilled(void) const;
 		void		try_construct( std::string raw_request, Webserv_conf conf );
 		void		check_file_url(void);
-		bool		is_redirection( std::string &redir_str );
 
 		void							set_status( int status_code, std::string error_message );
 		std::pair<int, std::string>		get_status(void) const;

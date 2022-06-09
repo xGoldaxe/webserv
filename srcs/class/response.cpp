@@ -4,22 +4,29 @@ Response::Response(void)
 {
 }
 
-Response::Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size)
+Response::Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size, Route route)
 	: conf(conf),
 	  req(req),
 	  _return_body_type(BODY_TYPE_STRING),
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
+	  _route(route),
 	  status_code(-1),
 	  client_socket(client_socket)
 {
 	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";
-	if ( this->req->is_request_valid() )
+	if ( this->req->is_request_valid())
 	{
-		this->url = this->req->route.get_root() + 
-			this->req->get_legacy_url().substr(this->req->get_legacy_url().find_first_of(this->req->route.get_location())
-			+ this->req->route.get_location().size());
+		std::string::size_type location_route_size = this->req->get_legacy_url().find_first_of(this->_route.get_location());
+
+		if (location_route_size != this->req->get_legacy_url().npos) {
+			std::cout << this->req->get_legacy_url() << std::endl;
+
+			this->url = this->_route.get_root() + 
+				this->req->get_legacy_url().substr(this->req->get_legacy_url().find_first_of(this->_route.get_location())
+				+ this->_route.get_location().size());
+		}
 	}
 	this->set_status( this->req->get_status().first, this->req->get_status().second );
 }
@@ -176,9 +183,9 @@ std::string Response::load_body()
 		this->add_header("Content-Type", "text/html");
 		this->body = auto_index_template( this->url, this->req->get_legacy_url() );
 	}
-	else if (this->req->get_route().get_cgi_enable() && this->req->get_route().is_in_extension(get_extension(this->url.c_str())))
+	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
-		CGIManager cgi(this->req->get_route().get_cgi_path(), "/home/restray/42/webserv/tests-42");
+		CGIManager cgi(this->_route.get_cgi_path(), "/home/restray/42/webserv/tests-42");
 		this->body = cgi.exec(*this->req);
 		this->add_header("Content-Type", "text/html");
 	} else {
@@ -293,43 +300,27 @@ void	Response::check_file_url(void)
 	}
 }
 
-bool	Response::is_redirection( std::string &redir_str ) {
-	(void)redir_str;
-	try
-	{
-		// redir_str = this->req->route.get_redirections().at( 
-		// 	this->req->get_legacy_url() );
-		return true;
-	}
-	catch(const std::exception& e)
-	{
-		return false;
-	}
-}
-
 /* this function is use to route the url, and test many case ( redirection, cache ... )
 and if no conditions are check it goes to check the file to serve and throw an error if its fail */
 /* each case work as block that can be interchanged ( except the last one ) */
 /* nous on a que deux cas a gerer, redirection et la fallback */
 
 void Response::try_url() {
+	// Try any redirection
+	try {
+		Redirection redir = this->_route.return_redirect_url(this->req->get_legacy_url());
+		this->set_status( redir.get_redirect_code(), "Moved Permanently" );
+		this->add_header( "Location", redir.get_redirect_url() );
+		return ;
+	} catch (const std::out_of_range &e) {}
 
-	try
-	{
-		/** @todo */
-		// std::string redir_str;
-		// if ( is_redirection( redir_str ) ) {
-		// 	this->set_status( 301, "Moved Permanently" );
-		// 	this->add_header( "Location", redir_str );
-		// 	return ;
-		// }
-		// may throw errors
+	// Try to reach local file
+	try {
 		this->check_file_url();
 		this->set_status( 200, "OK" );
 		this->load_body(); ////
 		http_header_content_type( *this->req, *this );
-	} 
-	catch (const HTTPError &e) {
+	} catch (const HTTPError &e) {
 		this->set_status( e.getCode(), e.getDescription() );
 		this->error_body();
 	}

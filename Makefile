@@ -20,6 +20,7 @@ SRCS	=	main.cpp \
 			cgi/cgi_manager.cpp \
 			errors/http_code.cpp \
 			class/response_error_page.cpp \
+			class/read_chunk.cpp \
 
 HEADERS =	errors/http_code.hpp \
 			exit_handle.hpp \

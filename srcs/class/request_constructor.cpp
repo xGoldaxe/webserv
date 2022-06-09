@@ -16,26 +16,23 @@ Request *store_req(bool mode, Request *req = NULL)
 
 void store_data_from_raw_req(
 	std::vector<std::string> parsed_first_line,
-	std::map<std::string, std::string> headers,
-	std::string raw_body)
+	std::map<std::string, std::string> headers)
 {
 	Request *stored_req = store_req(false);
 
 	if (!stored_req)
-		throw std::exception();
+		throw HTTPCode500();
 
 	stored_req->fill_start_line(
 		parsed_first_line[0],
 		parsed_first_line[1],
 		parsed_first_line[2]);
 	stored_req->fill_headers(headers);
-	stored_req->fill_body(raw_body);
 }
 
 /* fill data from request */
 void Request::fill_start_line(std::string method, std::string url, std::string version)
-{
-
+{	
 	this->method = method;
 	this->legacy_url = url;
 	this->version = version;
@@ -76,9 +73,8 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 		{
 			if ( c_length != this->headers.end() )
 				throw std::exception();
-			if ( t_encoding->second != std::string( "chunked" ) )
-				throw std::exception();
-			this->body_transfer = CHUNKED;
+			this->set_status( 501, "Not Implemented" );
+			return ;
 		}
 
 		if ( c_length != this->headers.end() )
@@ -86,9 +82,10 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 			char	*end_ptr;
 			this->body_length = strtoul( (c_length->second).c_str(), &end_ptr, 10 );
 			this->body_transfer = LENGTH;
+			if ( this->body_length == 0 )
+				this->fulfilled = true;
 		}
-
-		if ( c_length == this->headers.end() && t_encoding == this->headers.end() )
+		else
 		{
 			this->fulfilled = true;
 			this->body_transfer = NO_BODY;
@@ -96,8 +93,8 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 
 		this->request_validity = true;
 	}
-	catch(const std::exception& e)
+	catch(const HTTPError& e)
 	{
-		this->set_status( 400, "Bad Request" );
+		this->set_status( e.getCode(), e.getDescription() );
 	}
 };

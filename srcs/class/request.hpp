@@ -19,6 +19,7 @@ class Request
 	private:
 		std::size_t	store_length( std::string add_str );
 		std::size_t	store_chunk( std::string chunck_str );
+		std::ofstream	*create_unique_file( std::string path );
 
 	protected:
 		Webserv_conf							conf;
@@ -30,6 +31,7 @@ class Request
 		bool									request_validity;
 		std::size_t								body_length;
 		std::ofstream							*body_file;
+		std::string								body_file_path;
 		int										error_status;
 		std::string								error_message;
 		int										body_transfer;

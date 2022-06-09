@@ -275,8 +275,7 @@ std::string go_through_it_until(std::vector<std::string> values,
 		if (rule(*it, res))
 			return res;
 	}
-	return "";
-	// throw HTTPCode404();
+	throw HTTPCode404();
 }
 
 void	Response::check_file_url(void)

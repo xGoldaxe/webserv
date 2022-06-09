@@ -2,8 +2,7 @@
 
 void	print_parsed_req( 
 	std::vector<std::string> parsed_first_line,
-	std::map<std::string, std::string> headers,
-	std::string	raw_body
+	std::map<std::string, std::string> headers
 ) {
 
 	// first_line
@@ -16,9 +15,4 @@ void	print_parsed_req(
 	{
 		std::cout << "==>[" << it->first << "]" << ": [" << it->second << "]" << std::endl;
 	}
-
-	// body
-	std::cout << "<==={START BODY}===>" << std::endl;
-	std::cout << raw_body;
-	std::cout << "<==={END BODY}===>" << std::endl;
 }

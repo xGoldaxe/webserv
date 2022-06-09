@@ -90,6 +90,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->body_transfer = rhs.body_transfer;
 	this->fulfilled = rhs.fulfilled;
 	this->error_message = rhs.error_message;
+	this->body_file_path = rhs.body_file_path;
 
 	/** @attention <!-- this value is not copied --!> **/
 	this->body_file = NULL;
@@ -102,63 +103,38 @@ bool	Request::is_fulfilled() const
 }
 
 #include <fstream> 
-std::ofstream	*create_unique_file( std::string path )
+std::ofstream	*Request::create_unique_file( std::string path )
 {
 	static int i = 0;
 	
 	std::ofstream *File = new std::ofstream;
 	File->open( std::string(path + to_string(i) + ".mem").c_str() );
-	if ( File->is_open() )
-		std::cout << std::string(path + to_string(i) + ".mem") << std::endl;
-	else
+
+	if ( File->is_open() == false )
+	{
 		std::cout << "cant open" << std::endl;
+		delete File;
+		return NULL;
+	}
+
+	std::cout << std::string(path + to_string(i) + ".mem") << std::endl;
+	this->body_file_path = to_string(i) + ".mem";
+	
 	++i;
 	return File;
-}
-
-#define MAX_CHUNK_SIZE 200
-/*read chunk*/
-/*
-WE NEED MAX_CHUNK_SIZE
-HEXA TO INT since /r/n ( if other char than hexa throw 400 )
-0123456789ABCDEF[\r\n]
-x*[char][\r\n]
-
-//didnt throw anything, just set himself to error
-*/
-std::size_t	Request::store_chunk( std::string chunk_str )
-{
-	// throw 400 in case of invalid chunk, true for full chunk and false for partial chunk
-	// int size;
-	// int	whole_chunk_size;
-	// std::string content;
-	(void) chunk_str;
-	this->set_status( 413, "Payload Too Large" );
-	this->fulfilled = false;
-	//if 0 size chunk
-		//this->fulfilled = true;
-	// bool is_full = try_chunk( &size, &content, &whole_chuck_size );
-	// if ( is_full )
-	// {
-	// 	if ( is_full && size > MAX_CHUNK_SIZE ) too big // not enoguh verification
-	// 		throw 413
-	// 	return whole_chunk_size;
-	// }
-	// 	==> check_size
-	// 		throw 413
-	// 	...
-	return 0;
 }
 
 std::size_t	Request::store_length( std::string add_str )
 {
 	std::size_t missing = std::min( this->body_length, add_str.size() );
 	
-	std::cout << "body part [" << add_str.substr( 0, missing ) << "]" << std::endl;
-	*(this->body_file) << add_str.substr( 0, missing );
-	this->body_length -= missing;
+	std::string substring = add_str.substr( 0, missing );
+	this->body_length -= substring.size();
 
-	if ( this->body_length )
+	std::cout << "body part [" << substring << "]" << std::endl;
+	this->body_file->write( substring.c_str(), substring.size() );
+
+	if ( this->body_length == 0 )
 		this->fulfilled = true;
 
 	return missing;
@@ -168,8 +144,8 @@ std::size_t	Request::store_length( std::string add_str )
 std::size_t	Request::feed_body( std::string add_str )
 {
 	if ( this->body_file == NULL )
-		this->body_file = create_unique_file( "memory/" );
-	if ( this->body_file->is_open() == false )
+		this->body_file = this->create_unique_file( "memory/" );
+	if ( this->body_file == NULL )
 	{
 		this->set_status( 500, "Internal Server Error" );
 		return 0;
@@ -180,7 +156,7 @@ std::size_t	Request::feed_body( std::string add_str )
 
 	if ( this->body_transfer == LENGTH )
 		return this->store_length( add_str );
-	else if ( this->body_transfer == CHUNKED )
-		return this->store_chunk( add_str );
+	// else if ( this->body_transfer == CHUNKED )
+	// 	return this->store_chunk( add_str );
 	return 0;
 }

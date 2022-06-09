@@ -2,9 +2,9 @@
 #include "unistd.h"
 
 #define ONREAD_TIMEOUT 20
-#define IDLE_TIMEOUT 60
-#define MAX_SIZE 5000
-#define MAX_REQUESTS 5000
+#define IDLE_TIMEOUT 30
+#define MAX_SIZE 50000
+#define MAX_REQUESTS 5
 /*************************
 * @erroer case functions
 * ***********************/
@@ -59,7 +59,7 @@ bool	Connection::check_state()
 	{
 		std::cout << "trigger max size" << std::endl;
 		error_status = 413;
-		error_message = " 	Request Entity Too Large";
+		error_message = "Request Entity Too Large";
 	}
 	if ( this->_requests.size() > MAX_REQUESTS )
 	{

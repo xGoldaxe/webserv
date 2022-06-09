@@ -9,25 +9,25 @@
 class HTTPError : public std::exception
 {
     public:
-    HTTPError(int section, int code, std::string error) throw();
-    HTTPError(const HTTPError&) throw();
-    HTTPError& operator=(const HTTPError&) throw();
-    virtual ~HTTPError() throw();
-    virtual const char* what() const throw();
+        HTTPError(int section, int code, std::string error) throw();
+        HTTPError(const HTTPError&) throw();
+        HTTPError& operator=(const HTTPError&) throw();
+        virtual ~HTTPError() throw();
+        virtual const char* what() const throw();
 
-    int getSectionCode() const;
-    int getErrorCode() const;
-    std::string getDescription() const;
-    int getCode() const;
+        int getSectionCode() const;
+        int getErrorCode() const;
+        std::string getDescription() const;
+        int getCode() const;
 
     private:
-    int section_code;
-    int error_code;
-    std::string error;
-    char *error_string;
+        int section_code;
+        int error_code;
+        std::string error;
+        char *error_string;
 
-    HTTPError () throw();
-    void    generateResponseString();
+        HTTPError () throw();
+        void    generateResponseString();
 };
 
 /*************************
@@ -47,6 +47,14 @@ class HTTPCode500 : public HTTPCode5XX
     HTTPCode500() throw() : HTTPCode5XX(0, "Internal Server Error")
     {}
 };
+
+class HTTPCode505 : public HTTPCode5XX
+{
+    public:
+    HTTPCode505() throw() : HTTPCode5XX(5, "HTTP Version Not Supported")
+    {}
+};
+
 
 /*************************
 * @4xx
@@ -70,5 +78,12 @@ class HTTPCode404 : public HTTPCode4XX
 {
     public:
     HTTPCode404() throw() : HTTPCode4XX(4, "Not Found")
+    {}
+};
+
+class HTTPCode400 : public HTTPCode4XX
+{
+    public:
+    HTTPCode400() throw() : HTTPCode4XX(0, "Bad Request")
     {}
 };

@@ -55,6 +55,7 @@ class Connection
 		time_t		get_time() const;
 		bool		get_is_dead(void) const;
 		bool		get_is_sending_data(void) const;
+		std::string get_client_ip(void) const;
 };
 
 #include "class/request.hpp"

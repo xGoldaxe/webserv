@@ -21,25 +21,20 @@ inline static std::string   read_fd(int fd)
 	return res;
 }
 
-CGIManager::CGIManager(std::string cgi_path, std::string path)
+CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path)
 {
-    /** @todo change this */
-    this->addHeader("PATH_INFO", path);
-
     this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");
-    this->addHeader("QUERY_STRING", "");
-    this->addHeader("REMOTE_ADDR", "");
-    this->addHeader("REQUEST_METHOD", "");
-    this->addHeader("SCRIPT_NAME", "");
-    this->addHeader("SERVER_NAME", "localhost");
-    this->addHeader("SERVER_PORT", "3000");
+    this->addHeader("SCRIPT_NAME", path);
+    this->addHeader("SCRIPT_FILENAME", path);
+    this->addHeader("DOCUMENT_ROOT", root);
     this->addHeader("SERVER_PROTOCOL", "HTTP/1.1");
-    this->addHeader("SERVER_SOFTWARE", "webserv-1.0");
+    this->addHeader("SERVER_SOFTWARE", DEFAULT_SERVER_NAME);
     this->addHeader("REDIRECT_STATUS", "200");
     this->addHeader("PATH_INFO", cgi_path);
-    this->addHeader("SCRIPT_FILENAME", "");
+    this->addHeader("PHP_SELF", path);
 
     this->_cgi_path = cgi_path;
+    this->_path = path;
 
     this->_c_headers = new char* [1];
     this->_c_headers[0] = NULL;
@@ -54,15 +49,21 @@ CGIManager::~CGIManager()
     this->cleanCHeaders();
 }
 
-std::string CGIManager::exec(Request &req)
+std::string CGIManager::exec(Request &req, std::string client_ip)
 {
+    std::string addr_port = req.get_header_value("Host");
+
+    std::string addr = addr_port.substr(0, addr_port.find(":"));
+    std::string port = addr_port.substr(addr_port.find(":") + 1);
+
     this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
     this->addHeader("QUERY_STRING", req.get_legacy_url());
-    this->addHeader("REMOTE_ADDR", "127.0.0.1");
+    this->addHeader("REMOTE_ADDR", client_ip);
     this->addHeader("REQUEST_METHOD", req.getMethod());
-    this->addHeader("SCRIPT_NAME", req.get_route().get_cgi_path());
+    this->addHeader("SCRIPT_NAME", this->_path);
     this->addHeader("PATH_INFO", req.get_route().get_root());
-    /** @todo this->addHeader("SCRIPT_FILENAME", req.getUrl()); **/
+    this->addHeader("SERVER_NAME", addr);
+    this->addHeader("SERVER_PORT", port);
 
     this->computeEnvArray();
 
@@ -72,16 +73,16 @@ std::string CGIManager::exec(Request &req)
     if (pipe(pipe_fd) == -1)
         throw HTTPCode500();
 
-    char *arg;
-    string_to_char(this->_cgi_path, &arg);
+    char *exec_path;
+    string_to_char(this->_cgi_path, &exec_path);
     char *args[] = {
-        arg,
+        exec_path,
         NULL
     };
 
     int pid = fork();
     if (pid == -1) {
-        delete [] arg;
+        delete [] exec_path;
         throw HTTPCode500();
     }
     if (pid == 0)
@@ -112,7 +113,7 @@ std::string CGIManager::exec(Request &req)
         }
     }
 
-    delete [] arg;
+    delete [] exec_path;
     return result;
 }
 

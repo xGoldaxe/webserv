@@ -1,7 +1,7 @@
 server
 {
 	server_name = test ;
-	host = 127.0.0.1 ;
+	host = 0.0.0.0 ;
 	listen = 3000 ;
 	listen = 3030 ;
 	error_page 404 403 = error.html ;
@@ -23,9 +23,9 @@ server
 		send_file on ;
 		file_limit = 100 ;
 	}
-	location /php 
+	location /php
 	{ 
-		root ./php ;
+		root ./cgi/ ;
 		index = index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;

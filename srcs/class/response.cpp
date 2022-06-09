@@ -4,13 +4,13 @@ Response::Response(void)
 {
 }
 
-Response::Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size, Route route)
-	: conf(conf),
-	  req(req),
+Response::Response(int client_socket, std::vector<std::string> index, Request *req, const char *client_ip, size_t max_size, Route route)
+	: req(req),
 	  _return_body_type(BODY_TYPE_STRING),
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
 	  _route(route),
+	  _index(index),
 	  status_code(-1),
 	  client_socket(client_socket)
 {
@@ -20,9 +20,9 @@ Response::Response(int client_socket, Webserv_conf conf, Request *req, const cha
 	{
 		std::string::size_type location_route_size = this->req->get_legacy_url().find_first_of(this->_route.get_location());
 
-		if (location_route_size != this->req->get_legacy_url().npos) {
-			std::cout << this->req->get_legacy_url() << std::endl;
+		this->url = this->_route.get_root() + this->req->get_legacy_url();
 
+		if (location_route_size != this->req->get_legacy_url().npos) {
 			this->url = this->_route.get_root() + 
 				this->req->get_legacy_url().substr(this->req->get_legacy_url().find_first_of(this->_route.get_location())
 				+ this->_route.get_location().size());
@@ -39,7 +39,7 @@ Response::Response( Response const &src )
 
 Response &   Response::operator=( Response const & rhs )
 {
-	this->conf = rhs.conf;
+	this->_index = rhs._index;
 	this->version = rhs.version;
 	this->headers = rhs.headers;
 	this->req = rhs.req;
@@ -242,11 +242,6 @@ std::string auto_index_template(std::string url, std::string legacy_url)
 		</html>"));
 }
 
-const Webserv_conf &Response::get_conf() const
-{
-	return this->conf;
-}
-
 /* ************************************************************************** */
 /*                                                                            */
 /*            @FROM REQUEST TO RESPONSE                                       */
@@ -277,7 +272,8 @@ std::string go_through_it_until(std::vector<std::string> values,
 		if (rule(*it, res))
 			return res;
 	}
-	throw HTTPCode404();
+	return "";
+	// throw HTTPCode404();
 }
 
 void	Response::check_file_url(void)
@@ -294,7 +290,7 @@ void	Response::check_file_url(void)
 	{
 		store_cat_test( true, finish_by_only_one( this->url, '/' ) );
 		this->url = go_through_it_until(
-			this->conf.getServers()[0].getIndex(), /** @todo NEED TO DO THIS! */
+			this->_index,
 			&cat_test
 		);
 	}

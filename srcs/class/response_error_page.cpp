@@ -232,7 +232,7 @@ static inline std::string error_template(std::string error_code, std::string mes
            "        </svg> </div>"
            "    <div class=\"error\">"
            "        <div id=\"error-code\">"
-           "            <h1>404</h1>"
+           "            <h1>"+ error_code + "</h1>"
            "            <p>" + message + "</p>"
            "        </div>"
            "        <h3>Vous semblez perdu... <a href=\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\" target=\"_blank\" rel=\"noopener noreferrer\">Vous voulez de l'aide</a>?</h3>"

@@ -349,14 +349,23 @@ bool Route::has_redirection(std::string url) const
 	return false;
 }
 
+bool compareSize(Route i,Route j)
+{
+	return (i.get_location().size() > j.get_location().size());
+}
+
 Route find_route(std::vector<Route> routes, std::string url)
 {
-	Route route;
+	std::sort(routes.begin(), routes.end(), &compareSize);
+
 	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
 	{
 		std::string test_url = finish_by_only_one(url, '/');
-		if (test_url == it->get_location() || it->has_redirection(test_url))
-			return Route(*it, 1);
+		if (test_url.size() >= it->get_location().size() && it->get_location() == test_url.substr(0, it->get_location().size())) {
+			return Route(*it);
+		} else if (it->has_redirection(test_url)) {
+			return Route(*it);
+		}
 	}
-	throw HTTPCode404();
+	return routes.front();
 }

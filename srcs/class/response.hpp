@@ -24,7 +24,6 @@ class Response;
 class Response
 {
 	protected:
-		Webserv_conf							conf;
 		std::string								version;
 		std::map<std::string, std::string>		headers;
 		Request									*req;
@@ -36,6 +35,7 @@ class Response
 		const char								*_client_ip;
 		size_t									_body_max_size;
 		Route									_route;
+		std::vector<std::string>				_index;
 
 		Response &operator=(Response const &rhs);
 		Response(void);
@@ -51,7 +51,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response(int client_socket, Webserv_conf conf, Request *req, const char *client_ip, size_t max_size, Route route);
+		Response(int client_socket, std::vector<std::string> conf, Request *req, const char *client_ip, size_t max_size, Route route);
 		~Response( void );
 
 		/* end coplien */
@@ -67,7 +67,6 @@ class Response
 		int send_chunk(void);
 		size_t get_size_next_chunk();
 		size_t getChunkMaxSize();
-		const Webserv_conf &get_conf() const;
 
 		/* from req to res */
 		void	check_file_url(void);

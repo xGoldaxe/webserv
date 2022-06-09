@@ -27,16 +27,9 @@ void    Server::read_connection( int client_socket )
 
 void    Server::add_response( Request * req, int fd )
 {
-    Webserv_conf conf;
-
-    Route route;
-    try {
-        route = find_route(this->_routes, req->get_legacy_url());
-    } catch (const HTTPError &e) {
-        req->set_status(e.getCode(), e.getDescription());
-    }
+    Route route = find_route(this->_routes, req->get_legacy_url());
     
-    Response *res = new Response( fd, conf, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, route);
+    Response *res = new Response( fd, this->_index, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, route);
 
 	if ( req->is_request_valid() )
 	{

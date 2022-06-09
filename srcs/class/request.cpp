@@ -46,8 +46,6 @@ Route Request::get_route(void)
 
 bool Request::is_request_valid(void) const
 {
-	return true;
-	/** @todo @xGoldaxe */
 	return request_validity;
 }
 
@@ -91,6 +89,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->error_status = rhs.error_status;
 	this->body_transfer = rhs.body_transfer;
 	this->fulfilled = rhs.fulfilled;
+	this->error_message = rhs.error_message;
 
 	/** @attention <!-- this value is not copied --!> **/
 	this->body_file = NULL;
@@ -170,6 +169,11 @@ std::size_t	Request::feed_body( std::string add_str )
 {
 	if ( this->body_file == NULL )
 		this->body_file = create_unique_file( "memory/" );
+	if ( this->body_file->is_open() == false )
+	{
+		this->set_status( 500, "Internal Server Error" );
+		return 0;
+	}
 
 	if ( add_str.size() == 0 )
 		return 0;

@@ -88,8 +88,11 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 			this->body_transfer = LENGTH;
 		}
 
-		if ( c_length != this->headers.end() && t_encoding != this->headers.end() )
+		if ( c_length == this->headers.end() && t_encoding == this->headers.end() )
+		{
+			this->fulfilled = true;
 			this->body_transfer = NO_BODY;
+		}
 
 		this->request_validity = true;
 	}

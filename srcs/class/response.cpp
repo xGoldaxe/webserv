@@ -11,12 +11,11 @@ Response::Response(int client_socket, Webserv_conf conf, Request *req, const cha
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
 	  _route(route),
-	  status_code(-1),
 	  client_socket(client_socket)
 {
 	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";
-	if ( this->req->is_request_valid())
+	if ( this->req->is_request_valid() )
 	{
 		std::string::size_type location_route_size = this->req->get_legacy_url().find_first_of(this->_route.get_location());
 
@@ -28,7 +27,11 @@ Response::Response(int client_socket, Webserv_conf conf, Request *req, const cha
 				+ this->_route.get_location().size());
 		}
 	}
-	this->set_status( this->req->get_status().first, this->req->get_status().second );
+	else
+	{
+		this->set_status( this->req->get_status().first, this->req->get_status().second );
+		std::cout << this->req->get_status().first << " " << this->req->get_status().second << std::endl;
+	}
 }
 
 Response::Response( Response const &src )

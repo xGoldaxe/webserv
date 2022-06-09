@@ -46,8 +46,11 @@ void    Server::add_response( Request * req, int fd )
 		res->add_header("Keep-Alive", "timeout=5, max=10000");
         std::cout << "this request is good" << std::endl;
 	}
-	else
-		res->set_status( 400, "Bad Request" );
+    else
+    {
+		res->error_body();
+        std::cout << "this request is bad" << std::endl;
+    }
 
     http_header_date( *req, *res );
 	http_header_server( *req, *res );

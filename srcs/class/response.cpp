@@ -10,15 +10,12 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
 	  _route(route),
-<<<<<<< HEAD
-=======
 	  _index(index),
->>>>>>> 14340a9071c622781aa8585850a35671a37c8783
 	  client_socket(client_socket)
 {
 	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";
-	if ( this->req->is_request_valid() )
+	if ( this->req->is_request_valid())
 	{
 		std::string::size_type location_route_size = this->req->get_legacy_url().find_first_of(this->_route.get_location());
 
@@ -30,11 +27,7 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 				+ this->_route.get_location().size());
 		}
 	}
-	else
-	{
-		this->set_status( this->req->get_status().first, this->req->get_status().second );
-		std::cout << this->req->get_status().first << " " << this->req->get_status().second << std::endl;
-	}
+	this->set_status( this->req->get_status().first, this->req->get_status().second );
 }
 
 Response::Response( Response const &src )

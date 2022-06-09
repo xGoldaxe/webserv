@@ -106,7 +106,6 @@ void	Connection::queue_iteration()
 		{
 			this->init_request();
 			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
-			std::cout << this->is_invalid_req() << this->is_fulfilled() << std::endl;
 		}
 
 		// add the data to the body, only add what is required and store the remaining data
@@ -116,7 +115,7 @@ void	Connection::queue_iteration()
 			this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
 		}
 
-		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
+		if ( this->_req /* && ( this->is_invalid_req() || this->is_fulfilled() ) */ )
 		{
 			this->_begin_time = time(NULL);
 
@@ -125,7 +124,6 @@ void	Connection::queue_iteration()
 			if ( this->is_invalid_req() )
 			{
 				this->_is_dead = true;
-				this->soft_clear();
 				break ;
 			}
 
@@ -176,8 +174,8 @@ bool	Connection::is_invalid_req()
 
 bool	Connection::is_fulfilled()
 {
-	// std::cout << "is_request_valid: " << this->_req->is_request_valid() << std::endl;
-	// std::cout << "is_fulfilled: " << this->_req->is_fulfilled() << std::endl;
+	std::cout << "is_request_valid: " << this->_req->is_request_valid() << std::endl;
+	std::cout << "is_fulfilled: " << this->_req->is_fulfilled() << std::endl;
 	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
 

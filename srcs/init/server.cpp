@@ -44,6 +44,8 @@ void    Server::add_response( Request * req, int fd )
     http_header_date( *req, *res );
 	http_header_server( *req, *res );
 
+    res->send();
+
     this->_queue.push(res);
     delete req;
     req = NULL;
@@ -177,11 +179,9 @@ void Server::init_connection()
             throw ServerNotListeningException();
 
         this->_report(sock, *it);
-
         fcntl(sock, F_SETFL, O_NONBLOCK);
 
         this->_poll_fds.push_back(epoll_create1(O_CLOEXEC));
-
         this->_poll_socket_eq.insert(std::pair<int, int>(this->_poll_fds.back(), sock));
     }
 }
@@ -329,7 +329,7 @@ void Server::_report(int sock, s_server_addr_in server_addr)
         std::cout << "It's not working!" << std::endl;
     }
     this->_socket_addr_eq.insert(std::pair<int, std::string>(sock, std::string(host_buffer) + ":" + std::string(service_buffer)));
-    std::cout << "\n\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
+    std::cout << "\tServer listening on http://" << host_buffer << ":" << service_buffer << std::endl;
 }
 
 void Server::_bind_port(int sock, s_server_addr_in server_addr)

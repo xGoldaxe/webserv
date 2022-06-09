@@ -115,7 +115,7 @@ void	Connection::queue_iteration()
 			this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
 		}
 
-		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
+		if ( this->_req /* && ( this->is_invalid_req() || this->is_fulfilled() ) */ )
 		{
 			this->_begin_time = time(NULL);
 
@@ -174,6 +174,8 @@ bool	Connection::is_invalid_req()
 
 bool	Connection::is_fulfilled()
 {
+	std::cout << "is_request_valid: " << this->_req->is_request_valid() << std::endl;
+	std::cout << "is_fulfilled: " << this->_req->is_fulfilled() << std::endl;
 	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
 

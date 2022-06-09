@@ -316,12 +316,13 @@ void Response::try_url() {
 
 	try
 	{
-		std::string redir_str;
-		if ( is_redirection( redir_str ) ) {
-			this->set_status( 301, "Moved Permanently" );
-			this->add_header( "Location", redir_str );
-			return ;
-		}
+		/** @todo */
+		// std::string redir_str;
+		// if ( is_redirection( redir_str ) ) {
+		// 	this->set_status( 301, "Moved Permanently" );
+		// 	this->add_header( "Location", redir_str );
+		// 	return ;
+		// }
 		// may throw errors
 		this->check_file_url();
 		this->set_status( 200, "OK" );

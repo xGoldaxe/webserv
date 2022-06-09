@@ -10,10 +10,7 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
 	  _route(route),
-<<<<<<< HEAD
-=======
 	  _index(index),
->>>>>>> 14340a9071c622781aa8585850a35671a37c8783
 	  client_socket(client_socket)
 {
 	this->cpy_req = *this->req;

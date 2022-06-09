@@ -1,12 +1,11 @@
 #!/bin/bash
 
-# no terminal line, only start line
-# utils for all tests
-ERROR_RES="error 400, bad request\n"
+ERROR_RES="error 501, Not Implemented\n"
 
 # request
 echo -en "\
 GET / HTTP/1.1\r\n\
+\r\n\
 "
 
 # excepted

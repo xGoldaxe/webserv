@@ -1,3 +1,8 @@
+# What does this part do?
+
+This part is used to part the first line and all the headers,
+we assume that the final \r\n is alread cuted.
+
 # Testing request parsing
 
 In this section, we will read from STDIN and consider it like a socket.
@@ -30,7 +35,3 @@ First there is the first_line, with method, path and version.
 Then all the headers parser, and finally the raw body.
 If the request is not valid, at any point it will print only **error 400, bad request\n**.
 ( to see how data is print, look at print_and_store function ).
-
-
-# some notes
-They may be some more data after end of body, close or delete all the additional data is requires

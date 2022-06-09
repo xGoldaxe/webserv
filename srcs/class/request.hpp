@@ -8,21 +8,32 @@
 #include "route.hpp"
 #include "configuration/webserv.hpp"
 
+#define CHUNKED 2
+#define LENGTH 1
+#define NO_BODY 0
+
 class Response;
 
 class Request
 {
+	private:
+		std::size_t	store_length( std::string add_str );
+		std::size_t	store_chunk( std::string chunck_str );
 
 	protected:
 		Webserv_conf							conf;
 		std::string								method;
-		std::string								url;
 		std::string								legacy_url;
 		std::map<std::string, std::string>		headers;
 		std::string								body;
 		std::string								version;
 		bool									request_validity;
 		std::size_t								body_length;
+		std::ofstream							*body_file;
+		int										error_status;
+		std::string								error_message;
+		int										body_transfer;
+		bool									fulfilled;
 
 	public:
 		bool			auto_index;
@@ -31,10 +42,10 @@ class Request
 
 		/* coplien */
 		Request( void );
-		Request( Request const &src );
 		~Request( void );
 
 		Request &   operator=( Request const & rhs );
+		Request( Request const &src );
 		/* end coplien */
 		/* fill from parsed req */
 		void		fill_start_line( std::string method,
@@ -47,9 +58,7 @@ class Request
 		std::string	getMethod(void) const;
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
-		std::string getUrl(void);
 		std::string get_legacy_url(void) const;
-		std::string getRelativeUrl(void);
 		Route		get_route(void);
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
@@ -59,9 +68,11 @@ class Request
 		std::size_t	feed_body( std::string add_str );
 		bool		is_fulfilled(void) const;
 		void		try_construct( std::string raw_request, Webserv_conf conf );
-		void		try_url( Response * res );
 		void		check_file_url(void);
 		bool		is_redirection( std::string &redir_str );
+
+		void							set_status( int status_code, std::string error_message );
+		std::pair<int, std::string>		get_status(void) const;
 
 
 		/* exceptions */

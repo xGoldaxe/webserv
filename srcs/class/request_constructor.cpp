@@ -61,29 +61,45 @@ Route find_route(std::vector<Route> routes, std::string url);
 #define TIMEOUT_TIME 3
 void	Request::try_construct( std::string raw_request, Webserv_conf conf) 
 {
-	this->conf = conf;
-	store_req(true, this);
-
-	preq::parse_request( raw_request, &(store_data_from_raw_req) );
-
-	this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
-
-	this->url = this->route.get_root() + this->legacy_url.substr(this->legacy_url.find_first_of(this->route.get_location()) + this->route.get_location().size());
-	
-	this->auto_index = false;
-	
-	/* find body_length */
-	std::map<std::string, std::string> ::iterator it = this->headers.find( "Content-Length" );
-	if ( it != this->headers.end() )
+	try
 	{
-		char	*end_ptr;
-		this->body_length = strtoul( (it->second).c_str(), &end_ptr, 10 );
-	}
-	else
-		this->body_length = 0;
-	/* find body length */
+		this->conf = conf;
+		store_req(true, this);
 
-	this->request_validity = true;
+		preq::parse_request( raw_request, &(store_data_from_raw_req) );
+
+		this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
+		
+		this->auto_index = false;
+		
+		/* find body_length */
+		std::map<std::string, std::string> ::iterator t_encoding = this->headers.find( "Transfer-Encoding" );
+		std::map<std::string, std::string> ::iterator c_length = this->headers.find( "Content-Length" );
+		if ( t_encoding != this->headers.end() )
+		{
+			if ( c_length != this->headers.end() )
+				throw std::exception();
+			if ( t_encoding->second != std::string( "chunked" ) )
+				throw std::exception();
+			this->body_transfer = CHUNKED;
+		}
+
+		if ( c_length != this->headers.end() )
+		{
+			char	*end_ptr;
+			this->body_length = strtoul( (c_length->second).c_str(), &end_ptr, 10 );
+			this->body_transfer = LENGTH;
+		}
+
+		if ( c_length != this->headers.end() && t_encoding != this->headers.end() )
+			this->body_transfer = NO_BODY;
+
+		this->request_validity = true;
+	}
+	catch(const std::exception& e)
+	{
+		this->set_status( 400, "Bad Request" );
+	}
 };
 
 Route find_route(std::vector<Route> routes, std::string url)

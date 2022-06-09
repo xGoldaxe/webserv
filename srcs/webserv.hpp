@@ -8,6 +8,8 @@
 #include "class/route.hpp"
 #include "class/request.hpp"
 #include "class/response.hpp"
+#include "init/server.hpp"
+#include "init/connection.hpp"
 #include "configuration/webserv.hpp"
 #include "cgi/cgi_manager.hpp"
 

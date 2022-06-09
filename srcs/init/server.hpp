@@ -34,12 +34,15 @@
 class Connection;
 #include "connection.hpp"
 
-#define BACKLOG 10
+#define BACKLOG 1
 #define MAX_RUNNERS 20
 
-class Response;
+#include "class/response.hpp"
+
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
+
+class Response;
 
 class Server {
 public:
@@ -50,7 +53,7 @@ public:
 	void handle_client();
 	void handle_responses();
 	void wait_for_connections();
-	void trigger_queue(void);
+	void trigger_queue();
 	bool queue_response(Response *res);
 	size_t countHandledRequest();
 
@@ -64,11 +67,11 @@ private:
 	std::vector<int> 				_socket_fds;
 	std::vector<int>				_poll_fds;
 	std::map<int, Connection>		_connections;
-	std::map<int, int>				_poll_socket_eq;
 	std::map<int, std::string>		_socket_addr_eq;
-	std::queue<Connection *>		_c_queue;
-	std::queue<Response *>			_queue;
-	size_t							_request_handled;
+	std::map<int, int>				_poll_socket_eq;
+	std::queue<Connection*>			_c_queue;
+	std::queue<Response *>   		_queue;
+	size_t                   		_request_handled;
 	char							**_env;
 	bool							_is_init;
 
@@ -91,6 +94,6 @@ private:
 
 	void read_connection(int client_socket);
 	bool close_connection(int client_socket);
-};
 
-#include "class/response.hpp"
+	void add_response(Request *req, int fd);
+};

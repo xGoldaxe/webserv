@@ -1,8 +1,10 @@
 #include "connection.hpp"
 #include "unistd.h"
 
-#define ONREAD_TIMEOUT 30
+#define ONREAD_TIMEOUT 20
 #define IDLE_TIMEOUT 60
+#define MAX_SIZE 5000
+#define MAX_REQUESTS 5000
 /*************************
 * @erroer case functions
 * ***********************/
@@ -10,7 +12,7 @@ bool	Connection::is_timeout(void)
 {
 	time_t now = time(NULL);
 
-	if ( this->_raw_data.size() > 0 )
+	if ( this->_raw_data.size() > 0 || this->_req != NULL )
 		return ( now - this->_begin_time > ONREAD_TIMEOUT );
 	return ( now - this->_begin_time > IDLE_TIMEOUT );
 }
@@ -18,52 +20,117 @@ bool	Connection::is_timeout(void)
 /*************************
 * @important functions
 * ***********************/
-/* like a get next line, but a "bit" more complex */
-void	Connection::add_data( char * buffer )
+Request	*Connection::extract_request()
 {
+	if ( this->_requests.empty() || this->_is_sending_data == true )
+		return NULL;
+	Request *res = this->_requests.front();
+	this->_is_sending_data = true;
+	this->_requests.pop();
+	return (res);
+}
+
+/* like a get next line, but a "bit" more complex */
+void	Connection::read_data()
+{
+	char    buff[1024];
+	bzero( buff, 1024 );
+	recv( this->_fd, buff, 1024 - 1, 0 );
+	if ( this->_is_dead )
+		return ;
 	// if we start to write a new request, we reset the timer!
 	if ( this->_raw_data.size() == 0 )
 		this->_begin_time = time(NULL);
-	this->_raw_data += buffer;
+	this->_raw_data += buff;
 }
 
-bool	Connection::queue_iteration()
+bool	Connection::check_state()
 {
-	// error case
-	/*
-	if size of raw_data > MAX_HEADERS_SIZE
-		throw HTTP ERROR
-	if request isnt ready AND start request longere than TIMEOUT_MAX
-		throw HTTP ERROR 408 and close connection from socket ( at catch level )
-	*/
+	int error_status = 0;
+	std::string error_message;
 
-	// we can create a request
-	if ( this->is_ready() )
+	if ( this->is_timeout() == true )
 	{
-        this->init_request();
-		this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
+		std::cout << "trigger timeout" << std::endl;
+		error_status = 408;
+		error_message = "Request Time-out";
 	}
-
-	// add the data to the body, only add what is required and store the remaining data
-	if ( this->_is_init && this->is_invalid_req() == false )
+	if ( this->_raw_data.size() > MAX_SIZE )
 	{
-		std::size_t read_until = this->_req.feed_body( this->_raw_data );
-		this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
+		std::cout << "trigger max size" << std::endl;
+		error_status = 413;
+		error_message = " 	Request Entity Too Large";
 	}
-
-    if ( this->is_invalid_req() || this->is_fulfilled() )
+	if ( this->_requests.size() > MAX_REQUESTS )
 	{
-        this->process();
+		std::cout << "trigger too much requests" << std::endl;
+		error_status = 429;
+		error_message = "Too Many Requests";
+	}
+	if ( error_status != 0 )
+	{
+		if ( this->_req != NULL )
+			delete this->_req;
+		this->_req = new Request();
+		this->_req->set_status( error_status, error_message );
+		//we delete all request and add only one
+		while( this->_requests.empty() == false )
+		{
+			delete this->_requests.front();
+			this->_requests.pop();
+		}
+		this->_requests.push( this->_req );
 		this->soft_clear();
-		return true;
-	}
+		this->_raw_data = "";
 
-	return false;
-	/* maybe we have enough data to run a second consecutive request, perhaps this is
-	extremely dangerous, a user could chain many request and take all the trafic for a while.
-	Since the minimal request is "GET / HTTP/1.1\r\n\r\n"(19 bytes), and each read can be over 1000 bytes.
-	we have to process all data already reader before accept connections again. So lets create a queue with
-	all Connections with "remaining data"*/
+		this->_is_dead = true;
+		return false;
+	}
+	return true;
+}
+
+void	Connection::queue_iteration()
+{
+	if (this->_is_dead)
+		return ;
+
+	bool	keep_going = true;
+	while ( keep_going )
+	{
+		keep_going = false;
+
+		if ( this->check_state() == false )
+			break ;
+		// we can create a request
+		if ( this->is_ready() )
+		{
+			this->init_request();
+			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
+		}
+
+		// add the data to the body, only add what is required and store the remaining data
+		if ( this->_is_init && this->is_invalid_req() == false )
+		{
+			std::size_t read_until = this->_req->feed_body( this->_raw_data ); // may invalid the request
+			this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
+		}
+
+		if ( this->_req /* && ( this->is_invalid_req() || this->is_fulfilled() ) */ )
+		{
+			this->_begin_time = time(NULL);
+
+			this->_requests.push( this->_req );
+
+			if ( this->is_invalid_req() )
+			{
+				this->_is_dead = true;
+				break ;
+			}
+
+			this->soft_clear();
+			keep_going = true;
+		}
+	}
 }
 
 /* init with conf informations, and other usefull things for req and res */
@@ -71,51 +138,24 @@ bool	Connection::init_request()
 {
 	Webserv_conf conf;
 	this->_is_init = true;
-	try
-	{
-		this->_req.try_construct( this->_raw_data, conf );
-		this->_res = new Response(this->_fd, conf, &this->_req, this->_client_ip, this->_response_max_size);
-		return true;
-	}
-	catch(const std::exception& e)
-	{
-		/** @todo throw HTTPCode400(); */
-		return false;
-	}
-}
 
-/* all big work happen here */
+	this->_req = new Request();
+	this->_req->try_construct( this->_raw_data, conf ); // set the request to valid in case of success
 
-void	Connection::process()
-{
-	Webserv_conf conf;
-	
-	http_header_date( this->_req, *this->_res );
-	http_header_server( this->_req, *this->_res );
-	
-	if ( this->_req.is_request_valid() )
-	{
-		this->_req.try_url(this->_res);
-		/* generic headers */
-		this->_res->add_header( "Connection", "keep-alive" );
-		this->_res->add_header("Keep-Alive", "timeout=5, max=10000");
-		this->_res->send();
-	}
-	else
-	{
-		this->_res->set_status( 400, "Bad Request" );
-		this->_res->send();
-		close( this->_res->client_socket );
-	}
-	this->_begin_time = time(NULL);
+	return this->_req->is_request_valid();
 }
 
 /* clear only the things we dont want anymore */
 
 void	Connection::soft_clear()
 {
-	this->_req = Request();
 	this->_is_init = false;
+	this->_req = NULL;
+}
+
+void	Connection::end_send()
+{
+	this->_is_sending_data = false;
 }
 
 /*************************
@@ -129,14 +169,15 @@ bool	Connection::is_ready( void )
 
 bool	Connection::is_invalid_req()
 {
-	return this->_is_init && this->_req.is_request_valid() == false;
+	return this->_req && this->_req->is_request_valid() == false;
 }
 
 bool	Connection::is_fulfilled()
 {
-	return this->_req.is_request_valid() && this->_req.is_fulfilled();
+	std::cout << "is_request_valid: " << this->_req->is_request_valid() << std::endl;
+	std::cout << "is_fulfilled: " << this->_req->is_fulfilled() << std::endl;
+	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
-
 
 /*************************
 * @coplien
@@ -144,14 +185,18 @@ bool	Connection::is_fulfilled()
 Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _fd(fd), _is_init(false), _client_ip(client_ip), _response_max_size(response_chunk_size)
 {
 	this->_begin_time = time(NULL);
+	this->_req = NULL;
+	this->_is_sending_data = false;
+	this->_is_dead = false;
 }
 
 Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_req(src.get_req()),
-												_res(src.get_res()),
 												_raw_data(src.get_data()),
 												_is_init(src._is_init),
 												_begin_time(src.get_time()),
+												_is_sending_data( src.get_is_sending_data() ),
+												_is_dead( src.get_is_dead()),
 												_client_ip(src._client_ip),
 												_response_max_size(src._response_max_size)
 {}
@@ -162,10 +207,11 @@ Connection &	Connection::operator=( Connection const & rhs )
 		return (*this);
 	this->_fd = rhs.get_fd();
 	this->_req = rhs.get_req();
-	this->_res = rhs.get_res();
 	this->_raw_data = rhs.get_data();
 	this->_is_init = rhs.is_init();
 	this->_begin_time = rhs.get_time();
+	this->_is_dead = rhs.get_is_dead();
+	//is_sending_data;
 	return *this;
 }
 
@@ -180,14 +226,9 @@ int	Connection::get_fd( void ) const	{
 	return ( this->_fd );
 }
 
-Request		Connection::get_req( void ) const	{
+Request		*Connection::get_req( void ) const	{
 
 	return ( this->_req );
-}
-
-Response	*Connection::get_res( void ) const	{
-
-	return ( this->_res );
 }
 
 std::string	Connection::get_data( void ) const	{
@@ -204,3 +245,13 @@ time_t	Connection::get_time( void ) const	{
 	
 	return ( this->_begin_time );
 }
+
+bool	Connection::get_is_dead(void) const {
+
+	return ( this->_is_dead );
+};
+
+bool	Connection::get_is_sending_data(void) const {
+
+	return ( this->_is_sending_data );
+};

@@ -12,7 +12,7 @@ namespace preq {
 		std::string tested_url;
 		for ( std::string::iterator it = url.begin(); it != url.end(); ++it )
 		{
-			if ( *it == '?' || *it == ',')
+			if ( *it == '?' || *it == '#')
 				break;
 			tested_url += *it;
 		}

@@ -90,7 +90,7 @@ namespace	preq {
 	/* during the parsing at any time, an exception could happened. We just have to
 	catch it and send back an error 400 response */
 
-	int parse_request( std::string & data, void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>) ) {
+	int parse_request( std::string & data, void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>, std::string, std::string) ) {
 
 		std::vector<std::string> lines = read_until( data, &check_line );
 		if ( lines.size() < 1 )
@@ -118,15 +118,19 @@ namespace	preq {
 		if ( std::find( a_meth.begin(), a_meth.end(), parsed_first_line[0] ) == a_meth.end() )
 			throw HTTPCode501();
 		
+
+		std::string query_string;
+		std::string path_info;
+		if ( parse_url( parsed_first_line[1], parsed_first_line[1], path_info, query_string ) == false )
+			throw HTTPCode400();
+
 		if ( verify_absolute_url( parsed_first_line[1] ) == false )
 			throw HTTPCode400();
 
 		if ( parsed_first_line[2] != "HTTP/1.1")
 			throw HTTPCode505();
 		
-	
-
-		print_or_store( parsed_first_line , headers );
+		print_or_store( parsed_first_line, headers, query_string, path_info );
 		return (0);
 	}
 }

@@ -363,8 +363,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered body_max_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it+2].c_str()) < 0 || std::atof(words[it+2].c_str()) > std::numeric_limits<int>::max())
-					throw std::invalid_argument("Error parsing body_max_size, must 0 or greater");
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing body_max_size, must be 1 or greater");
 				server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -431,6 +431,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered cgi timeout outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing cgi_timeout, must be 1 or greater");
 				server.set_cgi_timeout(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -447,6 +449,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
 				server.setReadTimeOut(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -463,6 +467,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered server body size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
 				server.setServerBodySize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -498,6 +504,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered file_limit outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing file_limit_parsing, must be 1 or greater");
 				server.set_file_limit(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -514,6 +522,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered client_header_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing client_header_size, must be 1 or greater");
 				server.setClientHeaderSize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -587,7 +597,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			else
 			{
 				throw std::invalid_argument("Error parsing cgi_path!");
-			}		
+			}
 			break;
 		default:
 			break;
@@ -608,7 +618,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		checkservers++;
 	}
 
-	//Duplicate server_name and duplicate port check
+	// Duplicate server_name and duplicate port check
 	unsigned int i_checkservdupe = 0;
 	unsigned int j_checkservdupe = 1;
 	unsigned int i_checkportdupe = 0;
@@ -619,11 +629,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 		{
 			if (this->servers[i_checkservdupe].getName().compare(this->servers[j_checkservdupe].getName()) == 0)
 			{
-				while(i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
+				while (i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
 				{
 					while (j_checkportdupe < this->servers[j_checkservdupe].getPort().size())
 					{
-						if(this->servers[i_checkservdupe].getPort()[i_checkportdupe] == this->servers[j_checkservdupe].getPort()[j_checkportdupe])
+						if (this->servers[i_checkservdupe].getPort()[i_checkportdupe] == this->servers[j_checkservdupe].getPort()[j_checkportdupe])
 							throw std::invalid_argument("Parsing error, duplicate port detected!");
 						j_checkportdupe++;
 					}

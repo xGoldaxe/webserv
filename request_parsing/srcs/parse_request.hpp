@@ -1,6 +1,7 @@
 #include "req_parse.hpp"
 #include <algorithm>
 #include "utils.hpp"
+#include "verify_absolute_url.hpp"
 #include "../../srcs/errors/http_code.hpp"
 
 namespace	preq {
@@ -116,6 +117,10 @@ namespace	preq {
 		a_meth.push_back( "DELETE" );
 		if ( std::find( a_meth.begin(), a_meth.end(), parsed_first_line[0] ) == a_meth.end() )
 			throw HTTPCode501();
+		
+		if ( verify_absolute_url( parsed_first_line[1] ) == false )
+			throw HTTPCode400();
+
 		if ( parsed_first_line[2] != "HTTP/1.1")
 			throw HTTPCode505();
 		

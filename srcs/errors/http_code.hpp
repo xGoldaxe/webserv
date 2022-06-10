@@ -93,3 +93,10 @@ class HTTPCode400 : public HTTPCode4XX
     HTTPCode400() throw() : HTTPCode4XX(0, "Bad Request")
     {}
 };
+
+class HTTPCode414 : public HTTPCode4XX
+{
+    public:
+    HTTPCode414() throw() : HTTPCode4XX(414, "URI Too Long")
+    {}
+};

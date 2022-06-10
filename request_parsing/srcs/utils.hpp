@@ -3,7 +3,7 @@
 
 namespace preq {
 
-time_t timer;
+	time_t timer;
 		
 	std::vector<std::string>	read_until( std::string & data, bool (*rule)(std::string) ) {
 

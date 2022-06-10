@@ -41,7 +41,8 @@ static int return_type_parse(std::string s)
 
 static bool verify_url(std::string url)
 {
-
+	if (url.find("http://") == 0 || url.find("https://") == 0)
+		return true;
 	std::string tested_url;
 	for (std::string::iterator it = url.begin(); it != url.end(); ++it)
 	{
@@ -267,7 +268,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 				it++;
 			if (!verify_url(words[it + 1]))
 				throw std::invalid_argument("Invalid error page path");
-		
 			if (words[it].compare("=") == 0 && it + 2 < words.size() && words[it + 2].compare(";") == 0 && ((it - tmpit) > 1))
 			{
 				tmperrorval = words[it + 1].c_str();
@@ -449,7 +449,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 				if (std::atoi(words[it + 1].c_str()) > 399 || std::atoi(words[it + 1].c_str()) < 300)
 					throw std::invalid_argument("Error parsing, provided redirection code is outside the range");
-				if (!verify_url(words[it + 2]))
+				if (!verify_url(words[it + 2]) || !verify_url(words[it + 3]))
 					throw std::invalid_argument("Invalid redirection path");
 				server.addRouteRedirection(std::atoi(words[it + 1].c_str()), words[it + 2], words[it + 3]);
 				it = it + 4;

@@ -1,14 +1,12 @@
 #!/bin/bash
 
+# no terminal line, only start line
 # utils for all tests
-ERROR_RES="error 400, bad request\n"
+ERROR_RES="error 400, Bad Request\n"
 
 # request
 echo -en "\
-GET / HTTP/1.1\r\n\
-Content-Length: 10 \r\n\
-\r\n\
-0123\n\
+GET / HTTP/1.1 \r\n\
 "
 
 # excepted

@@ -3,7 +3,7 @@
 
 namespace preq {
 
-time_t timer;
+	time_t timer;
 		
 	std::vector<std::string>	read_until( std::string & data, bool (*rule)(std::string) ) {
 
@@ -43,9 +43,8 @@ time_t timer;
 				return str.substr( i, str.size() );
 			++i;
 		}
-		// cant trim an empty string
-		throw std::exception();
-		return str;
+		// trim everything
+		return "";
 	}
 	std::string	right_trim( std::string str, bool (*rule)(char) ) {
 
@@ -56,9 +55,8 @@ time_t timer;
 				return str.substr( 0, str.size() - i );
 			++i;
 		}
-		// cant trim an empty string
-		throw std::exception();
-		return str;
+		// trim everything
+		return "";
 	}
 	std::string	trim( std::string str, bool (*rule)(char) ) {
 

@@ -13,7 +13,6 @@ GET / HTTP/1.1\r\n\
 Random-header1: salut\r\n\
 Random-header2: salut \r\n\
 Random-header3: salut\r\n\
-\r\n
 "
 
 # excepted
@@ -22,10 +21,7 @@ echo -en "\
 METHOD: GET
 PATH: /
 VERSION: HTTP/1.1
-==>[Content-Length]: [0]
 ==>[Random-header1]: [salut]
 ==>[Random-header2]: [salut]
 ==>[Random-header3]: [salut]
-<==={START BODY}===>
-<==={END BODY}===>
 " > $OUTPUT

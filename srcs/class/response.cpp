@@ -1,5 +1,29 @@
 #include "response.hpp"
 
+// trim from start
+inline static std::string ltrim(std::string s)
+{
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+									std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
+}
+
+// trim from end
+inline static std::string rtrim(std::string s)
+{
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+						 std::not1(std::ptr_fun<int, int>(std::isspace)))
+				.base(),
+			s.end());
+	return s;
+}
+
+// trim from end
+inline static std::string trim(std::string s)
+{
+	return ltrim(rtrim(s));
+}
+
 Response::Response(void)
 {
 }
@@ -189,8 +213,27 @@ std::string Response::load_body(std::string client_ip)
 	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
 		CGIManager cgi(this->_route.get_root(), "/bin/php-cgi" /** @todo this->_route.get_cgi_path() */, this->url);
-		this->body = cgi.exec(*this->req, client_ip);
 		this->add_header("Content-Type", "text/html");
+		this->body = cgi.exec(*this->req, client_ip);
+		
+		std::map<std::string, std::string> m;
+
+		std::istringstream resp(this->body);
+		std::string header;
+		std::string::size_type index;
+		while (std::getline(resp, header) && header != "\r") {
+			index = header.find(':', 0);
+			if(index != std::string::npos) {
+				this->add_header(
+					trim(header.substr(0, index)),
+					trim(header.substr(index + 1))
+				);
+			}
+		}
+		std::stringstream tmp;
+		tmp << resp.rdbuf();
+		this->body = header + tmp.str();
+
 	} else {
 		this->_return_body_type = BODY_TYPE_FILE;
 		this->_in_file.open(this->url.c_str(), std::ios::binary);
@@ -277,9 +320,18 @@ std::string go_through_it_until(std::vector<std::string> values,
 
 void	Response::check_file_url(void)
 {
+	
 	// this->route.auto_index = false; /** @todo NEED TO DO THIS! */
 	if ( /* this->route.auto_index && */ is_file( this->url ) == IS_FILE_FOLDER )
+	{
+		for (std::vector<std::string>::iterator it = this->_index.begin(); it != this->_index.end(); it++) {
+			if (is_file( this->url + *it ) == IS_FILE_NOT_FOLDER) {
+				this->url = this->url + *it;
+				return;
+			}
+		}
 		this->req->auto_index = true;
+	}
 	else if ( is_file( this->url ) == IS_FILE_NOT_FOLDER )
 	{
 		if ( !file_readable( this->url ) )

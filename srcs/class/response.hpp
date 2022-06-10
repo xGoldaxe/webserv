@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <vector>
 #include <cstdlib>
+#include "utils/string.hpp"
 
 #include "webserv.hpp"
 

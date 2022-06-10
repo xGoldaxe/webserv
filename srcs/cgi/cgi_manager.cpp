@@ -57,6 +57,7 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     std::string port = addr_port.substr(addr_port.find(":") + 1);
 
     this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
+    this->addHeader("HTTP_COOKIE", req.get_header_value("Cookie"));
     this->addHeader("QUERY_STRING", req.get_legacy_url());
     this->addHeader("REMOTE_ADDR", client_ip);
     this->addHeader("REQUEST_METHOD", req.getMethod());
@@ -96,9 +97,13 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     else
     {
         close(pipe_fd[1]);
-        result = read_fd(pipe_fd[0]);
+        while (1) {
+            char temp;
+            if (read(pipe_fd[0], &temp, 1) < 1) break;
+            result += temp;
+        }
 
-        #ifdef DEBUG_FULL
+        #ifdef DEBUG
             std::cout << "request content: " << result << std::endl;
         #endif
 

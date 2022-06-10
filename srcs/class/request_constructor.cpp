@@ -79,8 +79,7 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
 		this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
-		
-		this->auto_index = false;
+		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */
 		std::map<std::string, std::string> ::iterator t_encoding = this->headers.find( "Transfer-Encoding" );

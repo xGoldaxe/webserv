@@ -11,8 +11,9 @@ int main( void ) {
 		std::string str_data( data );
 		preq::parse_request( str_data, &print_parsed_req );
 	}
-	catch(const std::exception& e) {
-		std::cout << "error 400, bad request" << std::endl;
+	catch(const HTTPError& e)
+	{
+		std::cout << "error " << e.getCode() << ", " << e.getDescription() << std::endl;
 	}
 
 	return (0);

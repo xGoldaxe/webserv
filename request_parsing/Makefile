@@ -1,5 +1,7 @@
 SRCS	=	print_or_store.cpp \
 			main.cpp \
+			outside/http_code.cpp \
+			outside/string.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 

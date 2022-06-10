@@ -1,5 +1,7 @@
 #include "req_parse.hpp"
+#include <algorithm>
 #include "utils.hpp"
+#include "verify_absolute_url.hpp"
 #include "../../srcs/errors/http_code.hpp"
 
 namespace	preq {
@@ -43,6 +45,8 @@ namespace	preq {
 
 	std::vector<std::string>	parse_start_line( std::string raw_line ) {
 
+		if ( raw_line.size() > 0 && (raw_line.at(0) == ' ' || raw_line.at( raw_line.size() - 1 ) == ' ') )
+			throw HTTPCode400();
 		std::vector<std::string> splited = split_str( raw_line );
 		if ( splited.size() != 3 )
 			throw HTTPCode400();
@@ -76,6 +80,8 @@ namespace	preq {
 			std::string	field_name = header_field.substr( 0, point_index );
 			std::string	field_value = header_field.substr( point_index + 1, header_field.size() - 1 );
 			field_value = trim( field_value, &is_space );
+			if ( field_value.size() == 0 )
+				throw HTTPCode400();
 			res.insert( std::pair<std::string, std::string>( field_name, field_value ) );
 		}
 		return res;
@@ -89,7 +95,6 @@ namespace	preq {
 		std::vector<std::string> lines = read_until( data, &check_line );
 		if ( lines.size() < 1 )
 			throw HTTPCode400();
-
 
 		// first line
 		std::string start_line = lines[0];
@@ -105,10 +110,21 @@ namespace	preq {
 
 
 		//verify data
+		std::vector<std::string> a_meth;
+		a_meth.push_back( "HEAD" );
+		a_meth.push_back( "GET" );
+		a_meth.push_back( "POST" );
+		a_meth.push_back( "DELETE" );
+		if ( std::find( a_meth.begin(), a_meth.end(), parsed_first_line[0] ) == a_meth.end() )
+			throw HTTPCode501();
+		
+		if ( verify_absolute_url( parsed_first_line[1] ) == false )
+			throw HTTPCode400();
 
 		if ( parsed_first_line[2] != "HTTP/1.1")
 			throw HTTPCode505();
 		
+	
 
 		print_or_store( parsed_first_line , headers );
 		return (0);

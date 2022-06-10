@@ -18,9 +18,6 @@ echo -en "\
 METHOD: GET
 PATH: /
 VERSION: HTTP/1.1
-==>[Content-Length]: [0]
 ==>[Random-header1]: [salut]
 ==>[Random-header2]: [salut]
-<==={START BODY}===>
-<==={END BODY}===>
 " > $OUTPUT

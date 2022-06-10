@@ -142,7 +142,8 @@ void Route::add_cgi_extension(std::string extension)
 }
 void Route::set_cgi_path(std::string path)
 {
-	this->cgi_path = path;
+	this->cgi_path.clear();
+	this->cgi_path.append(path);
 }
 
 void Route::add_error_page(int status_code, std::string error_message)

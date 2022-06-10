@@ -30,5 +30,6 @@ server
 		enable_cgi on ; 
 		cgi_extension = php ;
 		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
 	}
 }

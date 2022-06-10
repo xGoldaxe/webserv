@@ -265,3 +265,8 @@ void Server_conf::set_max_uri_size(int max_uri_size)
 {
 	this->max_uri_size = max_uri_size ;
 }
+
+void Server_conf::set_cgi_path(std::string cgi_path)
+{
+	this->routes.back().set_cgi_path(cgi_path);
+}

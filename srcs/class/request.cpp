@@ -150,20 +150,20 @@ std::size_t	Request::store_length( std::string add_str )
 /* return the amount of char added to the body, may invalid the request */
 std::size_t	Request::feed_body( std::string add_str )
 {
-	// if ( this->body_file == NULL )
-	// 	this->body_file = this->create_unique_file( "memory/" );
-	// if ( this->body_file == NULL )
-	// {
-	// 	this->set_status( 500, "Internal Server Error" );
-	// 	return 0;
-	// }
+	if ( this->body_file == NULL )
+		this->body_file = this->create_unique_file( "memory/" );
+	if ( this->body_file == NULL )
+	{
+		this->set_status( 500, "Internal Server Error" );
+		return 0;
+	}
 
 	if ( add_str.size() == 0 )
 		return 0;
 
 	if ( this->body_transfer == LENGTH )
 		return this->store_length( add_str );
-	// else if ( this->body_transfer == CHUNKED )
-	// 	return this->store_chunk( add_str );
+	else if ( this->body_transfer == CHUNKED )
+		return this->store_chunk( add_str );
 	return 0;
 }

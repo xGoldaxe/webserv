@@ -19,6 +19,12 @@ std::string Request::getMethod(void) const
 {
 	return (method);
 }
+
+std::string Request::get_query(void) const
+{
+	return (this->query);
+}
+
 std::string Request::getBody(void)
 {
 	return (body);
@@ -80,6 +86,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->legacy_url = rhs.legacy_url;
 	this->headers = rhs.headers;
 	this->body = rhs.body;
+	this->query = rhs.query;
 	this->version = rhs.version;
 	this->auto_index = rhs.auto_index;
 	this->route = rhs.route;
@@ -132,7 +139,7 @@ std::size_t	Request::store_length( std::string add_str )
 	this->body_length -= substring.size();
 
 	std::cout << "body part [" << substring << "]" << std::endl;
-	this->body_file->write( substring.c_str(), substring.size() );
+	// this->body_file->write( substring.c_str(), substring.size() );
 
 	if ( this->body_length == 0 )
 		this->fulfilled = true;

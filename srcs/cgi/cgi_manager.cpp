@@ -24,13 +24,11 @@ inline static std::string   read_fd(int fd)
 CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path)
 {
     this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");
-    this->addHeader("SCRIPT_NAME", path);
     this->addHeader("SCRIPT_FILENAME", path);
     this->addHeader("DOCUMENT_ROOT", root);
     this->addHeader("SERVER_PROTOCOL", "HTTP/1.1");
     this->addHeader("SERVER_SOFTWARE", DEFAULT_SERVER_NAME);
     this->addHeader("REDIRECT_STATUS", "200");
-    this->addHeader("PATH_INFO", cgi_path);
     this->addHeader("PHP_SELF", path);
 
     this->_cgi_path = cgi_path;
@@ -56,15 +54,29 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     std::string addr = addr_port.substr(0, addr_port.find(":"));
     std::string port = addr_port.substr(addr_port.find(":") + 1);
 
+    this->addHeader("PATH_INFO", get_filename(this->_path));
+    this->addHeader("PATH_TRANSLATED", req.get_legacy_url());
+    this->addHeader("SCRIPT_NAME", req.get_legacy_url());
     this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
-    this->addHeader("HTTP_COOKIE", req.get_header_value("Cookie"));
-    this->addHeader("QUERY_STRING", req.get_legacy_url());
+    if (req.getMethod() == "GET") {
+        this->addHeader("QUERY_STRING", req.get_query());
+    } else {
+        this->addHeader("QUERY_STRING", req.getBody());
+    }
     this->addHeader("REMOTE_ADDR", client_ip);
     this->addHeader("REQUEST_METHOD", req.getMethod());
-    this->addHeader("SCRIPT_NAME", this->_path);
-    this->addHeader("PATH_INFO", req.get_route().get_root());
     this->addHeader("SERVER_NAME", addr);
     this->addHeader("SERVER_PORT", port);
+
+    
+    this->addHeader("HTTP_ACCEPT", req.get_header_value("Accept"));
+    this->addHeader("HTTP_ACCEPT_CHARSET", req.get_header_value("Accept-Charset"));
+    this->addHeader("HTTP_ACCEPT_ENCODING", req.get_header_value("Accept-Encoding"));
+    this->addHeader("HTTP_ACCEPT_LANGUAGE", req.get_header_value("Accept-Language"));
+    this->addHeader("HTTP_FORWARDED", req.get_header_value("Forwarded"));
+    this->addHeader("HTTP_USER_AGENT", req.get_header_value("User-Agent"));
+    this->addHeader("HTTP_HOST", addr_port);
+    this->addHeader("HTTP_COOKIE", req.get_header_value("Cookie"));
 
     this->computeEnvArray();
 
@@ -72,6 +84,10 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
 
     int pipe_fd[2];
     if (pipe(pipe_fd) == -1)
+        throw HTTPCode500();
+    
+    int pipe_in_fd[2];
+    if (pipe(pipe_in_fd) == -1)
         throw HTTPCode500();
 
     char *exec_path;
@@ -89,6 +105,8 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     if (pid == 0)
     {
         close(pipe_fd[0]);
+        close(pipe_in_fd[1]);
+        dup2(pipe_in_fd[0], STDIN_FILENO);
         dup2(pipe_fd[1], STDOUT_FILENO);
 
         execve(args[0], args, this->_c_headers);
@@ -96,6 +114,12 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     }
     else
     {
+        std::string to_write = req.getBody();
+        std::cout << "CGI Parameters: " << to_write << std::endl;
+        if (write(pipe_in_fd[1], to_write.c_str(), to_write.size()) < 0) {
+            std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
+        }
+        close(pipe_in_fd[1]);
         close(pipe_fd[1]);
         while (1) {
             char temp;
@@ -103,19 +127,10 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
             result += temp;
         }
 
-        #ifdef DEBUG
-            std::cout << "request content: " << result << std::endl;
-        #endif
-
         int status = 0;
         waitpid(pid, &status, 0);
 
         close(pipe_fd[0]);
-
-        if (status != 0) {
-            std::cerr << "500: \"" << result << "\"" << std::endl;
-            throw HTTPCode500();
-        }
     }
 
     delete [] exec_path;

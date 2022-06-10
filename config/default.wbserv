@@ -13,7 +13,7 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root ./www/ ;
+		root /home/restray/42/webserv/www/ ;
 		index = index.html index.htm ;
 		error_page 404 = 404.html ;
 		methods = POST GET DELETE ;
@@ -25,7 +25,7 @@ server
 	}
 	location /php
 	{ 
-		root ./cgi/ ;
+		root /home/restray/42/webserv/cgi/ ;
 		index = index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;

@@ -1,6 +1,7 @@
 #include "req_parse.hpp"
 #include <algorithm>
 #include "utils.hpp"
+#include "parse_url.hpp"
 #include "verify_absolute_url.hpp"
 #include "../../srcs/errors/http_code.hpp"
 

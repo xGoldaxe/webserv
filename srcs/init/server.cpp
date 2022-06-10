@@ -230,7 +230,9 @@ void    Server::handle_responses()
                         it->second.end_send();
                 }
 
-                this->_queue.front()->output(this->countHandledRequest());
+                if (this->_queue.front()->req->is_request_valid()) {
+                    this->_queue.front()->output(this->countHandledRequest());
+                }
                 delete this->_queue.front();
             }
         }

@@ -2,7 +2,7 @@
 #include "unistd.h"
 
 #define ONREAD_TIMEOUT 20
-#define IDLE_TIMEOUT 30
+#define IDLE_TIMEOUT 2
 #define MAX_SIZE 50000
 #define MAX_REQUESTS 5
 /*************************

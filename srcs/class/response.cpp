@@ -29,13 +29,13 @@ Response::Response(void)
 }
 
 Response::Response(int client_socket, std::vector<std::string> index, Request *req, const char *client_ip, size_t max_size, Route route)
-	: req(req),
-	  _return_body_type(BODY_TYPE_STRING),
+	: _return_body_type(BODY_TYPE_STRING),
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
 	  _route(route),
 	  _index(index),
-	  client_socket(client_socket)
+	  client_socket(client_socket),
+	  req(req)
 {
 	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";

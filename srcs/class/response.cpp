@@ -43,17 +43,15 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	{
 		std::string path = this->req->get_legacy_url().substr(this->_route.get_location().size());
 
-		if (path.find_last_of('/') == 0) {
+		if (path.find_first_of('/') == 0) {
 			this->url = this->_route.get_root() + path.substr(1);
 		} else {
 			this->url = this->_route.get_root() + path;
 		}
-		std::cout << this->url << std::endl;
 	}
 	else
 	{
 		this->set_status( this->req->get_status().first, this->req->get_status().second );
-		std::cout << this->req->get_status().first << " " << this->req->get_status().second << std::endl;
 	}
 }
 
@@ -213,23 +211,24 @@ std::string Response::load_body(std::string client_ip)
 	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
 		CGIManager cgi(this->_route.get_root(), "/bin/php-cgi" /** @todo this->_route.get_cgi_path() */, this->url);
-		this->add_header("Content-Type", "text/html");
 		this->body = cgi.exec(*this->req, client_ip);
-		
-		std::map<std::string, std::string> m;
 
 		std::istringstream resp(this->body);
 		std::string header;
-		std::string::size_type index;
 		while (std::getline(resp, header) && header != "\r") {
-			index = header.find(':', 0);
-			if(index != std::string::npos) {
-				this->add_header(
-					trim(header.substr(0, index)),
-					trim(header.substr(index + 1))
-				);
+			std::string::size_type index = header.find(':');
+			std::string name = trim(header.substr(0, index));
+			std::string value = trim(header.substr(index + 1));
+
+			if (name == "Status") {
+				index = value.find(' ');
+				this->set_status(atoi(value.substr(0, index).c_str()), value.substr(index + 1));
+			} else if (index != std::string::npos) {
+				this->add_header(name, value);
 			}
 		}
+		this->add_header("Content-Type", "text/html");
+
 		std::stringstream tmp;
 		tmp << resp.rdbuf();
 		this->body = header + tmp.str();

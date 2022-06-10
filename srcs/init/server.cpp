@@ -294,12 +294,13 @@ void Server::handle_client()
             // ev.events = EPOLLET | EPOLLIN;
             ev.events = EPOLLIN;
             ev.data.fd = client_socket;
-            epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
+            epoll_ctl(this->_poll_fds[i], EPOLL_CTL_ADD, client_socket, &ev);
 
             this->_connections.insert(
                 std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_body_size)));
             this->_socket_addr_eq[client_socket] = inet_ntoa(cli_addr.sin_addr);
         }
+        i++;
     }
 }
 

@@ -202,7 +202,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				int port = std::atoi(words[it + 2].c_str());
 				std::numeric_limits<short> range;
-				if (port < range.min() || port > range.max())
+				if (port < 0 || port > range.max())
 					throw Webserv_conf::OutOfRangePort();
 				server.addPort(port);
 				it = it + 3;
@@ -363,6 +363,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered body_max_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (std::atoi(words[it+2].c_str()) < 0 || std::atof(words[it+2].c_str()) > std::numeric_limits<int>::max())
+					throw std::invalid_argument("Error parsing body_max_size, must 0 or greater");
 				server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}

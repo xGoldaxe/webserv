@@ -3,7 +3,6 @@ server
 	server_name = test ;
 	host = 0.0.0.0 ;
 	listen = 3000 ;
-	listen = 3030 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
@@ -39,7 +38,7 @@ server
 	server_name = test ;
 	host = 127.0.0.1 ;
 	listen = 3030 ;
-	error_page 404 403 = error.html ;
+	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
 	server_body_size = 1024 ;
@@ -49,7 +48,6 @@ server
 	location /
 	{
 		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
-		error_page 404 = 404.html ;
 		methods = POST GET DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;

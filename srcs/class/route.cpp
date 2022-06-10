@@ -95,6 +95,11 @@ bool Route::get_auto_index(void)
 	return this->auto_index;
 }
 
+std::vector<std::string> Route::get_index(void) const
+{
+	return this->index;
+}
+
 std::string Route::get_location(void)
 {
 	return this->location;

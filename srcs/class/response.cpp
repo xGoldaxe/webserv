@@ -319,11 +319,16 @@ std::string go_through_it_until(std::vector<std::string> values,
 
 void	Response::check_file_url(void)
 {
-	
-	// this->route.auto_index = false; /** @todo NEED TO DO THIS! */
-	if ( /* this->route.auto_index && */ is_file( this->url ) == IS_FILE_FOLDER )
+	if ( is_file( this->url ) == IS_FILE_NOT_FOLDER  )
 	{
-		for (std::vector<std::string>::iterator it = this->_index.begin(); it != this->_index.end(); it++) {
+		if ( !file_readable( this->url ) )
+			throw HTTPCode403();
+	}
+	else if (is_file( this->url ) == IS_FILE_FOLDER && *(this->req->get_legacy_url().rbegin()) == '/')
+	{
+		std::vector<std::string> indexes = this->_route.get_index();
+		for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++) {
+			std::cout << "index: " << *it << std::endl;
 			if (is_file( this->url + *it ) == IS_FILE_NOT_FOLDER) {
 				this->url = this->url + *it;
 				return;
@@ -331,19 +336,9 @@ void	Response::check_file_url(void)
 		}
 		this->req->auto_index = true;
 	}
-	else if ( is_file( this->url ) == IS_FILE_NOT_FOLDER )
-	{
-		if ( !file_readable( this->url ) )
-			throw HTTPCode403();
-	}
 	else
 	{
-		store_cat_test( true, finish_by_only_one( this->url, '/' ) );
-		/** @todo Next line Break the URL on CGI PATH */
-		// this->url = go_through_it_until(
-		// 	this->_index,
-		// 	&cat_test
-		// );
+		throw HTTPCode404();
 	}
 }
 

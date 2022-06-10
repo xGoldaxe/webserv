@@ -54,6 +54,7 @@ class Route
 		bool								get_send_file(void);
 		int									get_file_limit(void);
 		bool								get_auto_index( void );
+		std::vector<std::string>			get_index(void) const;
 		std::string							get_location(void);
 		std::string 						get_root(void);
 		std::vector<std::string> 			get_methods(void) const;

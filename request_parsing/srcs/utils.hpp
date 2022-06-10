@@ -1,3 +1,5 @@
+#pragma once
+
 #include "req_parse.hpp"
 #include <time.h>
 

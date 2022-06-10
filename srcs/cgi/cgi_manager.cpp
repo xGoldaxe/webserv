@@ -6,21 +6,6 @@ inline static void          string_to_char(std::string to_convert, char **dest)
     std::strcpy(*dest, to_convert.c_str());
 }
 
-inline static std::string   read_fd(int fd)
-{
-	char buff[256];
-	int readed = 255;
-	std::string	res;
-	while (readed != 0)
-	{
-		std::memset(buff, 0, 256);
-		readed = read( fd, buff, 255 );
-		buff[readed] = '\0';
-		res += buff;
-	}
-	return res;
-}
-
 CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path)
 {
     this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");

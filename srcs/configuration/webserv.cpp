@@ -262,8 +262,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0)
 			{
-				if(!preq::verify_absolute_url(words[it + 1]))
-					throw std::invalid_argument("Invalid root path");
+				//if(!preq::verify_absolute_url(words[it + 1]))
+				//	throw std::invalid_argument("Invalid root path");
 				if (contextlocation == 0)
 					server.setName(words[it + 1]);
 				else

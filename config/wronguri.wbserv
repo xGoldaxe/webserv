@@ -11,7 +11,7 @@ server
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
 	max_uri_size = 40 ;
-	root ../. ;
+	root . ;
 	location /
 	{
 		root /home/restray/42/webserv/www/ ;
@@ -31,6 +31,6 @@ server
 		enable_cgi on ; 
 		cgi_extension = php ;
 		cgi_timeout = 10 ;
-		cgi_path = /usr/bin/php ;
+		cgi_path = ../usr/bin/php ;
 	}
 }

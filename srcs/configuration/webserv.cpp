@@ -39,6 +39,51 @@ static int return_type_parse(std::string s)
 	return (-1);
 }
 
+static bool verify_url(std::string url)
+{
+
+	std::string tested_url;
+	for (std::string::iterator it = url.begin(); it != url.end(); ++it)
+	{
+		if (*it == '?' || *it == ',')
+			break;
+		tested_url += *it;
+	}
+
+	int nb_sub = 0;
+	int nb_regular = 0;
+	int nb_back = 0;
+	std::string actual;
+	for (std::string::iterator it = tested_url.begin(); it != tested_url.end(); ++it)
+	{
+		if (*it == '/' && actual.size() > 0) /* we ignore ////qwe///qwe//ewq case */
+		{
+			// std::cout << actual << std::endl;
+			actual != ".." ? ++nb_regular : ++nb_back;
+			++nb_sub;
+			actual = "";
+		}
+		else if (*it != '/')
+			actual += *it;
+	}
+	if (actual.size() != 0) // case where there is no / at end
+	{
+		// std::cout << actual << std::endl;
+		actual != ".." ? ++nb_regular : ++nb_back;
+		++nb_sub;
+	}
+
+	// std::cout << nb_sub << " " << nb_regular << " " << nb_back << std::endl;
+	if (nb_sub == 0 && !(tested_url.size() > 0 && tested_url[0] == '/'))
+		return false;
+	if (tested_url.size() == 0 || tested_url[0] != '/')
+		return false;
+	if (nb_back > nb_regular)
+		return false;
+
+	return true;
+}
+
 std::vector<Server_conf> Webserv_conf::getServers() const
 {
 	return this->servers;
@@ -220,6 +265,9 @@ Webserv_conf::Webserv_conf(std::string filename)
 			tmpit = it;
 			while (it < words.size() && words[it].compare("=") != 0)
 				it++;
+			if (!verify_url(words[it + 1]))
+				throw std::invalid_argument("Invalid error page path");
+		
 			if (words[it].compare("=") == 0 && it + 2 < words.size() && words[it + 2].compare(";") == 0 && ((it - tmpit) > 1))
 			{
 				tmperrorval = words[it + 1].c_str();
@@ -248,6 +296,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			contextlocation = 1;
+			if (!verify_url(words[it + 1]))
+				throw std::invalid_argument("Invalid location path");
 			if ((it + 1) < words.size())
 			{
 				server.addRoute(Route(words[it + 1], 1));
@@ -262,8 +312,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0)
 			{
-				//if(!preq::verify_absolute_url(words[it + 1]))
-				//	throw std::invalid_argument("Invalid root path");
+				if (!verify_url(words[it + 1]))
+					throw std::invalid_argument("Invalid root path");
 				if (contextlocation == 0)
 					server.setName(words[it + 1]);
 				else
@@ -283,6 +333,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				it = it + 2;
 				while (it < words.size() && words[it].compare(";") != 0)
 				{
+					if (!verify_url(words[it]))
+						throw std::invalid_argument("Invalid index path");
 					if (contextlocation == 0)
 						server.addIndex(words[it]);
 					else
@@ -397,6 +449,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 				if (std::atoi(words[it + 1].c_str()) > 399 || std::atoi(words[it + 1].c_str()) < 300)
 					throw std::invalid_argument("Error parsing, provided redirection code is outside the range");
+				if (!verify_url(words[it + 2]))
+					throw std::invalid_argument("Invalid redirection path");
 				server.addRouteRedirection(std::atoi(words[it + 1].c_str()), words[it + 2], words[it + 3]);
 				it = it + 4;
 			}
@@ -423,7 +477,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				throw std::invalid_argument("Error parsing autoindex");
 			}
-
 			break;
 		case CGI_TIMEOUT_PARSING:
 			// location int seconds
@@ -593,6 +646,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered cgi_path outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
+				if (!verify_url(words[it + 2]))
+					throw std::invalid_argument("Invalid cgi path");
 				server.set_cgi_path(words[it + 2]);
 				it = it + 3;
 			}
@@ -615,8 +670,6 @@ Webserv_conf::Webserv_conf(std::string filename)
 			throw std::invalid_argument("A server has no location!");
 		if (this->servers[checkservers].getPort().empty())
 			this->servers[checkservers].addPort(DEFAULT_PORT);
-		if (this->servers[checkservers].getIndex().empty())
-			this->servers[checkservers].addIndex(DEFAULT_INDEX_SERVER);
 		checkservers++;
 	}
 

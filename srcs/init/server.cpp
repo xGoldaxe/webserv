@@ -231,7 +231,7 @@ void    Server::handle_responses()
                 }
 
                 if (this->_queue.front()->req->is_request_valid()) {
-                    this->_queue.front()->output(this->countHandledRequest());
+                    this->_queue.front()->output(this->_request_handled++);
                 }
                 delete this->_queue.front();
             }

@@ -34,7 +34,7 @@
 class Connection;
 #include "connection.hpp"
 
-#define BACKLOG 20
+#define BACKLOG 10000
 #define MAX_RUNNERS 20
 
 #include "class/response.hpp"

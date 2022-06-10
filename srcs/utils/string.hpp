@@ -15,3 +15,4 @@ std::string finish_by_only_one(std::string str, char c);
 std::string get_filename(std::string file_name);
 std::string get_extension(std::string file_name);
 std::string intToHex(int nb);
+int hexToInt(std::string hex);

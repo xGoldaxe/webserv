@@ -16,7 +16,7 @@ server
 
 	location /testduo
 	{
-		root ./duo ;
+		root /duo/ ;
 	}
 }
 

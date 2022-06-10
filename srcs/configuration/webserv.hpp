@@ -9,7 +9,6 @@
 #include <algorithm>
 
 #include "../class/route.hpp"
-//#include "../../request_parsing/srcs/verify_absolute_url.hpp"
 #include "server.hpp"
 
 class Server_conf;

@@ -17,17 +17,14 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	this->version = "HTTP/1.1";
 	if ( this->req->is_request_valid() )
 	{
-		std::string::size_type location_route_size = this->req->get_legacy_url().find_first_of(this->_route.get_location());
+		std::string path = this->req->get_legacy_url().substr(this->_route.get_location().size());
 
-		std::cout << this->_route.get_root() << std::endl;
-
-		if (location_route_size != this->req->get_legacy_url().npos) {
-			this->url = this->_route.get_root() + 
-				this->req->get_legacy_url().substr(location_route_size + this->_route.get_location().size() + 1);
+		if (path.find_last_of('/') == 0) {
+			this->url = this->_route.get_root() + path.substr(1);
 		} else {
-			this->url = this->_route.get_root() + 
-				this->req->get_legacy_url().substr(this->_route.get_location().size() + 1);
+			this->url = this->_route.get_root() + path;
 		}
+		std::cout << this->url << std::endl;
 	}
 	else
 	{
@@ -195,17 +192,14 @@ std::string Response::load_body(std::string client_ip)
 		this->body = cgi.exec(*this->req, client_ip);
 		this->add_header("Content-Type", "text/html");
 	} else {
-		try {
-			this->_return_body_type = BODY_TYPE_FILE;
-			this->_in_file.open(this->url.c_str(), std::ios::binary);
+		this->_return_body_type = BODY_TYPE_FILE;
+		this->_in_file.open(this->url.c_str(), std::ios::binary);
+		if (this->_in_file.fail())
+			throw HTTPCode404();
 
-			this->_in_file.seekg(0, this->_in_file.end);
-			this->_file_len = this->_in_file.tellg();
-			this->_in_file.seekg(0, this->_in_file.beg);
-		} catch (const std::exception &e) {
-			std::cerr << e.what() << std::endl;
-			/** @todo On peut renvoyer une erreur 404 ici! */
-		}
+		this->_in_file.seekg(0, this->_in_file.end);
+		this->_file_len = this->_in_file.tellg();
+		this->_in_file.seekg(0, this->_in_file.beg);
 	}
 	return this->body;
 }

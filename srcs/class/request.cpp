@@ -19,6 +19,12 @@ std::string Request::getMethod(void) const
 {
 	return (method);
 }
+
+std::string Request::get_query(void) const
+{
+	return (this->query);
+}
+
 std::string Request::getBody(void)
 {
 	return (body);
@@ -46,7 +52,7 @@ Route Request::get_route(void)
 
 bool Request::is_request_valid(void) const
 {
-	return request_validity;
+	return true /* request_validity */;
 }
 
 bool Request::is_allowed_method(const std::string &method) const
@@ -80,6 +86,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->legacy_url = rhs.legacy_url;
 	this->headers = rhs.headers;
 	this->body = rhs.body;
+	this->query = rhs.query;
 	this->version = rhs.version;
 	this->auto_index = rhs.auto_index;
 	this->route = rhs.route;
@@ -132,7 +139,7 @@ std::size_t	Request::store_length( std::string add_str )
 	this->body_length -= substring.size();
 
 	std::cout << "body part [" << substring << "]" << std::endl;
-	this->body_file->write( substring.c_str(), substring.size() );
+	// this->body_file->write( substring.c_str(), substring.size() );
 
 	if ( this->body_length == 0 )
 		this->fulfilled = true;
@@ -143,13 +150,13 @@ std::size_t	Request::store_length( std::string add_str )
 /* return the amount of char added to the body, may invalid the request */
 std::size_t	Request::feed_body( std::string add_str )
 {
-	if ( this->body_file == NULL )
-		this->body_file = this->create_unique_file( "memory/" );
-	if ( this->body_file == NULL )
-	{
-		this->set_status( 500, "Internal Server Error" );
-		return 0;
-	}
+	// if ( this->body_file == NULL )
+	// 	this->body_file = this->create_unique_file( "memory/" );
+	// if ( this->body_file == NULL )
+	// {
+	// 	this->set_status( 500, "Internal Server Error" );
+	// 	return 0;
+	// }
 
 	if ( add_str.size() == 0 )
 		return 0;

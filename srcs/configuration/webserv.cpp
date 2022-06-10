@@ -25,7 +25,7 @@ static int return_type_parse(std::string s)
 									  "cgi_extension", "body_max_size", "server",
 									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
-									  "host", "max_amount_of_request", "max_uri_size"};
+									  "host", "max_amount_of_request", "max_uri_size", "cgi_path"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -572,13 +572,27 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing max_uri_size");
 			}
 			break;
+		case CGI_PATH_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered cgi_path outside of location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				server.set_cgi_path(words[it + 2]);
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing cgi_path!");
+			}		
+			break;
 		default:
 			break;
 		}
 		it++;
 	}
 	this->servers.push_back(server);
-
 	// Assign default variables to servers if none defined in parsing
 	unsigned int checkservers = 0;
 	while (checkservers < this->servers.size())

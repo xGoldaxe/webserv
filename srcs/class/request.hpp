@@ -27,6 +27,7 @@ class Request
 		std::string								legacy_url;
 		std::map<std::string, std::string>		headers;
 		std::string								body;
+		std::string								query;
 		std::string								version;
 		bool									request_validity;
 		std::size_t								body_length;
@@ -55,11 +56,13 @@ class Request
 											std::string version );
 		void		fill_headers( std::map<std::string, std::string> headers );
 		void		fill_body( std::string body );
+		void		fill_query(std::string query);
 		/* fill from parsed req */
 
 		std::string	getMethod(void) const;
 		bool		is_allowed_method( const std::string &method ) const;
 		std::string getBody(void);
+		std::string get_query(void) const;
 		std::string get_legacy_url(void) const;
 		Route		get_route(void);
 		bool		is_request_valid(void) const;

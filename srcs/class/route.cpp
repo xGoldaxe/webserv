@@ -142,7 +142,8 @@ void Route::add_cgi_extension(std::string extension)
 }
 void Route::set_cgi_path(std::string path)
 {
-	this->cgi_path = path;
+	this->cgi_path.clear();
+	this->cgi_path.append(path);
 }
 
 void Route::add_error_page(int status_code, std::string error_message)
@@ -206,14 +207,11 @@ void Route::set_auto_index(bool auto_index)
 
 bool Route::is_in_extension(std::string extension)
 {
-	std::vector<std::string>::iterator it;
-	it = std::find(this->cgi_extension.begin(), this->cgi_extension.end(), extension);
-	if (it == this->cgi_extension.end())
-	{
-		if (*it != extension)
-			return false;
+	for (std::vector<std::string>::iterator it = this->cgi_extension.begin(); it != this->cgi_extension.end(); it++) {
+		if (*it == extension)
+			return true;
 	}
-	return true;
+	return false;
 }
 
 void Route::printRoute()

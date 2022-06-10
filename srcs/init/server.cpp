@@ -28,12 +28,12 @@ void    Server::read_connection( int client_socket )
 void    Server::add_response( Request * req, int fd )
 {
     Route route = find_route(this->_routes, req->get_legacy_url());
-    
+
     Response *res = new Response( fd, this->_index, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, route);
 
 	if ( req->is_request_valid() )
 	{
-		res->try_url();
+		res->try_url(this->_connections.at(fd).get_client_ip());
 		/* generic headers */
 		res->add_header( "Connection", "keep-alive" );
 		res->add_header("Keep-Alive", "timeout=5, max=10000");
@@ -107,7 +107,6 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
         if (inet_aton(this->_host.c_str(), &addr.sin_addr) == 0) {
             throw std::invalid_argument("Unexisting host");
         }
-
         this->_addrs.push_back(addr);
     }
 
@@ -295,12 +294,13 @@ void Server::handle_client()
             // ev.events = EPOLLET | EPOLLIN;
             ev.events = EPOLLIN;
             ev.data.fd = client_socket;
-            epoll_ctl(this->_poll_fds[i++], EPOLL_CTL_ADD, client_socket, &ev);
+            epoll_ctl(this->_poll_fds[i], EPOLL_CTL_ADD, client_socket, &ev);
 
             this->_connections.insert(
                 std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_body_size)));
             this->_socket_addr_eq[client_socket] = inet_ntoa(cli_addr.sin_addr);
         }
+        i++;
     }
 }
 

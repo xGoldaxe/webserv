@@ -11,9 +11,16 @@ std::string finish_by_only_one(std::string str, char c)
     return str;
 }
 
-std::string get_extension(std::string file_name)
+std::string get_extension(std::string path)
 {
-    int position = file_name.find_last_of(".");
+    std::string filename = get_filename(path);
+    int position = filename.find_last_of(".");
+    return filename.substr(position + 1);
+}
+
+std::string get_filename(std::string file_name)
+{
+    int position = file_name.find_last_of("/");
     return file_name.substr(position + 1);
 }
 

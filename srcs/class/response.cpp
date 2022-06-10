@@ -1,5 +1,29 @@
 #include "response.hpp"
 
+// trim from start
+inline static std::string ltrim(std::string s)
+{
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+									std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
+}
+
+// trim from end
+inline static std::string rtrim(std::string s)
+{
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+						 std::not1(std::ptr_fun<int, int>(std::isspace)))
+				.base(),
+			s.end());
+	return s;
+}
+
+// trim from end
+inline static std::string trim(std::string s)
+{
+	return ltrim(rtrim(s));
+}
+
 Response::Response(void)
 {
 }
@@ -17,20 +41,17 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	this->version = "HTTP/1.1";
 	if ( this->req->is_request_valid() )
 	{
-		std::string::size_type location_route_size = this->req->get_legacy_url().find_first_of(this->_route.get_location());
+		std::string path = this->req->get_legacy_url().substr(this->_route.get_location().size());
 
-		this->url = this->_route.get_root() + this->req->get_legacy_url();
-
-		if (location_route_size != this->req->get_legacy_url().npos) {
-			this->url = this->_route.get_root() + 
-				this->req->get_legacy_url().substr(this->req->get_legacy_url().find_first_of(this->_route.get_location())
-				+ this->_route.get_location().size());
+		if (path.find_first_of('/') == 0) {
+			this->url = this->_route.get_root() + path.substr(1);
+		} else {
+			this->url = this->_route.get_root() + path;
 		}
 	}
 	else
 	{
 		this->set_status( this->req->get_status().first, this->req->get_status().second );
-		std::cout << this->req->get_status().first << " " << this->req->get_status().second << std::endl;
 	}
 }
 
@@ -56,6 +77,7 @@ Response &   Response::operator=( Response const & rhs )
 
 	this->_return_body_type = rhs._return_body_type;
 	this->_file_len = rhs._file_len;
+	this->url = rhs.url;
 
 	return *this;
 }
@@ -180,7 +202,7 @@ bool Response::isFile()
 
 std::string auto_index_template(std::string url, std::string legacy_url);
 
-std::string Response::load_body()
+std::string Response::load_body(std::string client_ip)
 {
 	if (this->req->auto_index) {
 		this->add_header("Content-Type", "text/html");
@@ -188,21 +210,38 @@ std::string Response::load_body()
 	}
 	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
-		CGIManager cgi(this->_route.get_cgi_path(), "/home/restray/42/webserv/tests-42");
-		this->body = cgi.exec(*this->req);
-		this->add_header("Content-Type", "text/html");
-	} else {
-		try {
-			this->_return_body_type = BODY_TYPE_FILE;
-			this->_in_file.open(this->url.c_str(), std::ios::binary);
+		CGIManager cgi(this->_route.get_root(), "/bin/php-cgi" /** @todo this->_route.get_cgi_path() */, this->url);
+		this->body = cgi.exec(*this->req, client_ip);
 
-			this->_in_file.seekg(0, this->_in_file.end);
-			this->_file_len = this->_in_file.tellg();
-			this->_in_file.seekg(0, this->_in_file.beg);
-		} catch (const std::exception &e) {
-			std::cerr << e.what() << std::endl;
-			/** @todo On peut renvoyer une erreur 404 ici! */
+		std::istringstream resp(this->body);
+		std::string header;
+		while (std::getline(resp, header) && header != "\r") {
+			std::string::size_type index = header.find(':');
+			std::string name = trim(header.substr(0, index));
+			std::string value = trim(header.substr(index + 1));
+
+			if (name == "Status") {
+				index = value.find(' ');
+				this->set_status(atoi(value.substr(0, index).c_str()), value.substr(index + 1));
+			} else if (index != std::string::npos) {
+				this->add_header(name, value);
+			}
 		}
+		this->add_header("Content-Type", "text/html");
+
+		std::stringstream tmp;
+		tmp << resp.rdbuf();
+		this->body = header + tmp.str();
+
+	} else {
+		this->_return_body_type = BODY_TYPE_FILE;
+		this->_in_file.open(this->url.c_str(), std::ios::binary);
+		if (this->_in_file.fail())
+			throw HTTPCode404();
+
+		this->_in_file.seekg(0, this->_in_file.end);
+		this->_file_len = this->_in_file.tellg();
+		this->_in_file.seekg(0, this->_in_file.beg);
 	}
 	return this->body;
 }
@@ -275,14 +314,23 @@ std::string go_through_it_until(std::vector<std::string> values,
 		if (rule(*it, res))
 			return res;
 	}
-	throw HTTPCode404();
+	return "";
 }
 
 void	Response::check_file_url(void)
 {
+	
 	// this->route.auto_index = false; /** @todo NEED TO DO THIS! */
 	if ( /* this->route.auto_index && */ is_file( this->url ) == IS_FILE_FOLDER )
+	{
+		for (std::vector<std::string>::iterator it = this->_index.begin(); it != this->_index.end(); it++) {
+			if (is_file( this->url + *it ) == IS_FILE_NOT_FOLDER) {
+				this->url = this->url + *it;
+				return;
+			}
+		}
 		this->req->auto_index = true;
+	}
 	else if ( is_file( this->url ) == IS_FILE_NOT_FOLDER )
 	{
 		if ( !file_readable( this->url ) )
@@ -291,10 +339,11 @@ void	Response::check_file_url(void)
 	else
 	{
 		store_cat_test( true, finish_by_only_one( this->url, '/' ) );
-		this->url = go_through_it_until(
-			this->_index,
-			&cat_test
-		);
+		/** @todo Next line Break the URL on CGI PATH */
+		// this->url = go_through_it_until(
+		// 	this->_index,
+		// 	&cat_test
+		// );
 	}
 }
 
@@ -303,7 +352,7 @@ and if no conditions are check it goes to check the file to serve and throw an e
 /* each case work as block that can be interchanged ( except the last one ) */
 /* nous on a que deux cas a gerer, redirection et la fallback */
 
-void Response::try_url() {
+void Response::try_url(std::string client_ip) {
 	// Try any redirection
 	try {
 		Redirection redir = this->_route.return_redirect_url(this->req->get_legacy_url());
@@ -316,7 +365,7 @@ void Response::try_url() {
 	try {
 		this->check_file_url();
 		this->set_status( 200, "OK" );
-		this->load_body(); ////
+		this->load_body(client_ip); ////
 		http_header_content_type( *this->req, *this );
 	} catch (const HTTPError &e) {
 		this->set_status( e.getCode(), e.getDescription() );

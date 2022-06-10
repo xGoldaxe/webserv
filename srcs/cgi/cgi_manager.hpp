@@ -23,14 +23,15 @@ public:
     typedef std::vector<std::string> t_headers_list;
     typedef std::map<std::string, std::string> t_header_value;
 
-    CGIManager(std::string cgi_path, std::string path);
+    CGIManager(std::string root, std::string cgi_path, std::string path);
     ~CGIManager();
-    std::string    exec(Request &req);
+    std::string    exec(Request &req, std::string client_ip);
 
 private:
     t_header_value          _headers;
     char                    **_c_headers;
     std::string             _cgi_path;
+    std::string             _path;
 
     void addHeader(std::string name, std::string value);
     void computeEnvArray();

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <vector>
 #include <cstdlib>
+#include "utils/string.hpp"
 
 #include "webserv.hpp"
 
@@ -59,7 +60,7 @@ class Response
 		std::string	get_url(void);
 		int	add_header( std::string key, std::string value );
 		void set_status( int status_code, std::string msg );
-		std::string	load_body();
+		std::string	load_body(std::string client_ip);
 		std::string & error_body(void);
 		bool	isFile(void);
 		void output(const size_t req_id);
@@ -71,5 +72,5 @@ class Response
 		/* from req to res */
 		void	check_file_url(void);
 		bool	is_redirection( std::string &redir_str );
-		void	try_url();
+		void	try_url(std::string client_ip);
 };

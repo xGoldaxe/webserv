@@ -251,9 +251,13 @@ time_t	Connection::get_time( void ) const	{
 bool	Connection::get_is_dead(void) const {
 
 	return ( this->_is_dead );
-};
+}
 
 bool	Connection::get_is_sending_data(void) const {
 
 	return ( this->_is_sending_data );
-};
+}
+
+std::string Connection::get_client_ip(void) const {
+	return (this->_client_ip);
+}

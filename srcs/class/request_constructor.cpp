@@ -23,10 +23,21 @@ void store_data_from_raw_req(
 	if (!stored_req)
 		throw HTTPCode500();
 
-	stored_req->fill_start_line(
-		parsed_first_line[0],
-		parsed_first_line[1],
-		parsed_first_line[2]);
+	if (parsed_first_line[1].find_first_of('?') != std::string::npos) {
+		std::string filename = parsed_first_line[1].substr(0, parsed_first_line[1].find_first_of('?'));
+		std::string query = parsed_first_line[1].substr(parsed_first_line[1].find_first_of('?') + 1);
+
+		stored_req->fill_start_line(
+			parsed_first_line[0],
+			filename,
+			parsed_first_line[2]);
+		stored_req->fill_query(query);
+	} else {
+		stored_req->fill_start_line(
+			parsed_first_line[0],
+			parsed_first_line[1].substr(0, parsed_first_line[1].find_first_of('?')),
+			parsed_first_line[2]);
+	}
 	stored_req->fill_headers(headers);
 }
 
@@ -42,6 +53,11 @@ void Request::fill_headers(std::map<std::string, std::string> headers)
 {
 
 	this->headers = headers;
+}
+
+void Request::fill_query(std::string query)
+{
+	this->query = query;
 }
 
 void Request::fill_body(std::string body)

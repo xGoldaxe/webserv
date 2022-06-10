@@ -21,25 +21,18 @@ inline static std::string   read_fd(int fd)
 	return res;
 }
 
-CGIManager::CGIManager(std::string cgi_path, std::string path)
+CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path)
 {
-    /** @todo change this */
-    this->addHeader("PATH_INFO", path);
-
     this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");
-    this->addHeader("QUERY_STRING", "");
-    this->addHeader("REMOTE_ADDR", "");
-    this->addHeader("REQUEST_METHOD", "");
-    this->addHeader("SCRIPT_NAME", "");
-    this->addHeader("SERVER_NAME", "localhost");
-    this->addHeader("SERVER_PORT", "3000");
+    this->addHeader("SCRIPT_FILENAME", path);
+    this->addHeader("DOCUMENT_ROOT", root);
     this->addHeader("SERVER_PROTOCOL", "HTTP/1.1");
-    this->addHeader("SERVER_SOFTWARE", "webserv-1.0");
+    this->addHeader("SERVER_SOFTWARE", DEFAULT_SERVER_NAME);
     this->addHeader("REDIRECT_STATUS", "200");
-    this->addHeader("PATH_INFO", cgi_path);
-    this->addHeader("SCRIPT_FILENAME", "");
+    this->addHeader("PHP_SELF", path);
 
     this->_cgi_path = cgi_path;
+    this->_path = path;
 
     this->_c_headers = new char* [1];
     this->_c_headers[0] = NULL;
@@ -54,15 +47,36 @@ CGIManager::~CGIManager()
     this->cleanCHeaders();
 }
 
-std::string CGIManager::exec(Request &req)
+std::string CGIManager::exec(Request &req, std::string client_ip)
 {
+    std::string addr_port = req.get_header_value("Host");
+
+    std::string addr = addr_port.substr(0, addr_port.find(":"));
+    std::string port = addr_port.substr(addr_port.find(":") + 1);
+
+    this->addHeader("PATH_INFO", get_filename(this->_path));
+    this->addHeader("PATH_TRANSLATED", req.get_legacy_url());
+    this->addHeader("SCRIPT_NAME", req.get_legacy_url());
     this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
-    this->addHeader("QUERY_STRING", req.get_legacy_url());
-    this->addHeader("REMOTE_ADDR", "127.0.0.1");
+    if (req.getMethod() == "GET") {
+        this->addHeader("QUERY_STRING", req.get_query());
+    } else {
+        this->addHeader("QUERY_STRING", req.getBody());
+    }
+    this->addHeader("REMOTE_ADDR", client_ip);
     this->addHeader("REQUEST_METHOD", req.getMethod());
-    this->addHeader("SCRIPT_NAME", req.get_route().get_cgi_path());
-    this->addHeader("PATH_INFO", req.get_route().get_root());
-    /** @todo this->addHeader("SCRIPT_FILENAME", req.getUrl()); **/
+    this->addHeader("SERVER_NAME", addr);
+    this->addHeader("SERVER_PORT", port);
+
+    
+    this->addHeader("HTTP_ACCEPT", req.get_header_value("Accept"));
+    this->addHeader("HTTP_ACCEPT_CHARSET", req.get_header_value("Accept-Charset"));
+    this->addHeader("HTTP_ACCEPT_ENCODING", req.get_header_value("Accept-Encoding"));
+    this->addHeader("HTTP_ACCEPT_LANGUAGE", req.get_header_value("Accept-Language"));
+    this->addHeader("HTTP_FORWARDED", req.get_header_value("Forwarded"));
+    this->addHeader("HTTP_USER_AGENT", req.get_header_value("User-Agent"));
+    this->addHeader("HTTP_HOST", addr_port);
+    this->addHeader("HTTP_COOKIE", req.get_header_value("Cookie"));
 
     this->computeEnvArray();
 
@@ -71,22 +85,28 @@ std::string CGIManager::exec(Request &req)
     int pipe_fd[2];
     if (pipe(pipe_fd) == -1)
         throw HTTPCode500();
+    
+    int pipe_in_fd[2];
+    if (pipe(pipe_in_fd) == -1)
+        throw HTTPCode500();
 
-    char *arg;
-    string_to_char(this->_cgi_path, &arg);
+    char *exec_path;
+    string_to_char(this->_cgi_path, &exec_path);
     char *args[] = {
-        arg,
+        exec_path,
         NULL
     };
 
     int pid = fork();
     if (pid == -1) {
-        delete [] arg;
+        delete [] exec_path;
         throw HTTPCode500();
     }
     if (pid == 0)
     {
         close(pipe_fd[0]);
+        close(pipe_in_fd[1]);
+        dup2(pipe_in_fd[0], STDIN_FILENO);
         dup2(pipe_fd[1], STDOUT_FILENO);
 
         execve(args[0], args, this->_c_headers);
@@ -94,25 +114,26 @@ std::string CGIManager::exec(Request &req)
     }
     else
     {
+        std::string to_write = req.getBody();
+        std::cout << "CGI Parameters: " << to_write << std::endl;
+        if (write(pipe_in_fd[1], to_write.c_str(), to_write.size()) < 0) {
+            std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
+        }
+        close(pipe_in_fd[1]);
         close(pipe_fd[1]);
-        result = read_fd(pipe_fd[0]);
-
-        #ifdef DEBUG_FULL
-            std::cout << "request content: " << result << std::endl;
-        #endif
+        while (1) {
+            char temp;
+            if (read(pipe_fd[0], &temp, 1) < 1) break;
+            result += temp;
+        }
 
         int status = 0;
         waitpid(pid, &status, 0);
 
         close(pipe_fd[0]);
-
-        if (status != 0) {
-            std::cerr << "500: \"" << result << "\"" << std::endl;
-            throw HTTPCode500();
-        }
     }
 
-    delete [] arg;
+    delete [] exec_path;
     return result;
 }
 

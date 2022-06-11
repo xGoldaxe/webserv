@@ -673,7 +673,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		checkservers++;
 	}
 
-	// Duplicate server_name and duplicate port check
+	// Duplicate server_host and duplicate port check
 	unsigned int i_checkservdupe = 0;
 	unsigned int j_checkservdupe = 1;
 	unsigned int i_checkportdupe = 0;
@@ -682,7 +682,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	{
 		while (j_checkservdupe < this->servers.size())
 		{
-			if (this->servers[i_checkservdupe].getName().compare(this->servers[j_checkservdupe].getName()) == 0)
+			if (this->servers[i_checkservdupe].getHost().compare(this->servers[j_checkservdupe].getHost()) == 0)
 			{
 				while (i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
 				{

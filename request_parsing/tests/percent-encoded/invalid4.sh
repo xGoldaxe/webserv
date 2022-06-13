@@ -4,7 +4,7 @@ ERROR_RES="error 400, Bad Request\n"
 
 # request
 echo -en "\
-GET /test%zz HTTP/1.1\r\n\
+GET /test%z HTTP/1.1\r\n\
 \r\n\
 "
 

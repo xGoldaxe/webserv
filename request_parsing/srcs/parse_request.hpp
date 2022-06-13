@@ -21,29 +21,6 @@ namespace	preq {
 		return ( str.size() >= check_str_size_memory<size_t>( false ) );
 	}
 
-	bool	check_line( std::string str ) {
-
-		return ( str.size() >= 2 
-					&& str[ str.size() - 1 ] == '\n'
-					&& str[ str.size() - 2] == '\r'
-				);
-	}
-
-	bool	check_and_trunc_line( std::string *line ) {
-
-		if ( check_line( *line ) )
-		{
-			*line = line->substr( 0, line->size() - 2 );
-			return true;
-		}
-		return false;
-	}
-
-	bool	is_space( char c ) {
-
-		return ( c == ' ' || c == '\t' );
-	}
-
 	std::vector<std::string>	parse_start_line( std::string raw_line ) {
 
 		if ( raw_line.size() > 0 && (raw_line.at(0) == ' ' || raw_line.at( raw_line.size() - 1 ) == ' ') )

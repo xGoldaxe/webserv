@@ -102,7 +102,7 @@ void	Connection::queue_iteration()
 		if ( this->check_state() == false )
 			break ;
 		// we can create a request
-		if ( this->is_ready() )
+		if ( this->is_ready() && this->_is_init == false )
 		{
 			this->init_request();
 			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );

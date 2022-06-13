@@ -52,7 +52,7 @@ Route Request::get_route(void)
 
 bool Request::is_request_valid(void) const
 {
-	return true /* request_validity */;
+	return request_validity;
 }
 
 bool Request::is_allowed_method(const std::string &method) const

@@ -248,7 +248,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				int port = std::atoi(words[it + 2].c_str());
 				std::numeric_limits<unsigned short> range;
-				if (port < 0 || port > range.max())
+				if (port < 1024 || port > range.max())
 					throw Webserv_conf::OutOfRangePort();
 				server.addPort((unsigned short)port);
 				it = it + 3;

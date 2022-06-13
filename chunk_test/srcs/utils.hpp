@@ -60,4 +60,17 @@ std::vector<std::string>	read_until( std::string & data, bool (*rule)(std::strin
 	return res;
 }
 
+std::string test_through_str( std::string &str, bool (*rule)(std::string) )
+{
+	std::string s;
+
+	for ( std::string::iterator it = str.begin(); it != str.end(); ++it )
+	{
+		s += *it;
+		if ( rule( s ) )
+			break ;
+	}
+	return s;
+}
+
 #endif

@@ -247,10 +247,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				int port = std::atoi(words[it + 2].c_str());
-				std::numeric_limits<short> range;
+				std::numeric_limits<unsigned short> range;
 				if (port < 0 || port > range.max())
 					throw Webserv_conf::OutOfRangePort();
-				server.addPort(port);
+				server.addPort((unsigned short)port);
 				it = it + 3;
 			}
 			else

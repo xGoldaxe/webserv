@@ -2,10 +2,11 @@
 
 #include <iostream>
 #include <string>
-#include "../../srcs/errors/http_code.hpp"
-#include "utils.hpp"
+#include "../errors/http_code.hpp"
+#include "../utils/string.hpp"
+#include "../utils/utils.hpp"
 
-class Chunk_reader
+class Chunk_buffer
 {
 	protected:
 		bool			valid;
@@ -19,7 +20,7 @@ class Chunk_reader
 
 	public:
 		/* coplien */
-		Chunk_reader( void )
+		Chunk_buffer( void )
 		{
 			valid = false;
 			head_valid = false;
@@ -29,16 +30,16 @@ class Chunk_reader
 			MAX_HEAD_SIZE = 0;
 			MAX_BODY_SIZE = 0;
 		};
-		~Chunk_reader( void ){};
+		~Chunk_buffer( void ){};
 		// #ifdef DEBUG
-			Chunk_reader( bool valid, bool head_valid, std::string head, std::string body, size_t remain )
+			Chunk_buffer( bool valid, bool head_valid, std::string head, std::string body, size_t remain )
 			:	valid( valid ),
 				head_valid( head_valid ),
 				head( head ),
 				body( body ),
 				remain( remain )
 			{}
-			bool	operator==( Chunk_reader & rhs )
+			bool	operator==( Chunk_buffer & rhs )
 			{
 				return (
 					this->valid == rhs.valid &&

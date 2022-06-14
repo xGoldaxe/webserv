@@ -4,7 +4,7 @@
 #include <string>
 #include <cstring>
 
-#include "string.hpp"
+#include "../utils/string.hpp"
 
 class HTTPError : public std::exception
 {
@@ -97,6 +97,13 @@ class HTTPCode400 : public HTTPCode4XX
 class HTTPCode414 : public HTTPCode4XX
 {
     public:
-    HTTPCode414() throw() : HTTPCode4XX(414, "URI Too Long")
+    HTTPCode414() throw() : HTTPCode4XX(14, "URI Too Long")
+    {}
+};
+
+class HTTPCode413 : public HTTPCode4XX
+{
+    public:
+    HTTPCode413() throw() : HTTPCode4XX(13, "Payload Too Large")
     {}
 };

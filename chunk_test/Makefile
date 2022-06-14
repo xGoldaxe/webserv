@@ -1,7 +1,9 @@
 SRCS	=	main.cpp \
 			all_tests.cpp \
-			outside/http_code.cpp \
-			outside/string.cpp \
+			utils/file.cpp \
+			utils/string.cpp \
+			utils/utils.cpp \
+			utils/http_code.cpp \
 
 OBJS	=	${SRCS:%.cpp=./.build/%.o}
 

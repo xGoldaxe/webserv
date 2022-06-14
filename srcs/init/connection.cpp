@@ -1,12 +1,12 @@
 #include "connection.hpp"
 #include "unistd.h"
 
-#define ONREAD_TIMEOUT 20
-#define IDLE_TIMEOUT 20
-#define MAX_SIZE 50000
+#define ONREAD_TIMEOUT 45
+#define IDLE_TIMEOUT 60
+#define MAX_SIZE 5000
 #define MAX_REQUESTS 5
 /*************************
-* @erroer case functions
+* @error case functions
 * ***********************/
 bool	Connection::is_timeout(void)
 {
@@ -111,8 +111,7 @@ void	Connection::queue_iteration()
 		// add the data to the body, only add what is required and store the remaining data
 		if ( this->_is_init && this->is_invalid_req() == false )
 		{
-			std::size_t read_until = this->_req->feed_body( this->_raw_data ); // may invalid the request
-			this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
+			this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
 		}
 
 		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )

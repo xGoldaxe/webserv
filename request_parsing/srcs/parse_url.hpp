@@ -2,6 +2,7 @@
 #include <iterator>
 #include "../../srcs/errors/http_code.hpp"
 #include "../../srcs/utils/string.hpp"
+#include "../../srcs/utils/utils.hpp"
 #define MAX_URL_SIZE 5000
 
 namespace preq {

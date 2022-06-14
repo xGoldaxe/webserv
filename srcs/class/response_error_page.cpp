@@ -289,8 +289,7 @@ std::string &Response::error_body(void)
         std::map<int, std::string>::iterator status_page_it = errors_pages.find(this->status_code);
         if (status_page_it != errors_pages.end()) {
             std::string filename = status_page_it->second;
-            if (usable_file(filename) && !this->_is_custom_error)
-            {
+            if (usable_file(filename) && !this->_is_custom_error) {
                 this->_return_body_type = BODY_TYPE_FILE;
                 this->body = filename;
                 this->_is_custom_error = true;
@@ -301,16 +300,12 @@ std::string &Response::error_body(void)
             } else {
                 std::cerr << "[Config][WARNING] Error page " << this->get_str_code() << " is missing." << std::endl;
             }
+        } else {
+            this->_return_body_type = BODY_TYPE_STRING;
+            this->body = error_template(this->get_str_code(), this->status_message);
+            this->_is_custom_error = true;
         }
-        
-        if (this->_is_custom_error) {
-            std::cerr << "[Config][WARNING] Error page " << this->get_str_code() << " is missing." << std::endl;
-        }
-        this->_return_body_type = BODY_TYPE_STRING;
-        this->set_status(500, "Internal Server Error");
-        this->body = error_template(this->get_str_code(), this->status_message);
-        this->_is_custom_error = true;
-    }
+    }   
     catch (const std::exception &e)
     {
         if (this->_is_custom_error) {

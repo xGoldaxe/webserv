@@ -83,7 +83,9 @@ Response &   Response::operator=( Response const & rhs )
 }
 
 Response::~Response(void)
-{}
+{
+	delete this->req;
+}
 
 void Response::output(const size_t req_id)
 {
@@ -124,6 +126,11 @@ std::string Response::get_url(void)
 	return this->url;
 }
 
+size_t Response::getFileSize(void)
+{
+	return this->_file_len;
+}
+
 int Response::send()
 {
 	/* add some headers */
@@ -132,13 +139,23 @@ int Response::send()
 	std::string headers_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
 		headers_response += "\n" + it->first + ": " + it->second;
-	headers_response += "\r\n\n";
+	headers_response += "\r\n\r\n";
 
-	if (this->_return_body_type == BODY_TYPE_STRING && this->body.size() < this->_body_max_size) {
+	if (this->req->getMethod() == "HEAD")
+	{
+		// headers_response += "\r\n";
+	}
+	else if (this->_return_body_type == BODY_TYPE_STRING && this->body.length() < this->_body_max_size)
+	{
 		headers_response += this->body + "\r\n";
 	}
 
-	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.size(), 0);
+	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
+
+	if (this->req->getMethod() == "HEAD" || (this->_return_body_type == BODY_TYPE_STRING && this->body.length() < this->_body_max_size))
+	{
+		return (-1);
+	}
 	return (status);
 }
 
@@ -147,7 +164,7 @@ size_t	Response::get_size_next_chunk()
 	if (this->_return_body_type == BODY_TYPE_FILE) {
 		return std::min<size_t>(this->_body_max_size, this->_file_len);
 	}
-	return std::min<size_t>(this->_body_max_size, this->body.size());
+	return std::min<size_t>(this->_body_max_size, this->body.length());
 }
 
 /**
@@ -161,11 +178,11 @@ int		Response::send_chunk()
 {
 	if (this->_return_body_type == BODY_TYPE_STRING)
 	{
-		std::string response_body(this->body, 0, std::min<size_t>(this->_body_max_size, this->body.size()));
-		std::string response_content = intToHex(response_body.size()) + "\r\n" + response_body + "\r\n";
+		std::string response_body(this->body, 0, std::min<size_t>(this->_body_max_size, this->body.length()));
+		std::string response_content = intToHex(response_body.length()) + "\r\n" + response_body + "\r\n";
 		this->body.erase(0, this->_body_max_size);
-		::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
-		return this->body.size();
+		::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
+		return this->body.length();
 	}
 	else if (this->_return_body_type == BODY_TYPE_FILE)
 	{
@@ -180,7 +197,7 @@ int		Response::send_chunk()
 
 		std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
 
-		::send(this->client_socket, response_content.c_str(), response_content.size(), 0);
+		::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
 
 		this->_file_len -= transmit_size;
 
@@ -190,7 +207,7 @@ int		Response::send_chunk()
 	}
 	else
 	{
-		::send(this->client_socket, this->body.c_str(), this->body.size(), 0);
+		::send(this->client_socket, this->body.c_str(), this->body.length(), 0);
 		return 0;
 	}
 }

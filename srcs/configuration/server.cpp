@@ -121,6 +121,11 @@ void Server_conf::setBodyMaxSize(int body_max_size)
 	this->body_max_size = body_max_size;
 }
 
+void Server_conf::setBodyMaxSizeRoute(int body_max_size)
+{
+	this->routes.back().setBodyMaxSize(body_max_size);
+}
+
 void Server_conf::setRoot(std::string root)
 {
 	this->root.clear();

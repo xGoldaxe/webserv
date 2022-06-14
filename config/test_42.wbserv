@@ -1,0 +1,40 @@
+server
+{
+	server_name = test ;
+	host = 0.0.0.0 ;
+	listen = 3000 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	location /
+	{
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tests-42/ ;
+		methods = GET ;
+	}
+	location /put_test
+	{
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tmp/ ;
+		methods = PUT ;
+	}
+	location /post_body
+	{ 
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tests-42/ ;
+        body_max_size = 100 ;
+        methods = POST ;
+
+		enable_cgi on ; 
+		cgi_extension = bla ;
+		cgi_timeout = 10 ;
+		cgi_path = /mnt/nfs/homes/tbelhomm/Desktop/webserv/ubuntu_cgi_tester ;
+	}
+	location /directory
+	{
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tests-42/YoupiBanane/ ;
+		methods = GET ;
+        index = /youpi.bad_extension ;
+	}
+}

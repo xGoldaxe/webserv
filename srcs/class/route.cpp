@@ -132,6 +132,11 @@ std::string Route::get_cgi_path(void)
 	return this->cgi_path;
 }
 
+int Route::getBodyMaxSize(void)
+{
+	return this->body_max_size;
+}
+
 std::map<int, std::string> Route::get_error_pages(void) const
 {
 	return this->error_pages;
@@ -208,6 +213,11 @@ void Route::set_file_limit(int file_limit)
 void Route::set_auto_index(bool auto_index)
 {
 	this->auto_index = auto_index;
+}
+
+void Route::setBodyMaxSize(int body_max_size)
+{
+	this->body_max_size = body_max_size;
 }
 
 bool Route::is_in_extension(std::string extension)
@@ -294,6 +304,8 @@ void Route::printRoute()
 	}
 
 	std::cout << "Auto Index : " << this->auto_index << std::endl;
+
+	std::cout << "Route Body Size : " << this->body_max_size<< std::endl;
 
 	std::cout << "CGI Enabled : " << this->cgi_enable << std::endl;
 

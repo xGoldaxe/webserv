@@ -357,7 +357,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				it = it + 2;
 				while (it < words.size() && words[it].compare(";") != 0)
 				{
-					if (words[it].compare("GET") != 0 && words[it].compare("POST") != 0 && words[it].compare("DELETE") != 0 && words[it].compare("HEAD") != 0)
+					if (words[it].compare("GET") != 0 && words[it].compare("POST") != 0 && words[it].compare("DELETE") != 0 && words[it].compare("HEAD") != 0 && words[it].compare("PUT") != 0)
 					{
 						throw std::invalid_argument("Error parsing Methods! This is invalid: " + words[it]);
 					}
@@ -413,13 +413,16 @@ Webserv_conf::Webserv_conf(std::string filename)
 			// server int
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
-			if (contextlocation)
-				throw std::invalid_argument("Error parsing, encountered body_max_size in a location");
+
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing body_max_size, must be 1 or greater");
-				server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
+				if (contextlocation)
+					server.setBodyMaxSizeRoute(std::atoi(words[it + 2].c_str()));
+				else
+					server.setBodyMaxSize(std::atoi(words[it + 2].c_str()));
+
 				it = it + 3;
 			}
 			else

@@ -47,6 +47,7 @@ class Server_conf
 		Server_conf(int emp);
 
 
+		void 							setBodyMaxSizeRoute(int body_max_size);
 		int								getReadTimeOut() const;
 		int								getServerBodySize() const;
 		int								getClientHeaderSize() const;

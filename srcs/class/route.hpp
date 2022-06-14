@@ -35,7 +35,7 @@ class Route
 		int									cgi_timeout;
 		bool								send_file;
 		int									file_limit;
-
+		int 								body_max_size;
 
 	public:
 		Route( void );
@@ -57,7 +57,9 @@ class Route
 		std::vector<std::string>			get_index(void) const;
 		std::string							get_location(void);
 		std::string 						get_root(void);
-		std::vector<std::string> 			get_methods(void) const;
+		int 								getBodyMaxSize(void);
+		void 								setBodyMaxSize(int body_max_size);
+		std::vector<std::string> get_methods(void) const;
 		std::vector<Redirection>			&get_redirections(void);
 		bool								get_cgi_enable(void);
 		std::vector<std::string>			get_cgi_extension(void);

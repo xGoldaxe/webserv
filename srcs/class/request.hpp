@@ -72,7 +72,7 @@ class Request
 
 		std::size_t	feed_body( std::string add_str );
 		bool		is_fulfilled(void) const;
-		void		try_construct( std::string raw_request, Webserv_conf conf );
+		void		try_construct(std::string raw_request, std::vector<Route> routes);
 		void		check_file_url(void);
 
 		void							set_status( int status_code, std::string error_message );

@@ -3,6 +3,7 @@
 #include <string>
 #include <ctime>
 #include <queue>
+#include "class/route.hpp"
 
 class Request;
 class Response;
@@ -37,11 +38,11 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	read_data();
-		void	queue_iteration();
+		void	queue_iteration(std::vector<Route> routes);
 		bool	check_state();
 		void	process();
 		void	soft_clear();
-		bool	init_request();
+		bool	init_request(std::vector<Route> routes);
 		Request	*extract_request();
 		void	end_send();
 		/* error case */

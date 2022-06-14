@@ -69,16 +69,15 @@ void Request::fill_body(std::string body)
 // change it through the config
 #define MAX_BUFFER_SIZE 16384
 #define TIMEOUT_TIME 3
-void	Request::try_construct( std::string raw_request, Webserv_conf conf) 
+void	Request::try_construct( std::string raw_request, std::vector<Route> routes) 
 {
 	try
 	{
-		this->conf = conf;
 		store_req(true, this);
 
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
-		this->route = find_route(conf.getServers()[0].getRoutes(), this->legacy_url);
+		this->route = find_route(routes, this->legacy_url);
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */

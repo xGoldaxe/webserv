@@ -64,7 +64,7 @@ void  Server::trigger_queue( void )
 {
 	for ( std::map<int, Connection>::iterator it = this->_connections.begin(); it != this->_connections.end(); ++it )
 	{
-        it->second.queue_iteration();
+        it->second.queue_iteration(this->_routes);
         Request *req = it->second.extract_request();
         if ( req != NULL )
             this->add_response( req, it->first );

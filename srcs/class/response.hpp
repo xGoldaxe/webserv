@@ -27,7 +27,6 @@ class Response
 	protected:
 		std::string								version;
 		std::map<std::string, std::string>		headers;
-		Request									*req;
 		Request									cpy_req;
 		int										_return_body_type;
 		std::ifstream							_in_file;
@@ -47,6 +46,7 @@ class Response
 		std::string		status_message;
 		std::string		body;
 		int				client_socket;
+		Request			*req;
 
 		/* typedef */
 		typedef std::map<std::string, std::string> headers_t;
@@ -62,7 +62,8 @@ class Response
 		void set_status( int status_code, std::string msg );
 		std::string	load_body(std::string client_ip);
 		std::string & error_body(void);
-		bool	isFile(void);
+		bool isFile(void);
+		size_t getFileSize(void);
 		void output(const size_t req_id);
 		int send(void);
 		int send_chunk(void);

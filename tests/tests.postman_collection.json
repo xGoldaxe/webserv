@@ -1,0 +1,656 @@
+{
+	"info": {
+		"_postman_id": "76fb9266-b331-4159-80c4-a3f2056c1651",
+		"name": "Webserv tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Locations & Index",
+			"item": [
+				{
+					"name": "Root index",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is index.html\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"WEBSERVER FOR 42\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Root index.html",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is index.html\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"WEBSERVER FOR 42\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/index.html",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"index.html"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Subfolder autoindex",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is auto index\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Index of /sub/\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:3784/sub/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3784",
+							"path": [
+								"sub",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Root autoindex",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is auto index\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"<h1>Index of /</h1>\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:33350/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "33350",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Root autoindex index.html",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is index.html\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"WEBSERVER FOR 42\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:3784/index.html",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3784",
+							"path": [
+								"index.html"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 root",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/qjbrgb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"qjbrgb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 subfolders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/sub/test/unexisting/unexisting/unexisting/unexisting/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sub",
+								"test",
+								"unexisting",
+								"unexisting",
+								"unexisting",
+								"unexisting",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CGI",
+			"item": [
+				{
+					"name": "CGI PHP Works",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"PHP Configuration details\");",
+									"});",
+									"",
+									"pm.test(\"Content-Type is HTML\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.contain('text/html');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3784/php/index.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3784",
+							"path": [
+								"php",
+								"index.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CGI Path Info & Query",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Path Info: |/path/info/pathinfo.php|\");",
+									"    pm.expect(pm.response.text()).to.include(\"Query String: |this=is&a=query|\");",
+									"    pm.expect(pm.response.text()).to.include(\"Path: /php/pathinfo.php\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3784/php/pathinfo.php/path/info/pathinfo.php?this=is&a=query",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3784",
+							"path": [
+								"php",
+								"pathinfo.php",
+								"path",
+								"info",
+								"pathinfo.php"
+							],
+							"query": [
+								{
+									"key": "this",
+									"value": "is"
+								},
+								{
+									"key": "a",
+									"value": "query"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CGI PHP 500",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.response.to.have.status(500);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is HTML\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.contain('text/html');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:3784/php/error.php",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "3784",
+							"path": [
+								"php",
+								"error.php"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Headers",
+			"item": [
+				{
+					"name": "Host Missing",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400 (missing Host)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"host": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Content Length Negative",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Length",
+								"value": "-12",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Content Length Unexisting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 411\", function () {",
+									"    pm.response.to.have.status(411);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Length",
+								"value": "",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Content Length Too big",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Length",
+								"value": "10000000000000000000000000000",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Header too big",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 431\", function () {",
+									"    pm.response.to.have.status(431);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "toobig",
+								"value": "toobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobigtoobig",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3000/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "URI Too Long",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 414\", function () {",
+									"    pm.response.to.have.status(414);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/qogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegno",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"qogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegnoqogogqngqneignqegionqegoinqegoiqnegoiqnegqoiegnqoiegnqoiegnqoiegno"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

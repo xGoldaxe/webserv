@@ -1,3 +1,5 @@
+#pragma once
+
 #include "req_parse.hpp"
 #include "../../srcs/errors/http_code.hpp"
 #define MAX_URL_SIZE 5000

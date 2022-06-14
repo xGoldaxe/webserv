@@ -33,5 +33,5 @@ then
     done
 else
     echo "Launching single tests with logs."
-    (cd $1 ; sudo ./server.sh ; echo "//////////////////// Test avec webserv"; ./client.sh 3000; echo -e "\n//////////////////// Test avec nginx"; ./client.sh) > $1.log
+    (cd $1 ; ./client.sh 3000; echo -e "\n//////////////////// Test avec nginx"; ./client.sh) > $1.log
 fi

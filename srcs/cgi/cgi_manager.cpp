@@ -53,7 +53,6 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     this->addHeader("SERVER_NAME", addr);
     this->addHeader("SERVER_PORT", port);
 
-    
     this->addHeader("HTTP_ACCEPT", req.get_header_value("Accept"));
     this->addHeader("HTTP_ACCEPT_CHARSET", req.get_header_value("Accept-Charset"));
     this->addHeader("HTTP_ACCEPT_ENCODING", req.get_header_value("Accept-Encoding"));

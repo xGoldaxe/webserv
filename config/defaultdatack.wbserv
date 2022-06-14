@@ -2,7 +2,7 @@ server
 {
 	server_name = test ;
 	host = 0.0.0.0 ;
-	listen = 3000 ;
+	listen = 1024 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
@@ -12,7 +12,7 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
 		error_page 404 = /404.html ;
 		methods = POST GET DELETE ;
@@ -24,7 +24,7 @@ server
 	}
 	location /php
 	{ 
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
 		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
@@ -37,7 +37,7 @@ server
 {
 	server_name = test ;
 	host = 127.0.0.1 ;
-	listen = 3784 ;
+	listen = 3000 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
@@ -47,7 +47,7 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
 		error_page 404 = /404.html ;
 		methods = POST GET DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
@@ -59,7 +59,7 @@ server
 	}
 	location /php
 	{ 
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
 		index = ;
 		enable_cgi on ; 
 		cgi_extension = php ;

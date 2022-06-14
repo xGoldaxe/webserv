@@ -37,22 +37,27 @@ void    Server::add_response( Request * req, int fd )
 		/* generic headers */
 		res->add_header( "Connection", "keep-alive" );
 		res->add_header("Keep-Alive", "timeout=5, max=10000");
-        std::cout << "this request is good" << std::endl;
 	}
     else
     {
 		res->error_body();
-        std::cout << "this request is bad" << std::endl;
     }
 
     http_header_date( *req, *res );
 	http_header_server( *req, *res );
 
-    res->send();
-
-    this->_queue.push(res);
-    delete req;
-    req = NULL;
+    int shouldQueue = res->send();
+    if (shouldQueue >= 0) {
+        this->_queue.push(res);
+    } else {
+        std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
+        if (it != this->_connections.end()) {
+            it->second.end_send();
+        }
+        res->output(this->_request_handled++);
+        delete req;
+        req = NULL;
+    }
 }
 
 void  Server::trigger_queue( void )
@@ -62,10 +67,7 @@ void  Server::trigger_queue( void )
         it->second.queue_iteration();
         Request *req = it->second.extract_request();
         if ( req != NULL )
-        {
-            std::cout << "sent to transaction!" << std::endl;
             this->add_response( req, it->first );
-        }
     }
 }
 
@@ -95,9 +97,9 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
                                                     _server_body_size(serv_conf.getServerBodySize()),
                                                     _client_header_size(serv_conf.getClientHeaderSize())
 {
-    std::vector<short> ports = serv_conf.getPort();
+    std::vector<unsigned short> ports = serv_conf.getPort();
 
-    for (std::vector<short>::iterator it = ports.begin(); it != ports.end(); it++)
+    for (std::vector<unsigned short>::iterator it = ports.begin(); it != ports.end(); it++)
     {
         s_server_addr_in addr;
         std::memset(&addr, 0, sizeof(addr));
@@ -177,6 +179,7 @@ void Server::init_connection()
         this->_socket_fds.push_back(sock);
         bool set_opt = 1;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+        setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int));
 
         this->_bind_port(sock, *it);
 
@@ -217,20 +220,22 @@ void    Server::handle_responses()
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";
-                ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
+                ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
 
                 std::cout << "fully sent!" << std::endl;
                 //UGLY
                 std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
                 if ( it != this->_connections.end() )
                 {
+                    it->second.end_send();
                     if ( it->second.get_is_dead() == true )
                         this->close_connection( it->first );
-                    else
-                        it->second.end_send();
                 }
 
-                this->_queue.front()->output(this->countHandledRequest());
+                if (this->_queue.front()->req->is_request_valid())
+                {
+                    this->_queue.front()->output(this->_request_handled++);
+                }
                 delete this->_queue.front();
             }
         }

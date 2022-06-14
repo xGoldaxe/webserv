@@ -286,22 +286,27 @@ std::string &Response::error_body(void)
     {
         // this line throw an error if page not find
         std::string filename = this->req->route.get_error_pages().at(this->status_code);
-        if (usable_file(filename))
+        if (usable_file(filename) && !this->_is_custom_error)
         {
             this->_return_body_type = BODY_TYPE_FILE;
             this->body = filename;
+            this->_is_custom_error = true;
+            this->req->auto_index = false;
+            this->load_body(this->_client_ip);
         }
         else
         {
             this->_return_body_type = BODY_TYPE_STRING;
             this->set_status(500, "Internal Server Error");
             this->body = error_template(this->get_str_code(), this->status_message);
+            this->_is_custom_error = true;
         }
     }
     catch (const std::exception &e)
     {
         this->_return_body_type = BODY_TYPE_STRING;
         this->body = error_template(this->get_str_code(), this->status_message);
+        this->_is_custom_error = true;
     }
 
     return (this->body);

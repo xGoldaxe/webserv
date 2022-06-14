@@ -177,9 +177,8 @@ void Server::init_connection()
     for (std::vector<s_server_addr_in>::iterator it = this->_addrs.begin(); it != this->_addrs.end(); it++) {
         int sock = socket(AF_INET, SOCK_STREAM, 0);
         this->_socket_fds.push_back(sock);
-        bool set_opt = 1;
+        int set_opt = 1;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
-        setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int));
 
         this->_bind_port(sock, *it);
 

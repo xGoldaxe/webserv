@@ -34,6 +34,7 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	  _body_max_size(max_size),
 	  _route(route),
 	  _index(index),
+	  _is_custom_error(false),
 	  client_socket(client_socket),
 	  req(req)
 {
@@ -250,9 +251,14 @@ std::string Response::load_body(std::string client_ip)
 		tmp << resp.rdbuf();
 		this->body = header + tmp.str();
 
-	} else {
+	} else
+	{
+		std::cout << "parsing file" << std::endl;
 		this->_return_body_type = BODY_TYPE_FILE;
-		this->_in_file.open(this->url.c_str(), std::ios::binary);
+		if (this->_is_custom_error)
+			this->_in_file.open(this->body.c_str(), std::ios::binary);
+		else
+			this->_in_file.open(this->url.c_str(), std::ios::binary);
 		if (this->_in_file.fail())
 			throw HTTPCode404();
 
@@ -350,7 +356,7 @@ void	Response::check_file_url(void)
 				return;
 			}
 		}
-		this->req->auto_index = true;
+		// this->req->auto_index = true;
 	}
 	else
 	{

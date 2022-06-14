@@ -36,6 +36,7 @@ class Response
 		size_t									_body_max_size;
 		Route									_route;
 		std::vector<std::string>				_index;
+		bool									_is_custom_error;
 
 		Response &operator=(Response const &rhs);
 		Response(void);

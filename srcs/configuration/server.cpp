@@ -40,10 +40,10 @@ int Server_conf::getClientHeaderSize() const
 	return this->client_header_size;
 }
 
-std::vector<short> Server_conf::getPort() const
+std::vector<unsigned short> Server_conf::getPort() const
 {
 	if (this->port.empty()) {
-		return std::vector<short>(DEFAULT_PORT);
+		return std::vector<unsigned short>(DEFAULT_PORT);
 	}
 	return this->port;
 }
@@ -76,7 +76,7 @@ std::string Server_conf::getRoot() const
 	return this->root;
 }
 
-void Server_conf::addPort(short port)
+void Server_conf::addPort(unsigned short port)
 {
 	this->port.push_back(port);
 }
@@ -188,7 +188,7 @@ void Server_conf::printServer()
 {
 #ifdef DEBUG
 
-	std::vector<short>::iterator itp;
+	std::vector<unsigned short>::iterator itp;
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
 	unsigned int itr = 0;

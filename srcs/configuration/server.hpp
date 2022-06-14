@@ -27,7 +27,7 @@ class Server_conf
 {
 
 	private:
-		std::vector<short>					port;
+		std::vector<unsigned short>			port;
 		std::vector<Route>					routes;
 		std::string							server_name;
 		std::string							host;
@@ -50,14 +50,14 @@ class Server_conf
 		int								getReadTimeOut() const;
 		int								getServerBodySize() const;
 		int								getClientHeaderSize() const;
-		std::vector<short>				getPort() const;
+		std::vector<unsigned short>		getPort() const;
 		std::vector<Route>				getRoutes() const;
 		std::string						getHost() const;
 		std::string						getName() const;
 		std::vector<std::string>		getIndex() const;
 		int								getBodyMaxSize() const;
 		std::string						getRoot() const;
-		void							addPort(short port);
+		void							addPort(unsigned short port);
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);

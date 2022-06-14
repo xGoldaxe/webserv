@@ -48,8 +48,8 @@ void    Server::add_response( Request * req, int fd )
     http_header_date( *req, *res );
 	http_header_server( *req, *res );
 
-    res->send();
-    if (req->getMethod() != "HEAD") {
+    int shouldQueue = res->send();
+    if (shouldQueue >= 0) {
         this->_queue.push(res);
     } else {
         res->output(this->_request_handled++);
@@ -220,7 +220,7 @@ void    Server::handle_responses()
                 new_queue.push(res);
             } else {
                 std::string response_content = "0\r\n\r\n";
-                ::send(res->client_socket, response_content.c_str(), response_content.size(), 0);
+                ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
 
                 std::cout << "fully sent!" << std::endl;
                 //UGLY
@@ -233,7 +233,8 @@ void    Server::handle_responses()
                         it->second.end_send();
                 }
 
-                if (this->_queue.front()->req->is_request_valid()) {
+                if (this->_queue.front()->req->is_request_valid())
+                {
                     this->_queue.front()->output(this->_request_handled++);
                 }
                 delete this->_queue.front();

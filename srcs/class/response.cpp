@@ -151,6 +151,11 @@ int Response::send()
 	}
 
 	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
+
+	if (this->req->getMethod() == "HEAD" || (this->_return_body_type == BODY_TYPE_STRING && this->body.length() < this->_body_max_size))
+	{
+		return (-1);
+	}
 	return (status);
 }
 

@@ -37,12 +37,10 @@ void    Server::add_response( Request * req, int fd )
 		/* generic headers */
 		res->add_header( "Connection", "keep-alive" );
 		res->add_header("Keep-Alive", "timeout=5, max=10000");
-        std::cout << "this request is good" << std::endl;
 	}
     else
     {
 		res->error_body();
-        std::cout << "this request is bad" << std::endl;
     }
 
     http_header_date( *req, *res );
@@ -52,6 +50,10 @@ void    Server::add_response( Request * req, int fd )
     if (shouldQueue >= 0) {
         this->_queue.push(res);
     } else {
+        std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
+        if (it != this->_connections.end()) {
+            it->second.end_send();
+        }
         res->output(this->_request_handled++);
         delete req;
         req = NULL;
@@ -65,10 +67,7 @@ void  Server::trigger_queue( void )
         it->second.queue_iteration();
         Request *req = it->second.extract_request();
         if ( req != NULL )
-        {
-            std::cout << "sent to transaction!" << std::endl;
             this->add_response( req, it->first );
-        }
     }
 }
 
@@ -227,10 +226,9 @@ void    Server::handle_responses()
                 std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
                 if ( it != this->_connections.end() )
                 {
+                    it->second.end_send();
                     if ( it->second.get_is_dead() == true )
                         this->close_connection( it->first );
-                    else
-                        it->second.end_send();
                 }
 
                 if (this->_queue.front()->req->is_request_valid())

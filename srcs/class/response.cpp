@@ -152,7 +152,7 @@ int Response::send()
 
 	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
 
-	if (this->req->getMethod() == "HEAD" || (this->_return_body_type == BODY_TYPE_STRING && this->body.length() < this->_body_max_size))
+	if (this->req->getMethod() == "HEAD" || !(this->body.length() > this->getChunkMaxSize() || this->isFile()))
 	{
 		return (-1);
 	}
@@ -345,7 +345,6 @@ void	Response::check_file_url(void)
 	{
 		std::vector<std::string> indexes = this->_route.get_index();
 		for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++) {
-			std::cout << "index: " << *it << std::endl;
 			if (is_file( this->url + *it ) == IS_FILE_NOT_FOLDER) {
 				this->url = this->url + *it;
 				return;

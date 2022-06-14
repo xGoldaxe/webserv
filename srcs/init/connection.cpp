@@ -106,7 +106,6 @@ void	Connection::queue_iteration()
 		{
 			this->init_request();
 			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
-			std::cout << this->is_invalid_req() << this->is_fulfilled() << std::endl;
 		}
 
 		// add the data to the body, only add what is required and store the remaining data

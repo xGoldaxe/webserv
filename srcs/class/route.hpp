@@ -17,6 +17,7 @@
 #define	DEFAULT_AUTO_INDEX false
 #define DEFAULT_SEND_FILE false
 #define DEFAULT_FILE_LIMIT 5000
+#define DEFAULT_ROUTE_BODY_MAX_SIZE 2048
 
 class Route
 {

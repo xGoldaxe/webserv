@@ -1,6 +1,6 @@
 #include "route.hpp"
 
-Route::Route(void) : auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT)
+Route::Route(void) : auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE)
 {
 	index.push_back("index.html");
 	methods.push_back("GET");
@@ -11,7 +11,7 @@ Route::Route(std::string root) : root(root)
 }
 
 // default route
-Route::Route(std::string location, std::string root) : root(root), location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT)
+Route::Route(std::string location, std::string root) : root(root), location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE)
 {
 	index.push_back("index.html");
 	methods.push_back("GET");
@@ -25,7 +25,8 @@ Route::Route(Route rhs, int notcopy) : error_pages(rhs.error_pages),
 									   cgi_extension(rhs.cgi_extension),
 									   cgi_timeout(rhs.cgi_timeout),
 									   send_file(rhs.send_file),
-									   file_limit(rhs.file_limit)
+									   file_limit(rhs.file_limit),
+										body_max_size(rhs.body_max_size)
 {
 	(void)notcopy;
 	this->root = finish_by_only_one(rhs.root, '/');
@@ -34,12 +35,12 @@ Route::Route(Route rhs, int notcopy) : error_pages(rhs.error_pages),
 	methods.push_back("GET");
 }
 
-Route::Route(std::string location, std::string root, int notdefault) : root(root), location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT)
+Route::Route(std::string location, std::string root, int notdefault) : root(root), location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE)
 {
 	(void)notdefault;
 }
 
-Route::Route(std::string location, int notdefault) : location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT)
+Route::Route(std::string location, int notdefault) : location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE)
 {
 	(void)notdefault;
 }
@@ -47,7 +48,7 @@ Route::Route(std::string location, int notdefault) : location(location), auto_in
 Route::Route(const Route &rhs) : root(rhs.root), location(rhs.location),
 								 index(rhs.index), methods(rhs.methods), error_pages(rhs.error_pages), redirections(rhs.redirections),
 								 auto_index(rhs.auto_index), cgi_enable(rhs.cgi_enable), cgi_path(rhs.cgi_path), cgi_extension(rhs.cgi_extension), cgi_timeout(rhs.cgi_timeout),
-								 send_file(rhs.send_file), file_limit(rhs.file_limit)
+								 send_file(rhs.send_file), file_limit(rhs.file_limit), body_max_size(rhs.body_max_size)
 {
 }
 
@@ -69,6 +70,7 @@ Route &Route::operator=(const Route &rhs)
 		this->methods = rhs.methods;
 		this->error_pages = rhs.error_pages;
 		this->redirections = rhs.redirections;
+		this->body_max_size = rhs.body_max_size;
 	}
 	return (*this);
 }
@@ -305,7 +307,7 @@ void Route::printRoute()
 
 	std::cout << "Auto Index : " << this->auto_index << std::endl;
 
-	std::cout << "Route Body Size : " << this->body_max_size<< std::endl;
+	std::cout << "Route Body Size : " << this->body_max_size << std::endl;
 
 	std::cout << "CGI Enabled : " << this->cgi_enable << std::endl;
 

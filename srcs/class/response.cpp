@@ -344,6 +344,7 @@ void	Response::check_file_url(void)
 {
 	if ( is_file( this->url ) == IS_FILE_NOT_FOLDER  )
 	{
+		this->req->auto_index = false;
 		if ( !file_readable( this->url ) )
 			throw HTTPCode403();
 	}
@@ -352,11 +353,12 @@ void	Response::check_file_url(void)
 		std::vector<std::string> indexes = this->_route.get_index();
 		for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++) {
 			if (is_file( this->url + *it ) == IS_FILE_NOT_FOLDER) {
+				this->req->auto_index = false;
 				this->url = this->url + *it;
 				return;
 			}
 		}
-		// this->req->auto_index = true;
+		this->req->auto_index = true;
 	}
 	else
 	{

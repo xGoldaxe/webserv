@@ -221,7 +221,6 @@ void    Server::handle_responses()
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
 
-                std::cout << "fully sent!" << std::endl;
                 //UGLY
                 std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
                 if ( it != this->_connections.end() )

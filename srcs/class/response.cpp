@@ -253,7 +253,6 @@ std::string Response::load_body(std::string client_ip)
 
 	} else
 	{
-		std::cout << "parsing file" << std::endl;
 		this->_return_body_type = BODY_TYPE_FILE;
 		if (this->_is_custom_error)
 			this->_in_file.open(this->body.c_str(), std::ios::binary);

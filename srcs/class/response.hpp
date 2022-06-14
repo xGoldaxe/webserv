@@ -62,7 +62,8 @@ class Response
 		void set_status( int status_code, std::string msg );
 		std::string	load_body(std::string client_ip);
 		std::string & error_body(void);
-		bool	isFile(void);
+		bool isFile(void);
+		size_t getFileSize(void);
 		void output(const size_t req_id);
 		int send(void);
 		int send_chunk(void);

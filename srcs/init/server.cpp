@@ -49,10 +49,13 @@ void    Server::add_response( Request * req, int fd )
 	http_header_server( *req, *res );
 
     res->send();
-
-    this->_queue.push(res);
-    delete req;
-    req = NULL;
+    if (req->getMethod() != "HEAD") {
+        this->_queue.push(res);
+    } else {
+        res->output(this->_request_handled++);
+        delete req;
+        req = NULL;
+    }
 }
 
 void  Server::trigger_queue( void )

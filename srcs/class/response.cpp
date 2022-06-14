@@ -83,7 +83,9 @@ Response &   Response::operator=( Response const & rhs )
 }
 
 Response::~Response(void)
-{}
+{
+	delete this->req;
+}
 
 void Response::output(const size_t req_id)
 {
@@ -124,6 +126,11 @@ std::string Response::get_url(void)
 	return this->url;
 }
 
+size_t Response::getFileSize(void)
+{
+	return this->_file_len;
+}
+
 int Response::send()
 {
 	/* add some headers */
@@ -132,9 +139,14 @@ int Response::send()
 	std::string headers_response = this->version + " " + to_string(this->status_code) + " " + this->status_message;
 	for (headers_t::iterator it = this->headers.begin(); it != this->headers.end(); ++it)
 		headers_response += "\n" + it->first + ": " + it->second;
-	headers_response += "\r\n\n";
+	headers_response += "\r\n\r\n";
 
-	if (this->_return_body_type == BODY_TYPE_STRING && this->body.size() < this->_body_max_size) {
+	if (this->req->getMethod() == "HEAD")
+	{
+		// headers_response += "\r\n";
+	}
+	else if (this->_return_body_type == BODY_TYPE_STRING && this->body.size() < this->_body_max_size)
+	{
 		headers_response += this->body + "\r\n";
 	}
 

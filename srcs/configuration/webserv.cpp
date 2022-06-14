@@ -247,10 +247,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				int port = std::atoi(words[it + 2].c_str());
-				std::numeric_limits<short> range;
-				if (port < 0 || port > range.max())
+				std::numeric_limits<unsigned short> range;
+				if (port < 1024 || port > range.max())
 					throw Webserv_conf::OutOfRangePort();
-				server.addPort(port);
+				server.addPort((unsigned short)port);
 				it = it + 3;
 			}
 			else
@@ -673,7 +673,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		checkservers++;
 	}
 
-	// Duplicate server_name and duplicate port check
+	// Duplicate server_host and duplicate port check
 	unsigned int i_checkservdupe = 0;
 	unsigned int j_checkservdupe = 1;
 	unsigned int i_checkportdupe = 0;
@@ -682,7 +682,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	{
 		while (j_checkservdupe < this->servers.size())
 		{
-			if (this->servers[i_checkservdupe].getName().compare(this->servers[j_checkservdupe].getName()) == 0)
+			if (this->servers[i_checkservdupe].getHost().compare(this->servers[j_checkservdupe].getHost()) == 0)
 			{
 				while (i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
 				{

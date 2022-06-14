@@ -146,7 +146,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://127.0.0.1:33350/",
+							"raw": "http://127.0.0.1:3784/",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -154,7 +154,7 @@
 								"0",
 								"1"
 							],
-							"port": "33350",
+							"port": "3784",
 							"path": [
 								""
 							]
@@ -268,6 +268,78 @@
 								"unexisting",
 								"unexisting",
 								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Custom Error Pages unexisting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 500\", function () {",
+									"    pm.response.to.have.status(500);",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Internal Server Error\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/qjbrgb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"qjbrgb"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Custom Error Pages",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"This is a custom error page\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3784/qjbrgb",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3784",
+							"path": [
+								"qjbrgb"
 							]
 						}
 					},

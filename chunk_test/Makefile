@@ -23,15 +23,16 @@ B_CYAN 			= \033[1;36m
 
 ./.build/%.o : srcs/%.cpp
 		@mkdir -p $(@D)
-		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $?
+		@$(CCP) ${CPPFLAGS} -I. -o $@ -c $? 
 		@printf "${B_MAGENTA}Compilling $? ...\n${NONE}"
 
 all:	
 		@mkdir -p .build
 		@make ${NAME} --no-print-directory
 
+
 ${NAME}:	${OBJS}
-		@${CCP} ${CPPFLAGS} ${OBJS} -o ${NAME}
+		@${CCP} ${CPPFLAGS} ${OBJS} -o ${NAME} 
 		@printf "${B_GREEN}==>{${NAME}} LINKED SUCCESFULLY<==${NONE}\n"
 
 clean:

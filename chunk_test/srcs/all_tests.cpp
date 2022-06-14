@@ -1,47 +1,147 @@
-#include "chunk.hpp"
+#include "chunk_reader.hpp"
+#include "assert_object.hpp"
+// valid, head_valid, head, body, remain
+
+void	feed_secure( Chunk_reader &c, std::string &raw, std::string add )
+{
+	try
+	{
+		raw = c.feed_chunk( raw + add );
+	}
+	catch(const std::exception& e)
+	{
+		track_exception( true, true );
+	}
+}
 
 void	all_tests()
 {
+	Chunk_reader c;
 	std::string raw;
-	/* incomplete */
-	raw = "nothing intressting";
-	try_chunk_w( raw );
-	verify_assert( test_struct( false ) );
 
-	/* all good */
-	raw = "1\r\nH\r\n";
-	try_chunk_w( raw );
-	verify_assert( test_struct( true, 1, "H", 6 ) );
-
-	/* all good */
-	raw = "F\r\n123456789abcdef\r\n";
-	try_chunk_w( raw );
-	verify_assert( test_struct( true, 15, "123456789abcdef", 20 ) );
-
-	/* invalid hexa */
-	raw = "oewq\r\nH\r\n";
-	try_chunk_w( raw );
+	feed_secure( c, raw, "\r\n" );
 	verify_exception();
 
-	/* unclose body */
-	raw = "1\r\nH";
-	try_chunk_w( raw );
-	verify_assert( test_struct( false ) );
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "2" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( false, false, "", "", 0 ) );
 
-	/* invalid size */
-	raw = "2\r\n1\r\n";
-	try_chunk_w( raw );
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "9\r\n" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( false, true, "9", "", 9 ) );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "2\r\nab\r\n" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( true, true, "2", "ab", 0 ) );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "5\r\nabc" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( false, true, "5", "abc", 2 ) );
+
+	c.clean();
+	feed_secure( c, raw, "2\r\n123\r\n" );
 	verify_exception();
 
-	/* invalid size */
-	raw = "0\r\n\r\n";
-	try_chunk_w( raw );
-	verify_assert( test_struct( true, 0, "", 5 ) );
+	c.clean();
+	raw = "";
+	c.set_limits(5, 5);
+	feed_secure( c, raw, "2" );
+	feed_secure( c, raw, "\r\n" );
+	feed_secure( c, raw, "an" );
+	feed_secure( c, raw, "\r\n" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( true, true, "2", "an", 0 ) );
 
-	raw = "\r\n\r\n";
-	try_chunk_w( raw );
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "3" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( false, true, "3", "", 3 ) );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "2" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	feed_secure( c, raw, "a" );
+	feed_secure( c, raw, "n" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( true, true, "2", "an", 0 ) );
+	verify_assert_bool( c.is_last() == false );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "2" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	feed_secure( c, raw, "a" );
+	feed_secure( c, raw, "n" );
+	feed_secure( c, raw, "\r" );
+	verify_assert_equal<Chunk_reader>( c, Chunk_reader( false, true, "2", "an", 0 ) );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "2" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	feed_secure( c, raw, "a" );
+	feed_secure( c, raw, "n" );
+	feed_secure( c, raw, "b" );
+	feed_secure( c, raw, "a" );
 	verify_exception();
 
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "0\r\n\r\n" );
+	verify_assert_bool( c.is_last() == true );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "0" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	verify_assert_bool( c.is_last() == true );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "0" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	feed_secure( c, raw, "0" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\n" );
+	verify_exception();
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "1q\r\nww\r\n" );
+	verify_exception();
+	
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "\r\nww\r\n" );
+	verify_exception();
+
+	/* max head size */
+	c.clean();
+	c.set_limits(5, 5);
+	feed_secure( c, raw, "123456" );
+	verify_exception();
+
+	c.clean();
+	c.set_limits(5, 5);
+	feed_secure( c, raw, "7\r\n" );
+	verify_exception();
+
+	std::cout << result_info( GET_SUCCESS )
+	<< " test(s) pass over " << result_info( GET_TEST ) << " test(s)." << std::endl;
 	/* 
 	test_o<test_struct> t;
 	test_struct res;

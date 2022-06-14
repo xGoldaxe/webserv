@@ -1,14 +1,7 @@
-#include "chunk.hpp"
+#pragma once
 
-bool	try_chunk( std::string chunk_str, size_t &chunk_size, std::string &content, size_t &whole_chunk_size );
-
-test_struct *tracked_struct( bool mode, test_struct *s = NULL )
-{
-	static test_struct *ss = NULL;
-	if ( mode )
-		ss = s;
-	return ss;
-}
+#include <iostream>
+#include <string>
 
 bool	track_exception( bool mode, bool is_throw = false )
 {
@@ -16,21 +9,6 @@ bool	track_exception( bool mode, bool is_throw = false )
 	if ( mode == true )
 		state = is_throw;
 	return state;
-}
-
-void	try_chunk_w( std::string raw )
-{
-	test_struct *s = tracked_struct( false );
-	try
-	{
-		/* edit this line */
-		s->is_chunk = try_chunk( raw, s->chunk_size, s->chunk_content, s->whole_chunk_size );
-		track_exception( true, false );
-	}
-	catch(const std::exception& e)
-	{
-		track_exception( true, true );
-	}
 }
 
 #define ADD_TEST 0
@@ -62,24 +40,41 @@ void	verify_exception()
 	}
 	else
 		std::cout << "❌ [" << result_info( GET_TEST ) << "] -KO (no exception)" << std::endl;
+	track_exception( true, false );
 	result_info( ADD_TEST );
 }
 
-void	verify_assert( test_struct f_s )
-{
+void	verify_assert( bool condition );
 
-	test_struct *s = tracked_struct( false );
+template< class S >
+void	verify_assert_equal( S result, S expected )
+{
+	// std::cout << "==begin debug==" << std::endl;
+	// std::cout << "<<<<<<<<<< exepted >>>>>>>>>>" << std::endl;
+	// expected.print();
+	// std::cout << "<<<<<<<<<< result >>>>>>>>>>>" << std::endl;
+	// result.print();
+	// std::cout << "==end debug==" << std::endl;
+	
+	verify_assert( expected == result );
+}
+
+void	verify_assert_bool( bool condition )
+{
+	verify_assert( condition );
+}
+
+void	verify_assert( bool condition )
+{
 	bool success = true;
 	bool exception = false;
-	/* edit this */
 	if ( track_exception(false) == true )
 	{
 		success = false;
 		exception = true;
 	}
 	else
-		success = (f_s == *s);
-	/* end edit this */
+		success = condition;
 
 	if ( success )
 	{
@@ -92,5 +87,4 @@ void	verify_assert( test_struct f_s )
 		(exception ? " (exception)" : "") << std::endl;
 	}
 	result_info( ADD_TEST );
-	s->clean_up();
 }

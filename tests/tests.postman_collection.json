@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "76fb9266-b331-4159-80c4-a3f2056c1651",
+		"_postman_id": "ae053b2c-1725-49d1-8b04-08614e822132",
 		"name": "Webserv tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -81,6 +81,43 @@
 					"response": []
 				},
 				{
+					"name": "Root subfolder index",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is index.html\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"WEBSERVER FOR 42\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/sub/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sub",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Subfolder autoindex",
 					"event": [
 						{
@@ -146,7 +183,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://127.0.0.1:33350/",
+							"raw": "http://127.0.0.1:3784/",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -154,7 +191,7 @@
 								"0",
 								"1"
 							],
-							"port": "33350",
+							"port": "3784",
 							"path": [
 								""
 							]
@@ -211,7 +248,10 @@
 									"pm.test(\"Status code is 404\", function () {",
 									"    pm.response.to.have.status(404);",
 									"});",
-									""
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Vous semblez perdu...\");",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -244,7 +284,9 @@
 									"pm.test(\"Status code is 404\", function () {",
 									"    pm.response.to.have.status(404);",
 									"});",
-									""
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"This is a custom error page\");",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -267,6 +309,149 @@
 								"unexisting",
 								"unexisting",
 								"unexisting",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 Custom error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"This is a custom error page\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3784/unexisting",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3784",
+							"path": [
+								"unexisting"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sub Folder Test POST",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Lorem ipsum dolor sit amet, consectetur adipiscing elit\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/sub/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"sub",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sub Folder 405",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 405\", function () {\r",
+									"    pm.response.to.have.status(405);\r",
+									"});\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Method Not Allowed\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/post/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"post",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sub Folder POST",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Body matches string\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Go to sub directory\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/post/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"post",
 								""
 							]
 						}

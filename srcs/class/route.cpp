@@ -371,18 +371,28 @@ bool compareSize(Route i,Route j)
 	return (i.get_location().size() > j.get_location().size());
 }
 
-Route find_route(std::vector<Route> routes, std::string url)
+Route find_route(std::vector<Route> routes, std::string url, std::string method)
 {
+	std::string method_denied = "";
+
 	std::sort(routes.begin(), routes.end(), &compareSize);
 
 	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
 	{
 		std::string test_url = finish_by_only_one(url, '/');
 		if (test_url.size() >= it->get_location().size() && it->get_location() == test_url.substr(0, it->get_location().size())) {
+			std::vector<std::string> methods = it->get_methods();
+			if (std::find(methods.begin(), methods.end(), method) == methods.end()) {
+				method_denied = it->get_location();
+				continue;
+			} else if (method_denied.size() > it->get_location().size()) {
+				throw HTTPCode405();
+			}
 			return Route(*it);
 		} else if (it->has_redirection(test_url)) {
 			return Route(*it);
 		}
 	}
-	return routes.front();
+
+	throw HTTPCode404();
 }

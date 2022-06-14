@@ -12,28 +12,28 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tests-42/ ;
+		root /home/restray/42/webserv/tests-42/ ;
 		methods = GET ;
 	}
 	location /put_test
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tmp/ ;
+		root /home/restray/42/webserv/tmp/ ;
 		methods = PUT ;
 	}
 	location /post_body
 	{ 
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tests-42/ ;
+		root /home/restray/42/webserv/tests-42/ ;
         body_max_size = 100 ;
         methods = POST ;
 
 		enable_cgi on ; 
 		cgi_extension = bla ;
 		cgi_timeout = 10 ;
-		cgi_path = /mnt/nfs/homes/tbelhomm/Desktop/webserv/ubuntu_cgi_tester ;
+		cgi_path = /home/restray/42/webserv/ubuntu_cgi_tester ;
 	}
 	location /directory
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/tests-42/YoupiBanane/ ;
+		root /home/restray/42/webserv/tests-42/YoupiBanane/ ;
 		methods = GET ;
         index = /youpi.bad_extension ;
 	}

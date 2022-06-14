@@ -77,7 +77,7 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
-		this->route = find_route(routes, this->legacy_url);
+		this->route = find_route(routes, this->legacy_url, this->method);
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */

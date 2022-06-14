@@ -85,4 +85,4 @@ class Route
 		bool		 						has_redirection(std::string url) const;
 };
 
-Route find_route(std::vector<Route> routes, std::string url);
+Route find_route(std::vector<Route> routes, std::string url, std::string method);

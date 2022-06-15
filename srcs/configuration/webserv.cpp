@@ -25,7 +25,8 @@ static int return_type_parse(std::string s)
 									  "cgi_extension", "body_max_size", "server",
 									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
-									  "host", "max_amount_of_request", "max_uri_size", "cgi_path"};
+									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
+									  "run_file_path", "chunk_head_limit", "chunk_body_limit"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -658,6 +659,29 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				throw std::invalid_argument("Error parsing cgi_path!");
 			}
+			break;
+		case RUN_FILE_PATH_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered run_file_path outside of server");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (!verify_url(words[it + 2]))
+					throw std::invalid_argument("Invalid run file path!");
+				server.setRunFilePath(words[it + 2]);
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing run_file_path!");
+			}
+			break;
+		case CHUNK_HEAD_LIMIT_PARSING:
+		
+			break;
+		case CHUNK_BODY_LIMIT_PARSING:
+		
 			break;
 		default:
 			break;

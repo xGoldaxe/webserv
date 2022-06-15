@@ -19,6 +19,7 @@
 #define DEFAULT_HOST "127.0.0.1"
 #define DEFAULT_INDEX_SERVER "index.html"
 #define DEFAULT_MAX_URI_SIZE 50
+#define DEFAULT_RUN_FILE_PATH "/run/webserv"
 
 
 class Route;
@@ -40,6 +41,7 @@ class Server_conf
 		int									client_header_size;
 		int									max_amount_of_request;
 		int									max_uri_size;
+		std::string							run_file_path;
 
 	public:
 		Server_conf(void);
@@ -87,4 +89,7 @@ class Server_conf
 		int								get_max_uri_size() const;
 		void							set_max_uri_size(int max_uri_size);
 		void 							check_methods_route(void);
+		std::string						getRunFilePath() const;
+		void							setRunFilePath(std::string path);
+
 };

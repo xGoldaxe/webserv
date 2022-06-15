@@ -21,7 +21,12 @@ void    Server::read_connection( int client_socket )
 		this->close_connection( client_socket );
 		return ;
 	}
-	this->_connections.at(client_socket).read_data();
+
+    std::map<int, Connection>::iterator client_socket_it = this->_connections.find(client_socket);
+    if (client_socket_it != this->_connections.end())
+	    client_socket_it->second.read_data();
+    else
+        close(client_socket);
 }
 
 
@@ -241,7 +246,7 @@ void    Server::handle_responses()
         runner_i++;
     }
 
-    while (!this->_queue.empty() && exit_code == 0) {
+    while (!this->_queue.empty() && !shouldQuit()) {
         new_queue.push(this->_queue.front());
         this->_queue.pop();
     }

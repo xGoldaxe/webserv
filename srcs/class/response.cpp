@@ -228,7 +228,7 @@ std::string Response::load_body(std::string client_ip)
 	}
 	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
-		CGIManager cgi(this->_route.get_root(), "/bin/php-cgi" /** @todo this->_route.get_cgi_path() */, this->url);
+		CGIManager cgi(this->_route.get_root(), this->_route.get_cgi_path(), this->url, this->_route.get_cgi_timeout());
 		this->body = cgi.exec(*this->req, client_ip);
 
 		std::istringstream resp(this->body);

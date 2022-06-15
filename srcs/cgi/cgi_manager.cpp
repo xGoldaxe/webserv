@@ -6,7 +6,7 @@ inline static void          string_to_char(std::string to_convert, char **dest)
     std::strcpy(*dest, to_convert.c_str());
 }
 
-CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path)
+CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path, int cgi_timeout)
 {
     this->addHeader("GATEWAY_INTERFACE", "CGI/1.1");
     this->addHeader("SCRIPT_FILENAME", path);
@@ -18,6 +18,7 @@ CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path)
 
     this->_cgi_path = cgi_path;
     this->_path = path;
+    this->_cgi_timeout = cgi_timeout;
 
     this->_c_headers = new char* [1];
     this->_c_headers[0] = NULL;
@@ -39,7 +40,7 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     std::string addr = addr_port.substr(0, addr_port.find(":"));
     std::string port = addr_port.substr(addr_port.find(":") + 1);
 
-    this->addHeader("PATH_INFO", get_filename(this->_path));
+    this->addHeader("PATH_INFO", req.get_legacy_url());
     this->addHeader("PATH_TRANSLATED", req.get_legacy_url());
     this->addHeader("SCRIPT_NAME", req.get_legacy_url());
     this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
@@ -93,19 +94,21 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
         dup2(pipe_in_fd[0], STDIN_FILENO);
         dup2(pipe_fd[1], STDOUT_FILENO);
 
+        alarm(this->_cgi_timeout);
+
         execve(args[0], args, this->_c_headers);
         exit(2);
     }
     else
     {
         std::string to_write = req.getBody();
-        std::cout << "CGI Parameters: " << to_write << std::endl;
         if (write(pipe_in_fd[1], to_write.c_str(), to_write.size()) < 0) {
             std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
         }
         close(pipe_in_fd[1]);
         close(pipe_fd[1]);
-        while (1) {
+
+        while (!shouldQuit()) {
             char temp;
             if (read(pipe_fd[0], &temp, 1) < 1) break;
             result += temp;
@@ -113,6 +116,17 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
 
         int status = 0;
         waitpid(pid, &status, 0);
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 2) {
+            std::cerr << "[CGI][Error] Unexisting CGI " << this->_cgi_path << std::endl;
+            throw HTTPCode502();
+        } else if (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM) {
+            std::cerr << "[CGI][Error] CGI Timeout " << this->_cgi_path << std::endl;
+            throw HTTPCode504();
+        }
+        if (result.length() == 0) {
+            std::cerr << "[CGI][Error] Unvalid response for " << this->_cgi_path << std::endl;
+            throw HTTPCode502();
+        }
 
         close(pipe_fd[0]);
     }

@@ -23,7 +23,7 @@ public:
     typedef std::vector<std::string> t_headers_list;
     typedef std::map<std::string, std::string> t_header_value;
 
-    CGIManager(std::string root, std::string cgi_path, std::string path);
+    CGIManager(std::string root, std::string cgi_path, std::string path, int cgi_timeout);
     ~CGIManager();
     std::string    exec(Request &req, std::string client_ip);
 
@@ -32,6 +32,7 @@ private:
     char                    **_c_headers;
     std::string             _cgi_path;
     std::string             _path;
+    int                     _cgi_timeout;
 
     void addHeader(std::string name, std::string value);
     void computeEnvArray();

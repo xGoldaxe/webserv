@@ -70,10 +70,10 @@ server
 	location /php
 	{ 
 		root /home/restray/42/webserv/cgi/ ;
-		index = ;
+		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
 		cgi_timeout = 10 ;
-		cgi_path = /usr/bin/php ;
+		cgi_path = /usr/bin/php-cgi ;
 	}
 }

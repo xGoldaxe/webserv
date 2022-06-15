@@ -673,6 +673,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			throw std::invalid_argument("A server has no location!");
 		if (this->servers[checkservers].getPort().empty())
 			this->servers[checkservers].addPort(DEFAULT_PORT);
+		this->servers[checkservers].check_methods_route();
 		checkservers++;
 	}
 

@@ -83,6 +83,7 @@ class Route
 		bool								is_in_extension(std::string extension);
 		Redirection 						return_redirect_url(std::string url) const;
 		bool		 						has_redirection(std::string url) const;
+		void								check_methods_route(void);
 };
 
 Route find_route(std::vector<Route> routes, std::string url, std::string method);

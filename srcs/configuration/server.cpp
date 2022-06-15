@@ -275,3 +275,14 @@ void Server_conf::set_cgi_path(std::string cgi_path)
 {
 	this->routes.back().set_cgi_path(cgi_path);
 }
+
+void Server_conf::check_methods_route(void)
+{
+	unsigned int itr = 0;
+
+	while (itr < this->routes.size())
+	{
+		this->routes[itr].check_methods_route();
+		itr++;
+	}
+}

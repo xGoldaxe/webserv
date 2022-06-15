@@ -396,3 +396,12 @@ Route find_route(std::vector<Route> routes, std::string url, std::string method)
 
 	throw HTTPCode404();
 }
+
+void Route::check_methods_route(void)
+{
+	if (this->methods.empty())
+	{
+		this->methods.push_back("GET");
+		this->methods.push_back("HEAD");
+	}
+}

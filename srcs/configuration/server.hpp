@@ -86,4 +86,5 @@ class Server_conf
 		void							set_max_amount_of_request(int max_amount_of_request);
 		int								get_max_uri_size() const;
 		void							set_max_uri_size(int max_uri_size);
+		void 							check_methods_route(void);
 };

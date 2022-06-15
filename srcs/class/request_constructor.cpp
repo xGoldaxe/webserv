@@ -4,6 +4,9 @@
 #include "../../request_parsing/srcs/req_parse.hpp"
 #include "../../request_parsing/srcs/parse_request.hpp"
 
+#define CHUNK_HEAD_LIMIT 20
+#define CHUNK_BODY_LIMIT 100
+
 Request *store_req(bool mode, Request *req = NULL)
 {
 
@@ -87,6 +90,7 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 			{
 				this->body_length = 0;
 				this->body_transfer = CHUNKED;
+				this->chunk_buffer.set_limits( CHUNK_HEAD_LIMIT, CHUNK_BODY_LIMIT );
 			}
 			else
 				throw HTTPCode501();

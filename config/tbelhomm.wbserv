@@ -1,0 +1,79 @@
+server
+{
+	server_name = test ;
+	host = 0.0.0.0 ;
+	listen = 3000 ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	location /
+	{
+		root /home/restray/42/webserv/www/ ;
+		index = /index.html /index.htm ;
+		methods = GET ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+	}
+	location /sub
+	{
+		root /home/restray/42/webserv/www/ ;
+		error_page 404 = /home/restray/Documents/webserv/defaultPages/404.html ;
+		index = /index.html /index.htm ;
+		methods = GET POST ;
+	}
+	location /post
+	{
+		root /home/restray/42/webserv/www/ ;
+		index = /index.html /index.htm ;
+		methods = POST ;
+	}
+	location /php
+	{ 
+		error_page 404 = /defaultPages/500.html ;
+		root /home/restray/42/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+server
+{
+	server_name = test ;
+	host = 127.0.0.1 ;
+	listen = 3784 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	location /
+	{
+		root /home/restray/42/webserv/www/ ;
+		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
+		methods = POST GET DELETE ;
+		index = ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+	}
+	location /php
+	{ 
+		root /home/restray/42/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php-cgi ;
+	}
+}

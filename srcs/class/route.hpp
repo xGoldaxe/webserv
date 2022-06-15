@@ -18,6 +18,8 @@
 #define DEFAULT_SEND_FILE false
 #define DEFAULT_FILE_LIMIT 5000
 #define DEFAULT_ROUTE_BODY_MAX_SIZE 2048
+#define DEFAULT_CHUNK_HEAD_LIMIT_ROUTE 20
+#define DEFAULT_CHUNK_BODY_LIMIT_ROUTE 100
 
 class Route
 {
@@ -37,6 +39,8 @@ class Route
 		bool								send_file;
 		int									file_limit;
 		int 								body_max_size;
+		int									chunk_head_limit;
+		int									chunk_body_limit;
 
 	public:
 		Route( void );
@@ -84,6 +88,10 @@ class Route
 		Redirection 						return_redirect_url(std::string url) const;
 		bool		 						has_redirection(std::string url) const;
 		void								check_methods_route(void);
+		int									getChunkHeadLimit() const;
+		void								setChunkHeadLimit(int chunk_head_limit);
+		int									getChunkBodyLimit() const;
+		void								setChunkBodyLimit(int chunk_body_limit);
 };
 
 Route find_route(std::vector<Route> routes, std::string url, std::string method);

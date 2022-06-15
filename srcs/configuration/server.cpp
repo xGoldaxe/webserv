@@ -3,7 +3,7 @@
 Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT),
 								 read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE),
 								 max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST), max_uri_size(DEFAULT_MAX_URI_SIZE),
-								 run_file_path(DEFAULT_RUN_FILE_PATH)
+								 run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER)
 {
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
@@ -25,7 +25,7 @@ Server_conf::~Server_conf(void)
 // empty
 Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE),
 									root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST),
-									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH)
+									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER)
 {
 	(void)emp;
 }
@@ -212,6 +212,9 @@ void Server_conf::printServer()
 	std::cout << "Read Timeout : " << this->read_timeout << std::endl;
 	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
 	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
+	std::cout << "Chunk Head Limit : " << this->chunk_head_limit << std::endl;
+	std::cout << "Chunk Body Limit : " << this->chunk_body_limit << std::endl;
+
 	std::cout << "Max Amount of Requests : " << this->max_amount_of_request << std::endl;
 	std::cout << "Max URI Size : " << this->max_uri_size << std::endl;
 	std::cout << "Run File Path: " << this->run_file_path << std::endl;
@@ -301,4 +304,31 @@ void Server_conf::setRunFilePath(std::string path)
 {
 	this->run_file_path.clear();
 	this->run_file_path.append(path);
+}
+
+int Server_conf::getChunkHeadLimit() const
+{
+	return this->chunk_head_limit;
+}
+void Server_conf::setChunkHeadLimit(int chunk_head_limit)
+{
+	this->chunk_head_limit = chunk_head_limit;
+}
+int Server_conf::getChunkBodyLimit() const
+{
+	return this->chunk_body_limit;
+}
+void Server_conf::setChunkBodyLimit(int chunk_body_limit)
+{
+	this->chunk_body_limit = chunk_body_limit;
+}
+
+void Server_conf::setChunkHeadLimitRoute(int chunk_head_limit)
+{
+	this->routes.back().setChunkHeadLimit(chunk_head_limit);
+}
+
+void Server_conf::setChunkBodyLimitRoute(int chunk_body_limit)
+{
+	this->routes.back().setChunkBodyLimit(chunk_body_limit);
 }

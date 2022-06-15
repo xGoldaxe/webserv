@@ -7,6 +7,7 @@
 #include "utils/file.hpp"
 #include "route.hpp"
 #include "configuration/webserv.hpp"
+#include "class/chunk_buffer.hpp"
 
 #define CHUNKED 2
 #define LENGTH 1
@@ -17,9 +18,10 @@ class Response;
 class Request
 {
 	private:
-		std::size_t	store_length( std::string add_str );
-		std::size_t	store_chunk( std::string chunck_str );
+		std::string		store_length( std::string add_str );
+		std::string		store_chunk( std::string chunck_str );
 		std::ofstream	*create_unique_file( std::string path );
+		int 			write_on_file( std::string str );
 
 	protected:
 		Webserv_conf							conf;
@@ -31,12 +33,17 @@ class Request
 		std::string								version;
 		bool									request_validity;
 		std::size_t								body_length;
-		std::ofstream							*body_file;
+		std::size_t								remain_body_length;
 		std::string								body_file_path;
 		int										error_status;
 		std::string								error_message;
 		int										body_transfer;
 		bool									fulfilled;
+		
+		/* not copied */
+		std::ofstream							*body_file;
+		Chunk_buffer							chunk_buffer;
+
 
 	public:
 		bool			auto_index;
@@ -70,7 +77,7 @@ class Request
 
 		std::string get_header_value(std::string name) const;
 
-		std::size_t	feed_body( std::string add_str );
+		std::string	feed_body( std::string add_str );
 		bool		is_fulfilled(void) const;
 		void		try_construct(std::string raw_request, std::vector<Route> routes);
 		void		check_file_url(void);

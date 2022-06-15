@@ -2,7 +2,9 @@
 
 void	print_parsed_req( 
 	std::vector<std::string> parsed_first_line,
-	std::map<std::string, std::string> headers
+	std::map<std::string, std::string> headers,
+	std::string query_string,
+	std::string path_info
 ) {
 
 	// first_line
@@ -15,4 +17,7 @@ void	print_parsed_req(
 	{
 		std::cout << "==>[" << it->first << "]" << ": [" << it->second << "]" << std::endl;
 	}
+
+	std::cout << query_string;
+	std::cout << path_info;
 }

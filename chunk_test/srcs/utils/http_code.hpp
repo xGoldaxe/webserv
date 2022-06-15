@@ -87,13 +87,6 @@ class HTTPCode404 : public HTTPCode4XX
     {}
 };
 
-class HTTPCode405 : public HTTPCode4XX
-{
-    public:
-    HTTPCode405() throw() : HTTPCode4XX(5, "Method Not Allowed")
-    {}
-};
-
 class HTTPCode400 : public HTTPCode4XX
 {
     public:

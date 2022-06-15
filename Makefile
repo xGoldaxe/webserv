@@ -3,6 +3,7 @@ SRCS	=	main.cpp \
 			utils/file.cpp \
 			utils/string.cpp \
 			init/server.cpp \
+			utils/utils.cpp \
 			init/connection.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \

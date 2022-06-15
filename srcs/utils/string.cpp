@@ -39,3 +39,11 @@ std::string ulToStr(std::size_t nb)
     std::string result(stream.str());
     return result;
 }
+
+std::string time_to_str( time_t tme )
+{
+    std::stringstream stream;
+    stream << tme;
+    std::string result(stream.str());
+    return result;
+}

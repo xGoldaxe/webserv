@@ -16,3 +16,4 @@ std::string get_filename(std::string file_name);
 std::string get_extension(std::string file_name);
 std::string intToHex(int nb);
 std::string ulToStr(std::size_t nb);
+std::string time_to_str( time_t tme );

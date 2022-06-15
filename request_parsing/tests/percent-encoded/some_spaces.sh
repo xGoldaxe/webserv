@@ -1,0 +1,17 @@
+#!/bin/bash
+
+ERROR_RES="error 400, Bad Request\n"
+
+# request
+echo -en "\
+GET /test%20%20test.html HTTP/1.1\r\n\
+\r\n\
+"
+
+# excepted
+OUTPUT=$1
+echo -en "\
+METHOD: GET
+PATH: /test  test.html
+VERSION: HTTP/1.1
+" > $OUTPUT

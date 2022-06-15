@@ -4,6 +4,9 @@
 #include "../../request_parsing/srcs/req_parse.hpp"
 #include "../../request_parsing/srcs/parse_request.hpp"
 
+#define CHUNK_HEAD_LIMIT 20
+#define CHUNK_BODY_LIMIT 100
+
 Request *store_req(bool mode, Request *req = NULL)
 {
 
@@ -16,28 +19,23 @@ Request *store_req(bool mode, Request *req = NULL)
 
 void store_data_from_raw_req(
 	std::vector<std::string> parsed_first_line,
-	std::map<std::string, std::string> headers)
+	std::map<std::string, std::string> headers,
+	std::string query_string,
+	std::string path_info
+)
 {
+	(void)path_info;
 	Request *stored_req = store_req(false);
 
 	if (!stored_req)
 		throw HTTPCode500();
 
-	if (parsed_first_line[1].find_first_of('?') != std::string::npos) {
-		std::string filename = parsed_first_line[1].substr(0, parsed_first_line[1].find_first_of('?'));
-		std::string query = parsed_first_line[1].substr(parsed_first_line[1].find_first_of('?') + 1);
-
-		stored_req->fill_start_line(
-			parsed_first_line[0],
-			filename,
-			parsed_first_line[2]);
-		stored_req->fill_query(query);
-	} else {
-		stored_req->fill_start_line(
-			parsed_first_line[0],
-			parsed_first_line[1].substr(0, parsed_first_line[1].find_first_of('?')),
-			parsed_first_line[2]);
-	}
+	stored_req->fill_start_line(
+		parsed_first_line[0],
+		parsed_first_line[1],
+		parsed_first_line[2]);
+	stored_req->fill_query( query_string );
+	std::cout << "{" << parsed_first_line[1] << "}" << std::endl;
 	stored_req->fill_headers(headers);
 }
 
@@ -83,25 +81,31 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 		/* find body_length */
 		std::map<std::string, std::string> ::iterator t_encoding = this->headers.find( "Transfer-Encoding" );
 		std::map<std::string, std::string> ::iterator c_length = this->headers.find( "Content-Length" );
-		if ( t_encoding != this->headers.end() )
+		if ( c_length != this->headers.end() && t_encoding != this->headers.end() )
+			throw HTTPCode400();
+		else if ( t_encoding != this->headers.end() )
 		{
-			if ( c_length != this->headers.end() )
-				throw std::exception();
-			this->set_status( 501, "Not Implemented" );
-			return ;
+			if ( t_encoding->second == std::string("chunked") )
+			{
+				this->body_length = 0;
+				this->body_transfer = CHUNKED;
+				this->chunk_buffer.set_limits( CHUNK_HEAD_LIMIT, CHUNK_BODY_LIMIT );
+			}
+			else
+				throw HTTPCode501();
 		}
-
-		if ( c_length != this->headers.end() )
+		else if ( c_length != this->headers.end() )
 		{
 			char	*end_ptr;
 			this->body_length = strtoul( (c_length->second).c_str(), &end_ptr, 10 );
+			this->remain_body_length = body_length;
 			this->body_transfer = LENGTH;
 			if ( this->body_length == 0 )
 				this->fulfilled = true;
 		}
 		else
 		{
-			this->fulfilled = true;
+			fulfilled = true;
 			this->body_transfer = NO_BODY;
 		}
 
@@ -109,6 +113,7 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 	}
 	catch(const HTTPError& e)
 	{
+		this->request_validity = false;
 		this->set_status( e.getCode(), e.getDescription() );
 	}
 };

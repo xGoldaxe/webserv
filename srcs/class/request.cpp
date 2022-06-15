@@ -131,39 +131,71 @@ std::ofstream	*Request::create_unique_file( std::string path )
 	return File;
 }
 
-std::size_t	Request::store_length( std::string add_str )
+int	Request::write_on_file( std::string str )
 {
-	std::size_t missing = std::min( this->body_length, add_str.size() );
+	this->body_file->write( str.c_str(), str.size() );
+	return str.size();
+}
+
+std::string	Request::store_length( std::string add_str )
+{
+	std::size_t missing = std::min( this->remain_body_length, add_str.size() );
 	
 	std::string substring = add_str.substr( 0, missing );
-	this->body_length -= substring.size();
+	this->remain_body_length -= this->write_on_file( substring );
 
-	std::cout << "body part [" << substring << "]" << std::endl;
-	// this->body_file->write( substring.c_str(), substring.size() );
-
-	if ( this->body_length == 0 )
+	if ( this->remain_body_length == 0 )
 		this->fulfilled = true;
 
-	return missing;
+	return add_str.substr( missing, add_str.size() );
+}
+
+std::string	Request::store_chunk( std::string chunk_str )
+{
+	try
+	{
+		std::string res = this->chunk_buffer.feed_chunk( chunk_str );
+		if ( this->chunk_buffer.is_valid() )
+		{
+			if ( this->chunk_buffer.is_last() )
+			{
+				this->fulfilled = true;
+				std::string ins;
+				ins += ulToStr( this->body_length );
+				this->headers.insert( std::pair<std::string, std::string>( "Content-Length", ins ) );
+			}
+			else
+			{
+				this->body_length = this->write_on_file( this->chunk_buffer.get_body() );
+				this->chunk_buffer.clean();
+			}
+		}
+		return res;
+	}
+	catch(const HTTPError& e)
+	{
+		this->set_status( e.getCode(), e.getDescription() );
+	}
+	return chunk_str;
 }
 
 /* return the amount of char added to the body, may invalid the request */
-std::size_t	Request::feed_body( std::string add_str )
+std::string	Request::feed_body( std::string add_str )
 {
-	// if ( this->body_file == NULL )
-	// 	this->body_file = this->create_unique_file( "memory/" );
-	// if ( this->body_file == NULL )
-	// {
-	// 	this->set_status( 500, "Internal Server Error" );
-	// 	return 0;
-	// }
+	if ( this->body_file == NULL )
+		this->body_file = this->create_unique_file( "memory/" );
+	if ( this->body_file == NULL )
+	{
+		this->set_status( 500, "Internal Server Error" );
+		return add_str;
+	}
 
 	if ( add_str.size() == 0 )
-		return 0;
+		return add_str;
 
 	if ( this->body_transfer == LENGTH )
 		return this->store_length( add_str );
-	// else if ( this->body_transfer == CHUNKED )
-	// 	return this->store_chunk( add_str );
-	return 0;
+	else if ( this->body_transfer == CHUNKED )
+		return this->store_chunk( add_str );
+	return add_str;
 }

@@ -128,7 +128,10 @@ class Chunk_buffer
 				if ( raw.size() >= 2 )
 				{
 					if ( raw[0] == '\r' && raw[1] == '\n' )
+					{
 						this->valid = true;
+						raw = "";
+					}
 					else
 						throw HTTPCode400();
 				}

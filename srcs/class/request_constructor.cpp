@@ -84,23 +84,25 @@ void	Request::try_construct( std::string raw_request, Webserv_conf conf)
 		else if ( t_encoding != this->headers.end() )
 		{
 			if ( t_encoding->second == std::string("chunked") )
-				this->body_transfer = CHUNKED;
-			else
 			{
-				throw HTTPCode501();
+				this->body_length = 0;
+				this->body_transfer = CHUNKED;
 			}
+			else
+				throw HTTPCode501();
 		}
 		else if ( c_length != this->headers.end() )
 		{
 			char	*end_ptr;
 			this->body_length = strtoul( (c_length->second).c_str(), &end_ptr, 10 );
+			this->remain_body_length = body_length;
 			this->body_transfer = LENGTH;
 			if ( this->body_length == 0 )
 				this->fulfilled = true;
 		}
 		else
 		{
-			this->fulfilled = true;
+			fulfilled = true;
 			this->body_transfer = NO_BODY;
 		}
 

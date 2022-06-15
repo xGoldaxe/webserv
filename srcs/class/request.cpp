@@ -131,17 +131,20 @@ std::ofstream	*Request::create_unique_file( std::string path )
 	return File;
 }
 
+int	Request::write_on_file( std::string str )
+{
+	this->body_file->write( str.c_str(), str.size() );
+	return str.size();
+}
+
 std::string	Request::store_length( std::string add_str )
 {
-	std::size_t missing = std::min( this->body_length, add_str.size() );
+	std::size_t missing = std::min( this->remain_body_length, add_str.size() );
 	
 	std::string substring = add_str.substr( 0, missing );
-	this->body_length -= substring.size();
+	this->remain_body_length -= this->write_on_file( substring );
 
-	std::cout << "body part [" << substring << "]" << std::endl;
-	// this->body_file->write( substring.c_str(), substring.size() );
-
-	if ( this->body_length == 0 )
+	if ( this->remain_body_length == 0 )
 		this->fulfilled = true;
 
 	return add_str.substr( missing, add_str.size() );
@@ -155,10 +158,15 @@ std::string	Request::store_chunk( std::string chunk_str )
 		if ( this->chunk_buffer.is_valid() )
 		{
 			if ( this->chunk_buffer.is_last() )
+			{
 				this->fulfilled = true;
+				std::string ins;
+				ins += ulToStr( this->body_length );
+				this->headers.insert( std::pair<std::string, std::string>( "Content-Length", ins ) );
+			}
 			else
 			{
-				// this->body_file->write( this->chunk_buffer.get_body().c_str(), this->chunk_buffer.get_body().size() );
+				this->body_length = this->write_on_file( this->chunk_buffer.get_body() );
 				this->chunk_buffer.clean();
 			}
 		}

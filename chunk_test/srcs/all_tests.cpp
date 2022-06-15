@@ -73,6 +73,7 @@ void	all_tests()
 	feed_secure( c, raw, "\n" );
 	verify_assert_equal<Chunk_buffer>( c, Chunk_buffer( true, true, "2", "an", 0 ) );
 	verify_assert_bool( c.is_last() == false );
+	verify_assert_bool( raw == "" );
 
 	c.clean();
 	raw = "";
@@ -108,6 +109,7 @@ void	all_tests()
 	feed_secure( c, raw, "\r" );
 	feed_secure( c, raw, "\n" );
 	verify_assert_bool( c.is_last() == true );
+	verify_assert_bool( raw == "" );
 
 	c.clean();
 	raw = "";
@@ -143,6 +145,18 @@ void	all_tests()
 	c.clean();
 	feed_secure( c, raw, "" );
 	verify_assert_equal<Chunk_buffer>( c, Chunk_buffer( false, false, "", "", 0 ) );
+
+	c.clean();
+	raw = "";
+	feed_secure( c, raw, "" );
+	feed_secure( c, raw, "" );
+	feed_secure( c, raw, "" );
+	feed_secure( c, raw, "" );
+	feed_secure( c, raw, "2" );
+	feed_secure( c, raw, "\r" );
+	feed_secure( c, raw, "\nan\r\n" );
+	verify_assert_equal<Chunk_buffer>( c, Chunk_buffer( true, true, "2", "an", 0 ) );
+	verify_assert_bool( raw == "" );
 
 	std::cout << result_info( GET_SUCCESS )
 	<< " test(s) pass over " << result_info( GET_TEST ) << " test(s)." << std::endl;

@@ -21,6 +21,7 @@ class Request
 		std::string		store_length( std::string add_str );
 		std::string		store_chunk( std::string chunck_str );
 		std::ofstream	*create_unique_file( std::string path );
+		int 			write_on_file( std::string str );
 
 	protected:
 		Webserv_conf							conf;
@@ -32,6 +33,7 @@ class Request
 		std::string								version;
 		bool									request_validity;
 		std::size_t								body_length;
+		std::size_t								remain_body_length;
 		std::string								body_file_path;
 		int										error_status;
 		std::string								error_message;

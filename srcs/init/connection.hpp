@@ -21,9 +21,12 @@ class Connection
 		bool					_is_dead;
 		const char				*_client_ip;
 		size_t					_response_max_size;
+		bool					_is_new_data;
 
 		Connection( void );
 		Connection &   operator=( Connection const & rhs );
+
+		bool					_data_added();
 
 	public:
 
@@ -56,6 +59,7 @@ class Connection
 		bool		get_is_dead(void) const;
 		bool		get_is_sending_data(void) const;
 		std::string get_client_ip(void) const;
+		bool 		get_is_new_data(void) const;
 };
 
 #include "class/request.hpp"

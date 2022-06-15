@@ -40,8 +40,11 @@ void	Connection::read_data()
 		return ;
 	// if we start to write a new request, we reset the timer!
 	if ( this->_raw_data.size() == 0 )
+	{
 		this->_begin_time = time(NULL);
+	}
 	this->_raw_data += buff;
+	this->_is_new_data = true;
 }
 
 bool	Connection::check_state()
@@ -111,12 +114,16 @@ void	Connection::queue_iteration()
 		// add the data to the body, only add what is required and store the remaining data
 		if ( this->_is_init && this->is_invalid_req() == false )
 		{
-			this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
+			if ( this->_data_added() )
+			{
+				std::cout << "feed the body" << std::endl;
+				this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
+			}
+			this->_is_new_data = false;
 		}
 
 		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
 		{
-			this->_begin_time = time(NULL);
 
 			this->_requests.push( this->_req );
 
@@ -174,11 +181,13 @@ bool	Connection::is_invalid_req()
 
 bool	Connection::is_fulfilled()
 {
-	// std::cout << "is_request_valid: " << this->_req->is_request_valid() << std::endl;
-	// std::cout << "is_fulfilled: " << this->_req->is_fulfilled() << std::endl;
 	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
 
+bool	Connection::_data_added()
+{
+	return ( this->_is_new_data == true && this->_raw_data.size() > 0 );
+}
 /*************************
 * @coplien
 * ***********************/
@@ -188,6 +197,7 @@ Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _f
 	this->_req = NULL;
 	this->_is_sending_data = false;
 	this->_is_dead = false;
+	this->_is_new_data = true;
 }
 
 Connection::Connection(Connection const &src) : _fd(src.get_fd()),
@@ -198,7 +208,8 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_is_sending_data( src.get_is_sending_data() ),
 												_is_dead( src.get_is_dead()),
 												_client_ip(src._client_ip),
-												_response_max_size(src._response_max_size)
+												_response_max_size(src._response_max_size),
+												_is_new_data( src.get_is_new_data() )
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
@@ -211,6 +222,7 @@ Connection &	Connection::operator=( Connection const & rhs )
 	this->_is_init = rhs.is_init();
 	this->_begin_time = rhs.get_time();
 	this->_is_dead = rhs.get_is_dead();
+	this->_is_new_data = rhs.get_is_new_data();
 	//is_sending_data;
 	return *this;
 }
@@ -258,4 +270,9 @@ bool	Connection::get_is_sending_data(void) const {
 
 std::string Connection::get_client_ip(void) const {
 	return (this->_client_ip);
+}
+
+bool	Connection::get_is_new_data(void) const {
+
+	return ( this->_is_new_data );
 }

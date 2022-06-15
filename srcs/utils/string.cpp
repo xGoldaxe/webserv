@@ -31,3 +31,11 @@ std::string intToHex(int nb)
     std::string result(stream.str());
     return result;
 }
+
+std::string ulToStr(std::size_t nb)
+{
+    std::stringstream stream;
+    stream << nb;
+    std::string result(stream.str());
+    return result;
+}

@@ -3,6 +3,7 @@
 #include "req_parse.hpp"
 #include <algorithm>
 #include "utils.hpp"
+#include "parse_url.hpp"
 #include "verify_absolute_url.hpp"
 #include "../../srcs/errors/http_code.hpp"
 
@@ -20,29 +21,6 @@ namespace	preq {
 	bool	check_str_size( std::string str ) {
 
 		return ( str.size() >= check_str_size_memory<size_t>( false ) );
-	}
-
-	bool	check_line( std::string str ) {
-
-		return ( str.size() >= 2 
-					&& str[ str.size() - 1 ] == '\n'
-					&& str[ str.size() - 2] == '\r'
-				);
-	}
-
-	bool	check_and_trunc_line( std::string *line ) {
-
-		if ( check_line( *line ) )
-		{
-			*line = line->substr( 0, line->size() - 2 );
-			return true;
-		}
-		return false;
-	}
-
-	bool	is_space( char c ) {
-
-		return ( c == ' ' || c == '\t' );
 	}
 
 	std::vector<std::string>	parse_start_line( std::string raw_line ) {
@@ -92,7 +70,7 @@ namespace	preq {
 	/* during the parsing at any time, an exception could happened. We just have to
 	catch it and send back an error 400 response */
 
-	int parse_request( std::string & data, void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>) ) {
+	int parse_request( std::string & data, void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>, std::string, std::string) ) {
 
 		std::vector<std::string> lines = read_until( data, &check_line );
 		if ( lines.size() < 1 )
@@ -120,15 +98,19 @@ namespace	preq {
 		if ( std::find( a_meth.begin(), a_meth.end(), parsed_first_line[0] ) == a_meth.end() )
 			throw HTTPCode501();
 		
+
+		std::string query_string;
+		std::string path_info;
+		if ( parse_url( parsed_first_line[1], parsed_first_line[1], path_info, query_string ) == false )
+			throw HTTPCode400();
+
 		if ( verify_absolute_url( parsed_first_line[1] ) == false )
 			throw HTTPCode400();
 
 		if ( parsed_first_line[2] != "HTTP/1.1")
 			throw HTTPCode505();
 		
-	
-
-		print_or_store( parsed_first_line , headers );
+		print_or_store( parsed_first_line, headers, query_string, path_info );
 		return (0);
 	}
 }

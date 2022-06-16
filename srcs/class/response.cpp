@@ -28,16 +28,18 @@ Response::Response(void)
 {
 }
 
-Response::Response(int client_socket, std::vector<std::string> index, Request *req, const char *client_ip, size_t max_size, Route route)
+Response::Response(int client_socket, std::vector<std::string> index, Request *req, const char *client_ip, size_t max_size, Route route, std::string body_file )
 	: _return_body_type(BODY_TYPE_STRING),
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
 	  _route(route),
 	  _index(index),
 	  _is_custom_error(false),
+	  _body_file( body_file ),
 	  client_socket(client_socket),
 	  req(req)
 {
+	// this->_add_file( body_file );
 	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";
 	if ( this->req->is_request_valid() )
@@ -85,8 +87,8 @@ Response &   Response::operator=( Response const & rhs )
 
 Response::~Response(void)
 {
-	delete this->req;
-
+	if ( this->req != NULL )
+		delete this->req;
 	if (this->_return_body_type == BODY_TYPE_CGI)
 		delete this->_cgi;
 }

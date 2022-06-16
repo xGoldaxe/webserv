@@ -54,7 +54,6 @@ public:
 	void handle_responses();
 	void wait_for_connections();
 	void trigger_queue();
-	bool queue_response(Response *res);
 	size_t countHandledRequest();
 
 	// Getters
@@ -92,6 +91,7 @@ private:
 
 	void _report(int sock, s_server_addr_in server_addr);
 	void _bind_port(int sock, s_server_addr_in server_addr);
+	void _create_run_folder();
 
 	void read_connection(int client_socket);
 	bool close_connection(int client_socket);

@@ -20,7 +20,7 @@ class Request
 	private:
 		std::string		store_length( std::string add_str );
 		std::string		store_chunk( std::string chunck_str );
-		std::ofstream	*create_unique_file( std::string path );
+		std::ofstream	*create_unique_file();
 		int 			write_on_file( std::string str );
 
 	protected:
@@ -44,11 +44,17 @@ class Request
 		std::ofstream							*body_file;
 		Chunk_buffer							chunk_buffer;
 
+		static std::vector<std::string>	_created_files;
+		void							_add_file( std::string filename );
+		void							_delete_file( std::string filename );
 
 	public:
 		bool			auto_index;
 		Route			route;
 		char			**env;
+
+		//used as interface to delete all files
+		void delete_all_files();
 
 		/* coplien */
 		Request( void );
@@ -74,6 +80,7 @@ class Request
 		Route		get_route(void);
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
+		std::string	get_body_file(void) const;
 
 		std::string get_header_value(std::string name) const;
 

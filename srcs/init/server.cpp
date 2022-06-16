@@ -155,10 +155,8 @@ Server::~Server()
             close(*it);
         }
 
-        while (!this->_queue.empty()) {
-            delete this->_queue.front();
-            this->_queue.pop();
-        }
+        delete_queue( this->_queue );
+        delete_queue( this->_c_queue );
 
         std::cout << "Server closed." << std::endl;
     }

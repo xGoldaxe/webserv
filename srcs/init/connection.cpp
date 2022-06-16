@@ -228,7 +228,11 @@ Connection &	Connection::operator=( Connection const & rhs )
 }
 
 Connection::~Connection()
-{}
+{
+	if ( this->_req )
+		delete this->_req;
+	delete_queue( this->_requests );
+}
 
 /*************************
 * @getters

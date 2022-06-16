@@ -57,3 +57,4 @@ int hexToInt(std::string hex)
     stream >> result;
     return result;
 }
+

@@ -9,3 +9,15 @@ bool	is_space( char c );
 bool	check_and_trunc_line( std::string *line );
 std::string test_through_str( std::string &str, bool (*rule)(std::string) );
 int hexToInt(std::string hex);
+
+
+#include <queue>
+template < class T >
+void	delete_queue( std::queue<T*> q )
+{
+	while ( !q.empty() )
+	{
+        delete q.front();
+        q.pop();
+    }
+}

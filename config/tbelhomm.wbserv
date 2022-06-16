@@ -76,7 +76,7 @@ server
 		send_file on ;
 		file_limit = 100 ;
 		cgi_extension = php ;
-		cgi_timeout = 2 ;
+		cgi_timeout = 30 ;
 		cgi_path = /usr/bin/php-cgi ;
 	}
 }

@@ -97,8 +97,7 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     else
     {
         delete [] exec_path;
-
-        // Closing useless pipe
+        
         close(pipe_in_fd[0]);
         close(pipe_fd[1]);
 
@@ -108,7 +107,6 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
             std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
         }
         close(pipe_in_fd[1]);
-        close(pipe_fd[1]);
 
         this->_begin_response_time = std::time(0);
 
@@ -163,7 +161,7 @@ int CGIManager::readChunk(std::size_t chunk_size)
                 this->_out_chunk += temp;
                 if (this->_out_chunk.length() >= chunk_size) {
                     this->_remaining = this->_out_chunk.substr(chunk_size);
-                    this->_out_chunk = this->_out_chunk.substr(0, chunk_size - 1);
+                    this->_out_chunk = this->_out_chunk.substr(0, chunk_size);
                     return (CHUNK_CONTINUE);
                 }
             }

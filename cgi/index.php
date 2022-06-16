@@ -19,6 +19,11 @@
             <li><?= $key ?>=<?= $entry ?></li>
         <?php
         }
+
+        var_dump($HTTP_RAW_POST_DATA);
+        var_dump($_GET);
+        var_dump($_POST);
+        var_dump($_FILES);
         ?>
     </ul>
 

@@ -44,12 +44,9 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     this->addHeader("PATH_INFO", req.get_legacy_url());
     this->addHeader("PATH_TRANSLATED", req.get_legacy_url());
     this->addHeader("SCRIPT_NAME", req.get_legacy_url());
-    this->addHeader("CONTENT_LENGTH", to_string(req.getBody().length()));
-    if (req.getMethod() == "GET") {
-        this->addHeader("QUERY_STRING", req.get_query());
-    } else {
-        this->addHeader("QUERY_STRING", req.getBody());
-    }
+    this->addHeader("CONTENT_LENGTH", to_string(req.get_body_content().length()));
+    this->addHeader("CONTENT_TYPE", req.get_header_value("Content-Type"));
+    this->addHeader("QUERY_STRING", req.get_query());
     this->addHeader("REMOTE_ADDR", client_ip);
     this->addHeader("REQUEST_METHOD", req.getMethod());
     this->addHeader("SERVER_NAME", addr);
@@ -89,6 +86,8 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     if (pid == 0)
     {
         close(pipe_in_fd[1]);
+        close(pipe_fd[0]);
+
         dup2(pipe_in_fd[0], STDIN_FILENO);
         dup2(pipe_fd[1], STDOUT_FILENO);
 
@@ -99,7 +98,12 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     {
         delete [] exec_path;
 
-        std::string to_write = req.getBody();
+        // Closing useless pipe
+        close(pipe_in_fd[0]);
+        close(pipe_fd[1]);
+
+        // Write the body content
+        std::string to_write = req.get_body_content();
         if (write(pipe_in_fd[1], to_write.c_str(), to_write.size()) < 0) {
             std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
         }

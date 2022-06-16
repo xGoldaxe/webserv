@@ -37,6 +37,7 @@ class Request
 		std::string								body_file_path;
 		int										error_status;
 		std::string								error_message;
+		std::string								_body_content;
 		int										body_transfer;
 		bool									fulfilled;
 		
@@ -81,6 +82,7 @@ class Request
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
 		std::string	get_body_file(void) const;
+		std::string	get_body_content(void) const;
 
 		std::string get_header_value(std::string name) const;
 

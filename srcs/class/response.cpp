@@ -87,10 +87,10 @@ Response &   Response::operator=( Response const & rhs )
 
 Response::~Response(void)
 {
-	// if ( this->_body_file != "" )
-	// 	this->_delete_file( this->_body_file );
 	if ( this->req != NULL )
 		delete this->req;
+	if (this->_return_body_type == BODY_TYPE_CGI)
+		delete this->_cgi;
 }
 
 void Response::output(const size_t req_id)
@@ -139,6 +139,12 @@ size_t Response::getFileSize(void)
 
 int Response::send()
 {
+	// In the case of a CGI Execution, we don't want to manage headers/body assets
+	if (this->_return_body_type == BODY_TYPE_CGI)
+	{
+		return (1);
+	}
+
 	/* add some headers */
 	http_header_content_length(*this->req, *this);
 
@@ -157,7 +163,6 @@ int Response::send()
 	}
 
 	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
-
 	if (this->req->getMethod() == "HEAD" || !(this->body.length() > this->getChunkMaxSize() || this->isFile()))
 	{
 		return (-1);
@@ -189,6 +194,49 @@ int		Response::send_chunk()
 		this->body.erase(0, this->_body_max_size);
 		::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
 		return this->body.length();
+	}
+	else if (this->_return_body_type == BODY_TYPE_CGI)
+	{
+		int chunk_type = 0;
+
+		try {
+			chunk_type = this->_cgi->readChunk(this->_body_max_size);
+		} catch (const HTTPCode5XX &e) {
+			this->set_status( e.getCode(), e.getDescription() );
+			this->error_body();
+			this->send();
+			return (1);
+		}
+
+		std::cout << chunk_type << std::endl;
+
+		if (chunk_type == CHUNK_CONTINUE && this->_cgi->getOutput().length() > 0) {
+			std::string response_content = intToHex(this->_cgi->getOutput().length()) + "\r\n" + this->_cgi->getOutput() + "\r\n";
+			::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
+			return (response_content.length());
+		} else if (chunk_type == CHUNK_HEADER) {
+			std::string headers_response = this->version + " ";
+
+			std::string headers = this->_cgi->getOutput();
+			size_t pos_status = headers.find("Status: ");
+			if (pos_status == headers.npos) {
+				headers_response += to_string(this->status_code) + " " + this->status_message + "\r\n";
+			} else {
+				std::string header_status = headers.substr(pos_status + std::string("Status: ").length());
+				headers_response += header_status.substr(0, header_status.find_first_of("\r\n", pos_status)) + "\r\n";
+				std::cout << headers_response << std::endl;
+				headers.erase(pos_status, headers.find_first_of("\r\n", pos_status) + 2);
+			}
+
+			headers_response += headers;
+
+			::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
+			return (headers_response.length());
+		}
+
+		if (chunk_type == CHUNK_NEXT)
+			return (1);
+		return (0);
 	}
 	else if (this->_return_body_type == BODY_TYPE_FILE)
 	{
@@ -223,6 +271,11 @@ bool Response::isFile()
 	return this->_return_body_type == BODY_TYPE_FILE;
 }
 
+bool Response::isCGI()
+{
+	return this->_return_body_type == BODY_TYPE_CGI;
+}
+
 std::string auto_index_template(std::string url, std::string legacy_url);
 
 std::string Response::load_body(std::string client_ip)
@@ -233,8 +286,10 @@ std::string Response::load_body(std::string client_ip)
 	}
 	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
-		CGIManager cgi(this->_route.get_root(), "/bin/php-cgi" /** @todo this->_route.get_cgi_path() */, this->url);
-		this->body = cgi.exec(*this->req, client_ip);
+		this->_return_body_type = BODY_TYPE_CGI;
+
+		this->_cgi = new CGIManager(this->_route.get_root(), this->_route.get_cgi_path(), this->url, this->_route.get_cgi_timeout());
+		this->body = this->_cgi->exec(*this->req, client_ip);
 
 		std::istringstream resp(this->body);
 		std::string header;
@@ -251,6 +306,7 @@ std::string Response::load_body(std::string client_ip)
 			}
 		}
 		this->add_header("Content-Type", "text/html");
+		this->add_header("Transfer-Encoding", "chunked");
 
 		std::stringstream tmp;
 		tmp << resp.rdbuf();

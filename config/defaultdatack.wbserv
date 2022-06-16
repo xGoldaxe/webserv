@@ -10,6 +10,9 @@ server
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
 	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
 	location /
 	{
 		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
@@ -21,6 +24,8 @@ server
 		autoindex on ;
 		send_file on ;
 		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
 	}
 	location /php
 	{ 

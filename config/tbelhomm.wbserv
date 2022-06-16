@@ -11,7 +11,7 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
+		root /home/restray/42/webserv/www/ ;
 		index = /index.html /index.htm ;
 		methods = GET ;
 		rewrite 301 /moved.html /sub/index.html ;
@@ -22,21 +22,21 @@ server
 	}
 	location /sub
 	{
-		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
+		root /home/restray/42/webserv/www/ ;
 		error_page 404 = /home/restray/Documents/webserv/defaultPages/404.html ;
 		index = /index.html /index.htm ;
 		methods = GET POST ;
 	}
 	location /post
 	{
-		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
+		root /home/restray/42/webserv/www/ ;
 		index = /index.html /index.htm ;
 		methods = POST ;
 	}
 	location /php
 	{ 
 		error_page 404 = /defaultPages/500.html ;
-		root /mnt/nfs/homes/pleveque/Documents/webserv/cgi/ ;
+		root /home/restray/42/webserv/cgi/ ;
 		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
@@ -70,10 +70,13 @@ server
 	location /php
 	{ 
 		root /home/restray/42/webserv/cgi/ ;
+		methods = POST GET HEAD ;
 		index = /index.php ;
 		enable_cgi on ; 
+		send_file on ;
+		file_limit = 100 ;
 		cgi_extension = php ;
-		cgi_timeout = 10 ;
+		cgi_timeout = 2 ;
 		cgi_path = /usr/bin/php-cgi ;
 	}
 }

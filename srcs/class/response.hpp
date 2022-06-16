@@ -10,6 +10,7 @@
 #include "webserv.hpp"
 
 class Response;
+class CGIManager;
 
 #include "request.hpp"
 
@@ -21,10 +22,11 @@ class Response;
 
 #define BODY_TYPE_FILE		1
 #define BODY_TYPE_STRING	2
+#define BODY_TYPE_CGI		3
 
 class Response
 {
-	protected:
+	private:
 		std::string								version;
 		std::map<std::string, std::string>		headers;
 		Request									cpy_req;
@@ -38,6 +40,7 @@ class Response
 		std::vector<std::string>				_index;
 		bool									_is_custom_error;
 		std::string								_body_file;
+		CGIManager								*_cgi;
 
 		Response &operator=(Response const &rhs);
 		Response( Response const &src );
@@ -69,6 +72,7 @@ class Response
 		std::string	load_body(std::string client_ip);
 		std::string & error_body(void);
 		bool isFile(void);
+		bool isCGI(void);
 		size_t getFileSize(void);
 		void output(const size_t req_id);
 		int send(void);

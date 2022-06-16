@@ -62,6 +62,20 @@ class HTTPCode501 : public HTTPCode5XX
     {}
 };
 
+class HTTPCode502 : public HTTPCode5XX
+{
+    public:
+    HTTPCode502() throw() : HTTPCode5XX(2, "Bad Gateway")
+    {}
+};
+
+class HTTPCode504 : public HTTPCode5XX
+{
+    public:
+    HTTPCode504() throw() : HTTPCode5XX(4, "Gateway Timeout")
+    {}
+};
+
 /*************************
 * @4xx
 * ***********************/

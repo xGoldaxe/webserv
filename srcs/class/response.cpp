@@ -208,12 +208,13 @@ int		Response::send_chunk()
 			return (1);
 		}
 
-		std::cout << chunk_type << std::endl;
-
-		if (chunk_type == CHUNK_CONTINUE && this->_cgi->getOutput().length() > 0) {
-			std::string response_content = intToHex(this->_cgi->getOutput().length()) + "\r\n" + this->_cgi->getOutput() + "\r\n";
-			::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
-			return (response_content.length());
+		if (chunk_type == CHUNK_CONTINUE) {
+			std::string out = this->_cgi->getOutput();
+			if (out.length() > 0) {
+				std::string response_content = intToHex(out.length()) + "\r\n" + out + "\r\n";
+				::send(this->client_socket, response_content.c_str(), response_content.length(), 0);	
+			}
+			return (1);
 		} else if (chunk_type == CHUNK_HEADER) {
 			std::string headers_response = this->version + " ";
 

@@ -19,9 +19,7 @@ CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path,
     this->_cgi_path = cgi_path;
     this->_path = path;
     this->_cgi_timeout = cgi_timeout;
-    this->_sent_headers = false;
-    this->_cgi_out_fd = -1;
-    this->_out_chunk = "";
+    this->_pid = 0;
 
     this->_c_headers = new char* [1];
     this->_c_headers[0] = NULL;
@@ -90,7 +88,6 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     }
     if (pid == 0)
     {
-        close(pipe_fd[0]);
         close(pipe_in_fd[1]);
         dup2(pipe_in_fd[0], STDIN_FILENO);
         dup2(pipe_fd[1], STDOUT_FILENO);
@@ -109,10 +106,13 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
         close(pipe_in_fd[1]);
         close(pipe_fd[1]);
 
+        this->_begin_response_time = std::time(0);
+
+        this->_sent_headers = false;
         this->_cgi_out_fd = pipe_fd[0];
         this->_pid = pid;
-
-        this->_begin_response_time = std::time(0);
+        this->_out_chunk = "";
+        this->_remaining = "";
     }
     return "";
 }
@@ -121,18 +121,16 @@ int CGIManager::readChunk(std::size_t chunk_size)
 {
     // If we closed the cgi stdout
     if (this->_cgi_out_fd == 0) {
+        this->_out_chunk = this->_remaining;
         return (CHUNK_OVER);
     }
 
-    this->_out_chunk = this->_remaining;
-    this->_remaining = "";
-    
     struct pollfd fds;
     fds.fd = this->_cgi_out_fd;
     fds.events = POLLIN;
 
     while (!shouldQuit()) {
-        if (poll(&fds, 1, 0) > 0) {
+        if (poll(&fds, 1, 0) == 1) {
             if (!this->_sent_headers) {
                 char temp;
                 if (read(this->_cgi_out_fd, &temp, 1) < 1) {
@@ -143,7 +141,9 @@ int CGIManager::readChunk(std::size_t chunk_size)
                 std::size_t pos_end_header = this->_out_chunk.find("\r\n\r\n");
                 if (pos_end_header != this->_out_chunk.npos) {
                     this->_remaining = this->_out_chunk.substr(pos_end_header + std::string("\r\n\r\n").length());
-                    this->_out_chunk = this->_out_chunk.substr(0, pos_end_header) + "\r\nTransfer-Encoding: chunked\r\n\r\n";
+
+                    this->_out_chunk.erase(this->_out_chunk.begin() + pos_end_header, this->_out_chunk.end());
+                    this->_out_chunk += "\r\nTransfer-Encoding: chunked\r\n\r\n";
                     this->_sent_headers = true;
                     return (CHUNK_HEADER);
                 }
@@ -194,22 +194,16 @@ int CGIManager::readChunk(std::size_t chunk_size)
         this->_cgi_out_fd = -1;
         throw HTTPCode502();
     }
-
-    // close(this->_cgi_out_fd);
-    // this->_cgi_out_fd = 0;
-
-    this->_out_chunk += this->_remaining;
-    this->_remaining = "";
-
-    if (this->_out_chunk != "") {
-        return (CHUNK_CONTINUE);
-    }
-    return (CHUNK_NEXT);
+    if (this->_out_chunk == "")
+        return (CHUNK_NEXT);
+    return (CHUNK_CONTINUE);
 }
 
-std::string    CGIManager::getOutput() const
+std::string    CGIManager::getOutput()
 {
-    return this->_out_chunk;
+    std::string out = this->_out_chunk;
+    this->_out_chunk =  this->_remaining;
+    return out;
 }
 
 void CGIManager::addHeader(std::string name, std::string value)

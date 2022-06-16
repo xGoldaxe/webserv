@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include <string>
-#include "../errors/http_code.hpp"
-#include "../utils/string.hpp"
-#include "../utils/utils.hpp"
+#include "http_code.hpp"
+#include "string.hpp"
+#include "utils.hpp"
 
 class Chunk_buffer
 {

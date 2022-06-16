@@ -1,5 +1,5 @@
-#include "chunk_buffer.hpp"
-#include "assert_object.hpp"
+#include "../../srcs/class/chunk_buffer.hpp"
+#include "../internal/assert_object.hpp"
 // valid, head_valid, head, body, remain
 
 void	feed_secure( Asserter &asserter, Chunk_buffer &c, std::string &raw, std::string add )
@@ -18,7 +18,7 @@ void	all_tests( Asserter &asserter )
 {
 	// set a tag for all test of this suite
 	asserter.add_tag("chunk1");
-	asserter.new_suite("chunk");
+	asserter.new_suite("chunk.cpp");
 
 	Chunk_buffer c;
 	std::string raw;

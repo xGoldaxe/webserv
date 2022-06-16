@@ -15,6 +15,7 @@ class Asserter
 		std::string actual_name;
 		std::vector<std::string> tags;
 		std::string actual_suite;
+		std::string actual_comment;
 		std::size_t	title_size;
 		int number_suite;
 		int success_suite;
@@ -31,7 +32,7 @@ class Asserter
 			if ( this->actual_suite == "" )
 				this->print_error("You can't run a test outside a suite");
 			if ( this->exception == true )
-				this->print_test( false, "(exception)" );
+				this->print_test( false, "exception" );
 			else
 			{
 				if ( condition )
@@ -52,8 +53,13 @@ class Asserter
 			std::cout << ( success ? "\033[0;42m-OK" : "\033[0;41m-KO" ) << "\033[0m";
 			std::string name = ( ( this->actual_name != "" ) ? this->actual_name : to_string_int( this->number_of_test ) );
 			std::cout << " \033[1;37m[" << name << "]\033[0m";
-			if ( precision != "" )
-				std::cout << "\033[0;36m " << precision << "\033[0m";
+			if ( this->actual_comment != "" )
+			{
+				std::cout << "\033[0;36m (" << this->actual_comment << ")\033[0m";
+				this->actual_comment = "";
+			}
+			else if ( precision != "" )
+				std::cout << "\033[0;36m (" << precision << ")\033[0m";
 			this->print_tag();
 			std::cout << std::endl;
 		}
@@ -66,6 +72,7 @@ class Asserter
 			actual_name(""),
 			tags( std::vector<std::string>() ),
 			actual_suite(""),
+			actual_comment(""),
 			title_size(0),
 			number_suite(0),
 			success_suite(0),
@@ -75,7 +82,7 @@ class Asserter
 			allowed_suites( std::vector<std::string>() ),
 			exclusive_suite( false )
 		{
-			std::cout << "\033[1;43;30mMade by pleveque\033[0m" << std::endl;
+			this->HEADER_MESSAGE();
 			for ( int i = 0; args[i] != NULL; ++i )
 			{
 				std::string arg( args[i] );
@@ -181,6 +188,14 @@ class Asserter
 		{
 			this->tags.clear();
 		}
+		void	delete_last_tag()
+		{
+			this->tags.pop_back();
+		}
+		void	add_comment( std::string comment )
+		{
+			this->actual_comment = comment;
+		}
 
 		/* utils */
 		std::size_t	advert( std::string str, int mode = 0 )
@@ -205,10 +220,10 @@ class Asserter
 			if ( this->exception == true )
 			{
 				this->success++;
-				this->print_test( true, "(exception)" );
+				this->print_test( true, "exception" );
 			}
 			else
-				this->print_test( false, "(no exception)" );
+				this->print_test( false, "no exception" );
 			this->exception = false;
 			this->number_of_test++;
 		}
@@ -247,11 +262,11 @@ class Asserter
 
 			std::cout << std::endl;
 			std::string str = "Suite: " + suite_name;
-			std::cout << "\033[1;43;30m======>" << str << "<======\033[0m";
+			std::cout << "\033[1;43;30m======> " << str << " <======\033[0m";
 			this->print_tag();
 			std::cout << std::endl << "\033[1;43;30m=\033[0m" << std::endl;
 
-			this->title_size = str.size() + 14;
+			this->title_size = str.size() + 16;
 			this->number_suite++;
 		}
 
@@ -304,5 +319,37 @@ class Asserter
 			return ( this->allowed_suites.size() == 0 ||
 					std::find( this->allowed_suites.begin(), this->allowed_suites.end(), suite_name ) != this->allowed_suites.end()
 				);
+		}
+
+		void	HEADER_MESSAGE()
+		{
+			std::string str;
+
+			str += "/******************************************************************************/\n";
+			str += "/*                                                                            */\n";
+			str += "/*                                                        :::      ::::::::   */\n";
+			str += "/*   Unite tester for cpp                               :+:      :+:    :+:   */\n";
+			str += "/*                                                    +:+ +:+         +:+     */\n";
+			str += "/*   By: pleveque <pleveque@student.42.fr>          +#+  +:+       +#+        */\n";
+			str += "/*                                                +#+#+#+#+#+   +#+           */\n";
+			str += "/*                                                     #+#    #+#             */\n";
+			str += "/*   Version: 1.0                 by pleveque         ###   ########.fr       */\n";
+			str += "/*                                                                            */\n";
+			str += "/******************************************************************************/";
+			
+			std::string res = "\033[1;43;37m";
+			for ( std::string::iterator it = str.begin(); it != str.end(); ++it )
+			{
+				if ( *it != ' ' && *it != '\n' )
+					res += *it;
+				else
+				{
+					res += "\033[0m";
+					res += *it;
+					res += "\033[1;43;37m";
+				}
+			}
+			res += "\033[0m";
+			std::cout << res << std::endl;
 		}
 };

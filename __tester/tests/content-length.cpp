@@ -1,4 +1,4 @@
-#include "assert_object.hpp"
+#include "../internal/assert_object.hpp"
 
 std::size_t	factice( std::size_t size )
 {
@@ -8,7 +8,7 @@ std::size_t	factice( std::size_t size )
 void	content_length_test( Asserter &asserter )
 {
 	// set a tag for all test of this suite
-	asserter.new_suite("Content-Length");
+	asserter.new_suite("tests/content-length.cpp");
 
 	std::size_t size;
 
@@ -21,7 +21,4 @@ void	content_length_test( Asserter &asserter )
 
 	asserter.end_suite();
 
-	asserter.new_suite("empty suite");
-
-	asserter.end_suite();
 }

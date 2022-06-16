@@ -4,7 +4,7 @@
 #include <string>
 #include <cstring>
 
-#include "string.hpp"
+#include "../utils/string.hpp"
 
 class HTTPError : public std::exception
 {

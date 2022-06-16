@@ -2,6 +2,7 @@
 
 Request::~Request(void)
 {
+	return ;
 	if ( this->body_file != NULL )
 	{
 		this->body_file->close();

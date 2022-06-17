@@ -2,7 +2,7 @@ server
 {
 	server_name = test ;
 	host = 0.0.0.0 ;
-	listen = 3000 ;
+	listen = 4000 ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
 	server_body_size = 1024 ;

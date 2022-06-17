@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "../utils/string.hpp"
 #include "../configuration/redirection.hpp"
-#include "errors/http_code.hpp"
+#include "../errors/http_code.hpp"
 
 #ifdef DEBUG
 # include <iostream>

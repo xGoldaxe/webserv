@@ -5,18 +5,18 @@
 #include <stdio.h>
 #include <vector>
 #include <cstdlib>
-#include "utils/string.hpp"
+#include "../utils/string.hpp"
 
-#include "webserv.hpp"
+#include "../webserv.hpp"
 
 class Response;
 class CGIManager;
 
 #include "request.hpp"
 
-#include "configuration/webserv.hpp"
-#include "errors/http_code.hpp"
-#include "cgi/cgi_manager.hpp"
+#include "../configuration/webserv.hpp"
+#include "../errors/http_code.hpp"
+#include "../cgi/cgi_manager.hpp"
 #include <sys/socket.h>
 #include <sys/un.h>
 

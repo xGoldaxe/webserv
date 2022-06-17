@@ -29,7 +29,7 @@
 #include <queue>
 
 #include "exception_server_not_listening.hpp"
-#include "configuration/webserv.hpp"
+#include "../configuration/webserv.hpp"
 
 class Connection;
 #include "connection.hpp"
@@ -37,7 +37,7 @@ class Connection;
 #define BACKLOG 10000
 #define MAX_RUNNERS 20
 
-#include "class/response.hpp"
+#include "../class/response.hpp"
 
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;

@@ -1,7 +1,10 @@
 #include "request.hpp"
 
+
+/** @deprecated description **/
 Request::~Request(void)
 {
+	return ;
 	if ( this->body_file != NULL )
 	{
 		this->body_file->close();
@@ -16,6 +19,8 @@ Request::Request(void)
 	this->body_file = NULL;
 	this->error_status = 0;
 	this->fulfilled = false;
+	this->body_transfer = NO_BODY;
+	this->fulfilled = true;
 	this->_body_content = "";
 }
 
@@ -57,6 +62,14 @@ Route Request::get_route(void)
 std::string Request::get_body_file(void) const
 {
 	return (this->body_file_path);
+}
+long long int	Request::get_body_length( void ) const
+{
+	return this->body_length;
+}
+int	Request::get_body_transfer(void) const
+{
+	return this->body_transfer;
 }
 
 bool Request::is_request_valid(void) const
@@ -166,7 +179,8 @@ std::string	Request::get_body_content(void) const
 
 std::string	Request::store_length( std::string add_str )
 {
-	std::size_t missing = std::min( this->remain_body_length, add_str.size() );
+	long long int t = static_cast<long long int>(add_str.size());
+	std::size_t missing = std::min( this->remain_body_length, t );
 	
 	std::string substring = add_str.substr( 0, missing );
 	this->remain_body_length -= this->write_on_file( substring );

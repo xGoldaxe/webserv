@@ -3,15 +3,18 @@
 #include <algorithm>
 #include <string.h>
 
-#include "utils/string.hpp"
-#include "utils/file.hpp"
-#include "route.hpp"
-#include "configuration/webserv.hpp"
-#include "class/chunk_buffer.hpp"
+#include "../utils/string.hpp"
+#include "../utils/file.hpp"
+#include "../class/route.hpp"
+#include "../configuration/webserv.hpp"
+#include "../class/chunk_buffer.hpp"
 
 #define CHUNKED 2
 #define LENGTH 1
 #define NO_BODY 0
+
+#define CHUNK_HEAD_LIMIT 20
+#define CHUNK_BODY_LIMIT 100
 
 class Response;
 
@@ -32,8 +35,8 @@ class Request
 		std::string								query;
 		std::string								version;
 		bool									request_validity;
-		std::size_t								body_length;
-		std::size_t								remain_body_length;
+		long long int							body_length;
+		long long int							remain_body_length;
 		std::string								body_file_path;
 		int										error_status;
 		std::string								error_message;
@@ -82,7 +85,8 @@ class Request
 		bool		is_request_valid(void) const;
 		std::string	get_http_version(void) const;
 		std::string	get_body_file(void) const;
-		std::string	get_body_content(void) const;
+		long long int	get_body_length(void) const;
+		int			get_body_transfer(void) const;
 
 		std::string get_header_value(std::string name) const;
 
@@ -102,7 +106,11 @@ class Request
                     return ("Request:Request canno't parse the http raw request.");
                 }
         };
+
+		/* headers */
+		void	content_length( const std::string &content );
+		void	transfer_encoding( const std::string &content );
 };
 
-#include "response.hpp"
-#include "http_header/http_header.hpp"
+#include "../class/response.hpp"
+#include "../http_header/http_header.hpp"

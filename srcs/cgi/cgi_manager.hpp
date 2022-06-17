@@ -12,8 +12,8 @@
 #include <unistd.h>
 #include <poll.h>
 
-#include "internal/mime_types.hpp"
-#include "class/request.hpp"
+#include "../internal/mime_types.hpp"
+#include "../class/request.hpp"
 
 #define WEBSERV_VERSION "webserv-1.0"
 #define CHUNK_CONTINUE 1

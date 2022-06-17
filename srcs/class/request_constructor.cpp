@@ -4,9 +4,6 @@
 #include "../../request_parsing/srcs/req_parse.hpp"
 #include "../../request_parsing/srcs/parse_request.hpp"
 
-#define CHUNK_HEAD_LIMIT 20
-#define CHUNK_BODY_LIMIT 100
-
 Request *store_req(bool mode, Request *req = NULL)
 {
 
@@ -79,34 +76,12 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */
-		std::map<std::string, std::string> ::iterator t_encoding = this->headers.find( "Transfer-Encoding" );
-		std::map<std::string, std::string> ::iterator c_length = this->headers.find( "Content-Length" );
-		if ( c_length != this->headers.end() && t_encoding != this->headers.end() )
-			throw HTTPCode400();
-		else if ( t_encoding != this->headers.end() )
+		for ( std::map<std::string, std::string>::iterator it = this->headers.begin(); it != this->headers.end(); ++it )
 		{
-			if ( t_encoding->second == std::string("chunked") )
-			{
-				this->body_length = 0;
-				this->body_transfer = CHUNKED;
-				this->chunk_buffer.set_limits( CHUNK_HEAD_LIMIT, CHUNK_BODY_LIMIT );
-			}
-			else
-				throw HTTPCode501();
-		}
-		else if ( c_length != this->headers.end() )
-		{
-			char	*end_ptr;
-			this->body_length = strtoul( (c_length->second).c_str(), &end_ptr, 10 );
-			this->remain_body_length = body_length;
-			this->body_transfer = LENGTH;
-			if ( this->body_length == 0 )
-				this->fulfilled = true;
-		}
-		else
-		{
-			fulfilled = true;
-			this->body_transfer = NO_BODY;
+			if ( it->first == "Transfer-Encoding" )
+				this->transfer_encoding( it->second );
+			else if ( it->first == "Content-Length" )
+				this->content_length( it->second );
 		}
 
 		this->request_validity = true;

@@ -22,6 +22,7 @@ SRCS	=	main.cpp \
 			errors/http_code.cpp \
 			class/response_error_page.cpp \
 			class/read_chunk.cpp \
+			request_header/request_header.cpp \
 
 HEADERS =	errors/http_code.hpp \
 			exit_handle.hpp \
@@ -39,7 +40,7 @@ HEADERS =	errors/http_code.hpp \
 			utils/file.hpp \
 			utils/string.hpp \
 
-OBJS	=	${SRCS:%.cpp=./.build/%.o}
+OBJS	=	${SRCS:%.cpp=.build/%.o}
 DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
@@ -58,7 +59,7 @@ B_GREEN			= \033[1;32m
 B_MAGENTA 		= \033[1;35m
 B_CYAN 			= \033[1;36m
 
-./.build/%.o: srcs/%.cpp $(DEPS)
+.build/%.o: srcs/%.cpp $(DEPS)
 		@mkdir -p $(@D)
 		@$(CXX) $(CXXFLAGS) -Isrcs/ -o $@ -c $<
 		@printf "${B_MAGENTA}Compilling $< ...\n${NONE}"

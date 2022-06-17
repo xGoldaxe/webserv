@@ -3,7 +3,7 @@
 #include <string>
 #include <ctime>
 #include <queue>
-#include "class/route.hpp"
+#include "../class/route.hpp"
 
 class Request;
 class Response;
@@ -63,5 +63,5 @@ class Connection
 		bool 		get_is_new_data(void) const;
 };
 
-#include "class/request.hpp"
-#include "class/response.hpp"
+#include "../class/request.hpp"
+#include "../class/response.hpp"

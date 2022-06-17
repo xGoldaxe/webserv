@@ -87,6 +87,7 @@ class Request
 		std::string	get_body_file(void) const;
 		long long int	get_body_length(void) const;
 		int			get_body_transfer(void) const;
+		std::string	get_body_content(void) const;
 
 		std::string get_header_value(std::string name) const;
 

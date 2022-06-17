@@ -76,14 +76,12 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */
-		std::map<std::string, std::string>::iterator t_encoding = this->headers.find( "Transfer-Encoding" );
-		std::map<std::string, std::string> ::iterator c_length = this->headers.find( "Content-Length" );
 		for ( std::map<std::string, std::string>::iterator it = this->headers.begin(); it != this->headers.end(); ++it )
 		{
 			if ( it->first == "Transfer-Encoding" )
-				this->transfer_encoding( c_length->second );
+				this->transfer_encoding( it->second );
 			else if ( it->first == "Content-Length" )
-				this->content_length( c_length->second );
+				this->content_length( it->second );
 		}
 
 		this->request_validity = true;

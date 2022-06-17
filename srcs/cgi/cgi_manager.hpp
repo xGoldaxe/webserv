@@ -32,7 +32,7 @@ public:
     ~CGIManager();
     std::string    exec(Request &req, std::string client_ip);
     int            readChunk(std::size_t chunk_size);
-    std::string    getOutput() const;
+    std::string    getOutput();
 
 private:
     t_header_value          _headers;

@@ -23,7 +23,7 @@ server
 	location /sub
 	{
 		root /home/restray/42/webserv/www/ ;
-		error_page 404 = /home/restray/Documents/webserv/defaultPages/404.html ;
+		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
 		index = /index.html /index.htm ;
 		methods = GET POST ;
 	}
@@ -76,7 +76,7 @@ server
 		send_file on ;
 		file_limit = 100 ;
 		cgi_extension = php ;
-		cgi_timeout = 2 ;
+		cgi_timeout = 30 ;
 		cgi_path = /usr/bin/php-cgi ;
 	}
 }

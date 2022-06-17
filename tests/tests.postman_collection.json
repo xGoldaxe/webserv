@@ -81,7 +81,44 @@
 					"response": []
 				},
 				{
-					"name": "Root subfolder index",
+					"name": "Root sub folder index",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"File is index.html\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Other root\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/other_root/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"other_root",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Root sub location index",
 					"event": [
 						{
 							"listen": "test",
@@ -464,6 +501,49 @@
 			"name": "CGI",
 			"item": [
 				{
+					"name": "CGI PHP index",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"PHP Configuration details\");",
+									"});",
+									"",
+									"pm.test(\"Content-Type is HTML\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.contain('text/html');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3784/php/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3784",
+							"path": [
+								"php",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "CGI PHP Works",
 					"event": [
 						{
@@ -518,9 +598,8 @@
 									"});",
 									"",
 									"pm.test(\"Body matches string\", function () {",
-									"    pm.expect(pm.response.text()).to.include(\"Path Info: |/path/info/pathinfo.php|\");",
 									"    pm.expect(pm.response.text()).to.include(\"Query String: |this=is&a=query|\");",
-									"    pm.expect(pm.response.text()).to.include(\"Path: /php/pathinfo.php\");",
+									"    pm.expect(pm.response.text()).to.include(\"Path: |/php/pathinfo.php|\");",
 									"});",
 									""
 								],
@@ -532,7 +611,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3784/php/pathinfo.php/path/info/pathinfo.php?this=is&a=query",
+							"raw": "http://localhost:3784/php/pathinfo.php?this=is&a=query",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -540,9 +619,6 @@
 							"port": "3784",
 							"path": [
 								"php",
-								"pathinfo.php",
-								"path",
-								"info",
 								"pathinfo.php"
 							],
 							"query": [
@@ -596,6 +672,49 @@
 							"path": [
 								"php",
 								"error.php"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CGI PHP Timeout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 504\", function () {",
+									"    pm.response.to.have.status(504);",
+									"});",
+									"",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"Gateway Timeout\");",
+									"});",
+									"",
+									"pm.test(\"Content-Type is HTML\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.contain('text/html');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3784/php/timeout.php",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3784",
+							"path": [
+								"php",
+								"timeout.php"
 							]
 						}
 					},

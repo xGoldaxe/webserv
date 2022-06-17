@@ -21,6 +21,7 @@ Request::Request(void)
 	this->fulfilled = false;
 	this->body_transfer = NO_BODY;
 	this->fulfilled = true;
+	this->_body_content = "";
 }
 
 /* end coplien */
@@ -119,6 +120,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->fulfilled = rhs.fulfilled;
 	this->error_message = rhs.error_message;
 	this->body_file_path = rhs.body_file_path;
+	this->_body_content = rhs._body_content;
 
 	/** @attention <!-- this value is not copied --!> **/
 	this->body_file = NULL;
@@ -163,9 +165,16 @@ std::ofstream	*Request::create_unique_file()
 
 int	Request::write_on_file( std::string str )
 {
-	std::cout << "||" << str << "||" << std::endl;
+	// std::cout << "||" << str << "||" << std::endl;
 	*(this->body_file) << str;
+	this->_body_content += str;
 	return str.size();
+}
+
+
+std::string	Request::get_body_content(void) const
+{
+	return this->_body_content;
 }
 
 std::string	Request::store_length( std::string add_str )

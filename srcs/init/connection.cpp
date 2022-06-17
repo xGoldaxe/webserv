@@ -116,7 +116,6 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 		{
 			if ( this->_data_added() )
 			{
-				std::cout << "feed the body" << std::endl;
 				this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
 			}
 			this->_is_new_data = false;
@@ -124,7 +123,6 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 
 		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
 		{
-
 			this->_requests.push( this->_req );
 
 			if ( this->is_invalid_req() )

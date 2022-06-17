@@ -40,6 +40,7 @@ class Request
 		std::string								body_file_path;
 		int										error_status;
 		std::string								error_message;
+		std::string								_body_content;
 		int										body_transfer;
 		bool									fulfilled;
 		

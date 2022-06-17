@@ -6,7 +6,7 @@
 #include <map>
 #include <iostream>
 
-#include "class/route.hpp"
+#include "../class/route.hpp"
 
 #define DEFAULT_SERVER_NAME "webserv (42) v0.1-dev"
 #define DEFAULT_ROOT "."

@@ -1,6 +1,4 @@
-#include "../../srcs/class/chunk_buffer.hpp"
-#include "../internal/assert_object.hpp"
-// valid, head_valid, head, body, remain
+#include "test.hpp"
 
 void	feed_secure( Asserter &asserter, Chunk_buffer &c, std::string &raw, std::string add )
 {

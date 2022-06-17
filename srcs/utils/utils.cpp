@@ -2,15 +2,19 @@
 #include <string>
 #include <sstream>
 
-bool	is_full_hexa( std::string s )
+bool	is_full( std::string s, std::string charset )
 {
-	std::string hexa = "0123456789abcdefABCDEF";
 	for ( std::string::iterator it = s.begin(); it != s.end(); ++it )
 	{
-		if ( hexa.find(*it) == std::string::npos )
+		if ( charset.find(*it) == std::string::npos )
 			return false;
 	}
 	return true;
+}
+
+bool	is_full_hexa( std::string s )
+{
+	return is_full( s, "0123456789abcdefABCDEF");
 }
 
 bool	check_line( std::string str ) {
@@ -58,3 +62,11 @@ int hexToInt(std::string hex)
     return result;
 }
 
+bool is_more_ll( const std::string &str )
+{
+	if ( str.size() > 19 )
+		return true;
+	if ( str.size() == 19 )
+		return str > std::string("9223372036854775807");
+	return false;
+}

@@ -22,6 +22,7 @@ SRCS	=	main.cpp \
 			errors/http_code.cpp \
 			class/response_error_page.cpp \
 			class/read_chunk.cpp \
+			request_header/request_header.cpp \
 
 HEADERS =	errors/http_code.hpp \
 			exit_handle.hpp \

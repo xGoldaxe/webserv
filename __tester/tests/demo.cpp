@@ -1,4 +1,4 @@
-#include "../internal/assert_object.hpp"
+#include "test.hpp"
 
 std::size_t	demo_factice( std::size_t size )
 {

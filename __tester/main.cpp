@@ -1,11 +1,6 @@
 #include <iostream>
 #include <string>
-#include "internal/assert_object.hpp"
-
-void	demo_suite( Asserter &asserter );
-void	all_tests( Asserter &asserter );
-void	content_length_test( Asserter &asserter );
-void	util_test( Asserter &asserter );
+#include "tests/test.hpp"
 
 int	main( int argc, char **argv )
 {
@@ -15,4 +10,5 @@ int	main( int argc, char **argv )
 	all_tests( asserter );
 	content_length_test( asserter );
 	util_test( asserter );
+	header_chunked( asserter );
 }

@@ -208,12 +208,23 @@ class Asserter
 			std::cout << std::endl << std::endl;
 			return 0;
 		}
+		void	suite_comment( std::string message )
+		{
+			if ( this->ignore == true || this->verify_tag() == false  )
+				return ;
+			std::cout << "\033[1;43;30m=\033[0m" << "\t";
+
+			std::cout << "\033[1;40m==>" << message << "<==\033[0m";
+			this->print_tag();
+			std::cout << std::endl;
+		}
 
 		/* verify */
 		void	verify_exception()
 		{
 			if ( this->ignore == true || this->verify_tag() == false  )
 			{
+				this->actual_comment = "";
 				this->exception = false;
 				return ;
 			}
@@ -231,13 +242,19 @@ class Asserter
 		void	verify_assert_equal( S result, S expected )
 		{
 			if ( this->ignore == true || this->verify_tag() == false )
+			{
+				this->actual_comment = "";
 				return ;
+			}
 			verify_assert( expected == result );
 		}
 		void	verify_assert_bool( bool condition )
 		{
 			if ( this->ignore == true || this->verify_tag() == false )
+			{
+				this->actual_comment = "";
 				return ;
+			}
 			this->verify_assert( condition );
 		}
 

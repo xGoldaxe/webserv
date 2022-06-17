@@ -4,12 +4,19 @@ SRCS	=	../srcs/utils/file.cpp \
 			../srcs/utils/string.cpp \
 			../srcs/utils/utils.cpp \
 			../srcs/errors/http_code.cpp \
+			../srcs/request_header/request_header.cpp \
+			../srcs/class/request.cpp \
+			../srcs/class/route.cpp \
+			../srcs/configuration/server.cpp \
+			../srcs/configuration/webserv.cpp \
+			../srcs/configuration/redirection.cpp \
 
 TESTS	=	main.cpp\
 			tests/demo.cpp \
 			tests/chunk.cpp \
-			tests/content-length.cpp \
 			tests/utils.cpp \
+			tests/content-length.cpp \
+			tests/header_chunked.cpp \
 
 INTERNAL_HEADERS = 	internal/assert_object.hpp \
 					internal/util.hpp \

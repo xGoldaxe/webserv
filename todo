@@ -1,9 +1,12 @@
-# secure path, secure and check method ( this work will be on request itself );
-! content-length: overflow = error 400
-
-
-// add queue
-// tigger queue
-
-GET /rfwefwefwefw=fwfwffferf#fewwef?e33z23 HTTP/1.1
-HOST: q 
+if method == post
+	if content-type && content-type == multipart/ form-data;
+	{
+		try
+			store body;
+			read and process the body;
+			if filename precised
+				store the content in DOWNLOAD/filename.dl.staticnb.timestamp
+			send post page
+		catch
+			error 400
+	}

@@ -6,6 +6,8 @@
 
 void	Request::content_length( const std::string &content )
 {
+	if ( this->allow_body() == false )
+		throw HTTPCode400();
 	if ( is_full( content, "0123456789" ) == false )
 		throw HTTPCode400();
 	if ( is_more_ll( content ) == true )
@@ -24,6 +26,9 @@ void	Request::content_length( const std::string &content )
 
 void	Request::transfer_encoding( const std::string &content )
 {
+	if ( this->allow_body() == false )
+		throw HTTPCode400();
+
 	if ( this->body_transfer != NO_BODY )
 		throw HTTPCode400();
 

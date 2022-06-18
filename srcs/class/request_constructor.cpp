@@ -83,6 +83,11 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 			else if ( it->first == "Content-Length" )
 				this->content_length( it->second );
 		}
+		
+		if ( this->fulfilled == false )
+			this->state = FEEDING;
+		else
+			this->state = READY;
 
 		this->request_validity = true;
 	}

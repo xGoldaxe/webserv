@@ -4,6 +4,8 @@
 #include <ctime>
 #include <queue>
 #include "../class/route.hpp"
+#include "../class/request.hpp"
+#include "../class/response.hpp"
 
 class Request;
 class Response;
@@ -62,6 +64,3 @@ class Connection
 		std::string get_client_ip(void) const;
 		bool 		get_is_new_data(void) const;
 };
-
-#include "../class/request.hpp"
-#include "../class/response.hpp"

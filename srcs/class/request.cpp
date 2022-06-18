@@ -1,10 +1,14 @@
 #include "request.hpp"
 
 
-/** @deprecated description **/
+/** @deprecated the return is for debug **/
 Request::~Request(void)
 {
-	return ;
+	if ( this->processed_file != NULL )
+	{
+		this->processed_file->close();
+		delete this->processed_file;
+	}
 	if ( this->body_file != NULL )
 	{
 		this->body_file->close();
@@ -15,12 +19,16 @@ Request::~Request(void)
 
 Request::Request(void)
 {
+	this->state = PARSING;
+
 	this->request_validity = false;
 	this->body_file = NULL;
-	this->error_status = 0;
-	this->fulfilled = false;
-	this->body_transfer = NO_BODY;
+	this->processed_file = NULL;
 	this->fulfilled = true;
+
+	this->error_status = 0;
+
+	this->body_transfer = NO_BODY;
 	this->_body_content = "";
 }
 
@@ -103,6 +111,7 @@ Request &   Request::operator=( Request const & rhs )
 {
 	if (&rhs == this)
 		return (*this);
+	this->state = rhs.state;
 	this->conf = rhs.conf;
 	this->method = rhs.method;
 	this->legacy_url = rhs.legacy_url;
@@ -117,7 +126,6 @@ Request &   Request::operator=( Request const & rhs )
 	this->body_length = rhs.body_length;
 	this->error_status = rhs.error_status;
 	this->body_transfer = rhs.body_transfer;
-	this->fulfilled = rhs.fulfilled;
 	this->error_message = rhs.error_message;
 	this->body_file_path = rhs.body_file_path;
 	this->_body_content = rhs._body_content;
@@ -125,11 +133,6 @@ Request &   Request::operator=( Request const & rhs )
 	/** @attention <!-- this value is not copied --!> **/
 	this->body_file = NULL;
 	return (*this);
-}
-
-bool	Request::is_fulfilled() const
-{
-	return this->request_validity && this->fulfilled;
 }
 
 #define CGI_FILES_PATH "memory/"
@@ -165,7 +168,6 @@ std::ofstream	*Request::create_unique_file()
 
 int	Request::write_on_file( std::string str )
 {
-	// std::cout << "||" << str << "||" << std::endl;
 	*(this->body_file) << str;
 	this->_body_content += str;
 	return str.size();
@@ -187,8 +189,7 @@ std::string	Request::store_length( std::string add_str )
 
 	if ( this->remain_body_length == 0 )
 	{
-		this->body_file->close();
-		this->fulfilled = true;
+		this->start_processing();
 	}
 	return add_str.substr( missing, add_str.size() );
 }
@@ -202,15 +203,15 @@ std::string	Request::store_chunk( std::string chunk_str )
 		{
 			if ( this->chunk_buffer.is_last() )
 			{
-				this->fulfilled = true;
-				this->body_file->close();
 				std::string ins;
 				ins += ulToStr( this->body_length );
 				this->headers.insert( std::pair<std::string, std::string>( "Content-Length", ins ) );
+				
+				this->start_processing();
 			}
 			else
 			{
-				this->body_length = this->write_on_file( this->chunk_buffer.get_body() );
+				this->body_length += this->write_on_file( this->chunk_buffer.get_body() );
 				this->chunk_buffer.clean();
 			}
 		}
@@ -236,7 +237,6 @@ std::string	Request::feed_body( std::string add_str )
 
 	if ( add_str.size() == 0 )
 		return add_str;
-
 	if ( this->body_transfer == LENGTH )
 		return this->store_length( add_str );
 	else if ( this->body_transfer == CHUNKED )
@@ -277,3 +277,81 @@ void	Request::delete_all_files()
 }
 
 std::vector<std::string>	Request::_created_files = std::vector<std::string>();
+
+/* verifying */
+
+bool	Request::allow_body(void) const {
+
+	if ( this->method != "POST" )
+		return false;
+	return true;
+}
+
+int		Request::get_state(void) const
+{
+	return this->state;
+}
+
+/* processing */
+void		Request::start_processing(void)
+{
+	try
+	{
+		if ( this->body_file == NULL )
+			throw HTTPCode500();
+
+		this->fulfilled = true;
+		this->body_file->close();
+		this->state = PROCESSING;
+		this->remain_body_length = this->body_length;
+
+		this->processed_file = new std::ifstream( this->body_file_path.c_str() );
+
+		if ( this->processed_file->is_open() == false )
+		{
+			this->state = INVALID;
+			delete this->processed_file;
+			throw HTTPCode500();
+		}
+	}
+	catch(const HTTPError& e)
+	{
+		this->set_status( e.getCode(), e.getDescription() );
+	}
+}
+
+#define PROCESS_SIZE 10
+void	Request::process_file(void)
+{
+	try
+	{
+		if ( this->state != PROCESSING )
+			return ;
+		if ( this->processed_file == NULL || this->processed_file->is_open() == false )
+			throw HTTPCode500();
+		if ( this->remain_body_length == 0 )
+		{
+			this->state = READY;
+			this->processed_file->close();
+			delete this->processed_file;
+			this->processed_file = NULL;
+			return ;
+		}
+
+		std::streamsize size = PROCESS_SIZE;
+		if ( this->remain_body_length < static_cast<long long int>(size) )
+			size = static_cast<std::streamsize>(remain_body_length);
+
+		this->remain_body_length -= static_cast<long long int>(size);
+
+		char* buffer = new char[size];
+
+		this->processed_file->read( buffer, size );
+		std::cout.write ( buffer, size );
+		delete[] buffer;
+	}
+	catch(const HTTPError& e)
+	{
+		this->set_status( e.getCode(), e.getDescription() );
+	}
+}

@@ -5,6 +5,7 @@
 #define IDLE_TIMEOUT 60
 #define MAX_SIZE 5000
 #define MAX_REQUESTS 5
+
 /*************************
 * @error case functions
 * ***********************/
@@ -114,14 +115,18 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 		// add the data to the body, only add what is required and store the remaining data
 		if ( this->_is_init && this->is_invalid_req() == false )
 		{
-			if ( this->_data_added() )
+			if ( this->_req->get_state() == FEEDING )
 			{
-				this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
+				if ( this->_data_added() )
+					this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
+				this->_is_new_data = false;
 			}
-			this->_is_new_data = false;
+
+			if ( this->_req->get_state() == PROCESSING )
+				this->_req->process_file();
 		}
 
-		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
+		if ( this->_req && ( this->is_invalid_req() || this->_req->get_state() == READY ) )
 		{
 			this->_requests.push( this->_req );
 
@@ -175,11 +180,6 @@ bool	Connection::is_ready( void )
 bool	Connection::is_invalid_req()
 {
 	return this->_req && this->_req->is_request_valid() == false;
-}
-
-bool	Connection::is_fulfilled()
-{
-	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
 
 bool	Connection::_data_added()

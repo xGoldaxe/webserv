@@ -215,6 +215,54 @@ static int check_if_config_is_proper(std::string buffer)
 	return (1);
 }
 
+static std::string parsing_open_file(std::string filename)
+{
+	std::ifstream file;
+	std::stringstream buffer;
+	file.open(filename.c_str(), std::ifstream::in);
+	if (!file.is_open())
+	{
+		throw Webserv_conf::FailedToOpenFile();
+	}
+	buffer << file.rdbuf();
+	file.close();
+	return buffer.str();
+}
+
+static void	check_server_dupe(std::vector<Server_conf> servers)
+{
+	unsigned int i_checkservdupe = 0;
+	unsigned int j_checkservdupe = 1;
+	unsigned int i_checkportdupe = 0;
+	unsigned int j_checkportdupe = 0;
+	while (i_checkservdupe < servers.size())
+	{
+		while (j_checkservdupe < servers.size())
+		{
+			if (servers[i_checkservdupe].getHost().compare(servers[j_checkservdupe].getHost()) == 0
+			|| (servers[i_checkservdupe].getHost().compare("0.0.0.0") == 0)
+			|| (servers[j_checkservdupe].getHost().compare("0.0.0.0") == 0 ))
+			{
+				while (i_checkportdupe < servers[i_checkservdupe].getPort().size())
+				{
+					while (j_checkportdupe < servers[j_checkservdupe].getPort().size())
+					{
+						if (servers[i_checkservdupe].getPort()[i_checkportdupe] == servers[j_checkservdupe].getPort()[j_checkportdupe])
+							throw std::invalid_argument("Parsing error, duplicate port detected!");
+						j_checkportdupe++;
+					}
+					j_checkportdupe = 0;
+					i_checkportdupe++;
+				}
+				i_checkportdupe = 0;
+			}
+			j_checkservdupe++;
+		}
+		i_checkservdupe++;
+		j_checkservdupe = i_checkservdupe + 1;
+	}
+}
+
 Webserv_conf::Webserv_conf(std::string filename)
 {
 	/**
@@ -224,9 +272,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	http_version = "HTTP/1.1";
 	Server_conf server = Server_conf(1);
 
-	std::ifstream file;
 	std::string buffer;
-	std::stringstream s;
 	std::vector<std::string> words;
 	std::string tmperrorval;
 	size_t pos = 0;
@@ -237,19 +283,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 	int contextlocation = 0;
 	int error;
 
-	file.open(filename.c_str(), std::ifstream::in);
-	if (!file.is_open())
-	{
-		throw Webserv_conf::FailedToOpenFile();
-	}
-	s << file.rdbuf();
-	buffer = s.str();
-	file.close();
+	buffer = parsing_open_file(filename);
 
 	if (check_if_config_is_proper(buffer) == -1)
 		throw std::invalid_argument("The configuration file is invalid!");
 
-	// buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
 	std::replace(buffer.begin(), buffer.end(), '{', ' ');
 	std::replace(buffer.begin(), buffer.end(), '}', ' ');
@@ -768,6 +806,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		it++;
 	}
 	this->servers.push_back(server);
+
 	// Assign default variables to servers if none defined in parsing
 	unsigned int checkservers = 0;
 	while (checkservers < this->servers.size())
@@ -781,32 +820,5 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 
 	// Duplicate server_host and duplicate port check
-	unsigned int i_checkservdupe = 0;
-	unsigned int j_checkservdupe = 1;
-	unsigned int i_checkportdupe = 0;
-	unsigned int j_checkportdupe = 0;
-	while (i_checkservdupe < this->servers.size())
-	{
-		while (j_checkservdupe < this->servers.size())
-		{
-			if (this->servers[i_checkservdupe].getHost().compare(this->servers[j_checkservdupe].getHost()) == 0)
-			{
-				while (i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
-				{
-					while (j_checkportdupe < this->servers[j_checkservdupe].getPort().size())
-					{
-						if (this->servers[i_checkservdupe].getPort()[i_checkportdupe] == this->servers[j_checkservdupe].getPort()[j_checkportdupe])
-							throw std::invalid_argument("Parsing error, duplicate port detected!");
-						j_checkportdupe++;
-					}
-					j_checkportdupe = 0;
-					i_checkportdupe++;
-				}
-				i_checkportdupe = 0;
-			}
-			j_checkservdupe++;
-		}
-		i_checkservdupe++;
-		j_checkservdupe = i_checkservdupe + 1;
-	}
+	check_server_dupe(this->servers);
 }

@@ -209,6 +209,7 @@ void    Server::handle_responses()
         {
             std::map<int, Connection>::iterator it = this->_connections.find(res->client_socket);
 
+            it->second.update_timeout();
             if (res->send_chunk() > 0)
             {
                 new_queue.push(res);

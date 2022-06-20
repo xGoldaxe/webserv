@@ -138,6 +138,11 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 	}
 }
 
+void	Connection::update_timeout()
+{
+	this->_begin_time = std::time(0);
+}
+
 /* init with conf informations, and other usefull things for req and res */
 bool	Connection::init_request(std::vector<Route> routes)
 {

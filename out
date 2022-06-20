@@ -1,0 +1,11 @@
+== Info:   Trying 127.0.0.1:3000...
+== Info: TCP_NODELAY set
+== Info: Connected to localhost (127.0.0.1) port 3000 (#0)
+=> Send header, 91 bytes (0x5b)
+0000: GET /php/index.php HTTP/1.1
+001d: Host: localhost:3000
+0033: User-Agent: curl/7.68.0
+004c: Accept: */*
+0059: 
+== Info: Empty reply from server
+== Info: Connection #0 to host localhost left intact

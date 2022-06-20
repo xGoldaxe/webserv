@@ -37,6 +37,7 @@ class Connection
 		~Connection( void );
 
 		/* end coplien */
+		void	update_timeout();
 		bool	is_ready();
 		bool	is_fulfilled();
 		bool	is_invalid_req();

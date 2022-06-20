@@ -167,9 +167,9 @@ int CGIManager::readChunk(std::size_t chunk_size)
                 }
             }
         } else {
-            if (std::time(0) - this->_begin_response_time < this->_cgi_timeout) {
+            if (std::time(0) - this->_begin_response_time < this->_cgi_timeout || this->_sent_headers) {
                 return (CHUNK_NEXT);
-            } else if (!this->_sent_headers) {
+            } else {
                 close(this->_cgi_out_fd);
                 this->_cgi_out_fd = 0;
                 kill(this->_pid, SIGABRT);

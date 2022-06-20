@@ -1,8 +1,7 @@
 server
 {
 	server_name = test ;
-	host = 0.0.0.0 ;
-	listen = 1024 ;
+	host = 127.0.0.1 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
@@ -10,6 +9,9 @@ server
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
 	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
 	location /
 	{
 		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
@@ -21,6 +23,8 @@ server
 		autoindex on ;
 		send_file on ;
 		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
 	}
 	location /php
 	{ 
@@ -36,7 +40,7 @@ server
 server
 {
 	server_name = test ;
-	host = 127.0.0.1 ;
+	host = 127.0.0.2 ;
 	listen = 3000 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;

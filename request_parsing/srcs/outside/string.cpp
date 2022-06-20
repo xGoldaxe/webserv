@@ -24,3 +24,12 @@ std::string intToHex(int nb)
     std::string result(stream.str());
     return result;
 }
+
+int hexToInt(std::string hex)
+{
+    std::stringstream stream;
+    stream << std::hex << hex;
+    int result;
+    stream >> result;
+    return result;
+}

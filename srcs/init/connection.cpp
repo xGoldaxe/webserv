@@ -1,12 +1,12 @@
 #include "connection.hpp"
 #include "unistd.h"
 
-#define ONREAD_TIMEOUT 20
-#define IDLE_TIMEOUT 20
-#define MAX_SIZE 50000
+#define ONREAD_TIMEOUT 45
+#define IDLE_TIMEOUT 60
+#define MAX_SIZE 5000
 #define MAX_REQUESTS 5
 /*************************
-* @erroer case functions
+* @error case functions
 * ***********************/
 bool	Connection::is_timeout(void)
 {
@@ -40,8 +40,11 @@ void	Connection::read_data()
 		return ;
 	// if we start to write a new request, we reset the timer!
 	if ( this->_raw_data.size() == 0 )
+	{
 		this->_begin_time = time(NULL);
+	}
 	this->_raw_data += buff;
+	this->_is_new_data = true;
 }
 
 bool	Connection::check_state()
@@ -102,7 +105,7 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 		if ( this->check_state() == false )
 			break ;
 		// we can create a request
-		if ( this->is_ready() )
+		if ( this->is_ready() && this->_is_init == false )
 		{
 			this->init_request(routes);
 			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
@@ -111,14 +114,15 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 		// add the data to the body, only add what is required and store the remaining data
 		if ( this->_is_init && this->is_invalid_req() == false )
 		{
-			std::size_t read_until = this->_req->feed_body( this->_raw_data ); // may invalid the request
-			this->_raw_data = this->_raw_data.substr( read_until, this->_raw_data.size() );
+			if ( this->_data_added() )
+			{
+				this->_raw_data = this->_req->feed_body( this->_raw_data ); // may invalid the request
+			}
+			this->_is_new_data = false;
 		}
 
 		if ( this->_req && ( this->is_invalid_req() || this->is_fulfilled() ) )
 		{
-			this->_begin_time = time(NULL);
-
 			this->_requests.push( this->_req );
 
 			if ( this->is_invalid_req() )
@@ -175,11 +179,13 @@ bool	Connection::is_invalid_req()
 
 bool	Connection::is_fulfilled()
 {
-	// std::cout << "is_request_valid: " << this->_req->is_request_valid() << std::endl;
-	// std::cout << "is_fulfilled: " << this->_req->is_fulfilled() << std::endl;
 	return this->_req && this->_req->is_request_valid() && this->_req->is_fulfilled();
 }
 
+bool	Connection::_data_added()
+{
+	return ( this->_is_new_data == true && this->_raw_data.size() > 0 );
+}
 /*************************
 * @coplien
 * ***********************/
@@ -189,6 +195,7 @@ Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _f
 	this->_req = NULL;
 	this->_is_sending_data = false;
 	this->_is_dead = false;
+	this->_is_new_data = true;
 }
 
 Connection::Connection(Connection const &src) : _fd(src.get_fd()),
@@ -199,7 +206,8 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_is_sending_data( src.get_is_sending_data() ),
 												_is_dead( src.get_is_dead()),
 												_client_ip(src._client_ip),
-												_response_max_size(src._response_max_size)
+												_response_max_size(src._response_max_size),
+												_is_new_data( src.get_is_new_data() )
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
@@ -212,12 +220,17 @@ Connection &	Connection::operator=( Connection const & rhs )
 	this->_is_init = rhs.is_init();
 	this->_begin_time = rhs.get_time();
 	this->_is_dead = rhs.get_is_dead();
+	this->_is_new_data = rhs.get_is_new_data();
 	//is_sending_data;
 	return *this;
 }
 
 Connection::~Connection()
-{}
+{
+	if ( this->_req )
+		delete this->_req;
+	delete_queue( this->_requests );
+}
 
 /*************************
 * @getters
@@ -259,4 +272,9 @@ bool	Connection::get_is_sending_data(void) const {
 
 std::string Connection::get_client_ip(void) const {
 	return (this->_client_ip);
+}
+
+bool	Connection::get_is_new_data(void) const {
+
+	return ( this->_is_new_data );
 }

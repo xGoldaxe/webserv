@@ -1,9 +1,16 @@
 #include "request.hpp"
 
+
+/** @deprecated description **/
 Request::~Request(void)
 {
+	return ;
 	if ( this->body_file != NULL )
+	{
+		this->body_file->close();
+		this->_delete_file( this->body_file_path );
 		delete this->body_file;
+	}
 }
 
 Request::Request(void)
@@ -12,6 +19,9 @@ Request::Request(void)
 	this->body_file = NULL;
 	this->error_status = 0;
 	this->fulfilled = false;
+	this->body_transfer = NO_BODY;
+	this->fulfilled = true;
+	this->_body_content = "";
 }
 
 /* end coplien */
@@ -48,6 +58,18 @@ std::string Request::get_http_version(void) const
 Route Request::get_route(void)
 {
 	return (this->route);
+}
+std::string Request::get_body_file(void) const
+{
+	return (this->body_file_path);
+}
+long long int	Request::get_body_length( void ) const
+{
+	return this->body_length;
+}
+int	Request::get_body_transfer(void) const
+{
+	return this->body_transfer;
 }
 
 bool Request::is_request_valid(void) const
@@ -98,6 +120,7 @@ Request &   Request::operator=( Request const & rhs )
 	this->fulfilled = rhs.fulfilled;
 	this->error_message = rhs.error_message;
 	this->body_file_path = rhs.body_file_path;
+	this->_body_content = rhs._body_content;
 
 	/** @attention <!-- this value is not copied --!> **/
 	this->body_file = NULL;
@@ -109,61 +132,148 @@ bool	Request::is_fulfilled() const
 	return this->request_validity && this->fulfilled;
 }
 
-#include <fstream> 
-std::ofstream	*Request::create_unique_file( std::string path )
+#define CGI_FILES_PATH "memory/"
+
+#include <fstream>
+//invalid if we trigger MAX_INT request in 1s, we assume its just impossible
+std::ofstream	*Request::create_unique_file()
 {
 	static int i = 0;
 	
-	std::ofstream *File = new std::ofstream;
-	File->open( std::string(path + to_string(i) + ".mem").c_str() );
+	std::string filename = std::string( 
+		+ CGI_FILES_PATH
+		+ std::string( "mem." )
+		+ to_string(i)
+		+ "."
+		+ time_to_str( time(NULL) ) );
+	std::ofstream *File = new std::ofstream( filename.c_str() );
 
 	if ( File->is_open() == false )
 	{
-		std::cout << "cant open" << std::endl;
+		std::cout << "cant open " << filename << std::endl;
 		delete File;
 		return NULL;
 	}
 
-	std::cout << std::string(path + to_string(i) + ".mem") << std::endl;
-	this->body_file_path = to_string(i) + ".mem";
+	std::cout << std::string( filename ) << std::endl;
+	this->body_file_path = filename;
+	this->_add_file( filename );
 	
 	++i;
 	return File;
 }
 
-std::size_t	Request::store_length( std::string add_str )
+int	Request::write_on_file( std::string str )
 {
-	std::size_t missing = std::min( this->body_length, add_str.size() );
+	// std::cout << "||" << str << "||" << std::endl;
+	*(this->body_file) << str;
+	this->_body_content += str;
+	return str.size();
+}
+
+
+std::string	Request::get_body_content(void) const
+{
+	return this->_body_content;
+}
+
+std::string	Request::store_length( std::string add_str )
+{
+	long long int t = static_cast<long long int>(add_str.size());
+	std::size_t missing = std::min( this->remain_body_length, t );
 	
 	std::string substring = add_str.substr( 0, missing );
-	this->body_length -= substring.size();
+	this->remain_body_length -= this->write_on_file( substring );
 
-	std::cout << "body part [" << substring << "]" << std::endl;
-	// this->body_file->write( substring.c_str(), substring.size() );
-
-	if ( this->body_length == 0 )
+	if ( this->remain_body_length == 0 )
+	{
+		this->body_file->close();
 		this->fulfilled = true;
+	}
+	return add_str.substr( missing, add_str.size() );
+}
 
-	return missing;
+std::string	Request::store_chunk( std::string chunk_str )
+{
+	try
+	{
+		std::string res = this->chunk_buffer.feed_chunk( chunk_str );
+		if ( this->chunk_buffer.is_valid() )
+		{
+			if ( this->chunk_buffer.is_last() )
+			{
+				this->fulfilled = true;
+				this->body_file->close();
+				std::string ins;
+				ins += ulToStr( this->body_length );
+				this->headers.insert( std::pair<std::string, std::string>( "Content-Length", ins ) );
+			}
+			else
+			{
+				this->body_length = this->write_on_file( this->chunk_buffer.get_body() );
+				this->chunk_buffer.clean();
+			}
+		}
+		return res;
+	}
+	catch(const HTTPError& e)
+	{
+		this->set_status( e.getCode(), e.getDescription() );
+	}
+	return chunk_str;
 }
 
 /* return the amount of char added to the body, may invalid the request */
-std::size_t	Request::feed_body( std::string add_str )
+std::string	Request::feed_body( std::string add_str )
 {
-	// if ( this->body_file == NULL )
-	// 	this->body_file = this->create_unique_file( "memory/" );
-	// if ( this->body_file == NULL )
-	// {
-	// 	this->set_status( 500, "Internal Server Error" );
-	// 	return 0;
-	// }
+	if ( this->body_file == NULL )
+		this->body_file = this->create_unique_file();
+	if ( this->body_file == NULL )
+	{
+		this->set_status( 500, "Internal Server Error" );
+		return add_str;
+	}
 
 	if ( add_str.size() == 0 )
-		return 0;
+		return add_str;
 
 	if ( this->body_transfer == LENGTH )
 		return this->store_length( add_str );
-	// else if ( this->body_transfer == CHUNKED )
-	// 	return this->store_chunk( add_str );
-	return 0;
+	else if ( this->body_transfer == CHUNKED )
+		return this->store_chunk( add_str );
+	return add_str;
 }
+
+/* files management */
+void	Request::_add_file( std::string filename )
+{
+	if ( filename != "" )
+		Request::_created_files.push_back( filename );
+}
+
+void	Request::_delete_file( std::string filename )
+{
+	std::vector<std::string>::iterator	it = std::find(
+		Request::_created_files.begin(),
+		Request::_created_files.end(),
+		filename
+	);
+	if ( it != Request::_created_files.end() )
+	{
+		Request::_created_files.erase( it );
+		remove( filename.c_str() );
+	}
+}
+
+void	Request::delete_all_files()
+{
+	for ( std::vector<std::string>::iterator it = Request::_created_files.begin();
+	it != Request::_created_files.end(); ++it )
+	{
+		remove( it->c_str() );
+		std::cout << "rm " << *it << std::endl;
+	}
+	Request::_created_files.clear();
+}
+
+std::vector<std::string>	Request::_created_files = std::vector<std::string>();

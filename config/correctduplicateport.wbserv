@@ -1,6 +1,6 @@
 server
 {
-	server_name = Good_Server ; 
+	host = 127.0.0.2 ; 
 	listen = 3060 ;
 	listen = 3030 ;
 	listen = 3000 ;

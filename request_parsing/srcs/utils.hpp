@@ -6,6 +6,29 @@
 namespace preq {
 
 	time_t timer;
+
+	bool	check_line( std::string str ) {
+
+		return ( str.size() >= 2 
+					&& str[ str.size() - 1 ] == '\n'
+					&& str[ str.size() - 2] == '\r'
+				);
+	}
+
+	bool	check_and_trunc_line( std::string *line ) {
+
+		if ( check_line( *line ) )
+		{
+			*line = line->substr( 0, line->size() - 2 );
+			return true;
+		}
+		return false;
+	}
+
+	bool	is_space( char c ) {
+
+		return ( c == ' ' || c == '\t' );
+	}
 		
 	std::vector<std::string>	read_until( std::string & data, bool (*rule)(std::string) ) {
 

@@ -62,6 +62,20 @@ class HTTPCode501 : public HTTPCode5XX
     {}
 };
 
+class HTTPCode502 : public HTTPCode5XX
+{
+    public:
+    HTTPCode502() throw() : HTTPCode5XX(2, "Bad Gateway")
+    {}
+};
+
+class HTTPCode504 : public HTTPCode5XX
+{
+    public:
+    HTTPCode504() throw() : HTTPCode5XX(4, "Gateway Timeout")
+    {}
+};
+
 /*************************
 * @4xx
 * ***********************/
@@ -87,6 +101,13 @@ class HTTPCode404 : public HTTPCode4XX
     {}
 };
 
+class HTTPCode405 : public HTTPCode4XX
+{
+    public:
+    HTTPCode405() throw() : HTTPCode4XX(5, "Method Not Allowed")
+    {}
+};
+
 class HTTPCode400 : public HTTPCode4XX
 {
     public:
@@ -97,6 +118,13 @@ class HTTPCode400 : public HTTPCode4XX
 class HTTPCode414 : public HTTPCode4XX
 {
     public:
-    HTTPCode414() throw() : HTTPCode4XX(414, "URI Too Long")
+    HTTPCode414() throw() : HTTPCode4XX(14, "URI Too Long")
+    {}
+};
+
+class HTTPCode413 : public HTTPCode4XX
+{
+    public:
+    HTTPCode413() throw() : HTTPCode4XX(13, "Payload Too Large")
     {}
 };

@@ -6,7 +6,7 @@
 #include <map>
 #include <iostream>
 
-#include "class/route.hpp"
+#include "../class/route.hpp"
 
 #define DEFAULT_SERVER_NAME "webserv (42) v0.1-dev"
 #define DEFAULT_ROOT "."
@@ -19,7 +19,9 @@
 #define DEFAULT_HOST "127.0.0.1"
 #define DEFAULT_INDEX_SERVER "index.html"
 #define DEFAULT_MAX_URI_SIZE 50
-
+#define DEFAULT_RUN_FILE_PATH "/run/webserv/"
+#define DEFAULT_CHUNK_HEAD_LIMIT_SERVER 20
+#define DEFAULT_CHUNK_BODY_LIMIT_SERVER 100
 
 class Route;
 
@@ -40,6 +42,9 @@ class Server_conf
 		int									client_header_size;
 		int									max_amount_of_request;
 		int									max_uri_size;
+		std::string							run_file_path;
+		int									chunk_head_limit;
+		int									chunk_body_limit;
 
 	public:
 		Server_conf(void);
@@ -86,4 +91,14 @@ class Server_conf
 		void							set_max_amount_of_request(int max_amount_of_request);
 		int								get_max_uri_size() const;
 		void							set_max_uri_size(int max_uri_size);
+		void 							check_methods_route(void);
+		std::string						getRunFilePath() const;
+		void							setRunFilePath(std::string path);
+		int								getChunkHeadLimit() const;
+		void							setChunkHeadLimit(int chunk_head_limit);
+		int								getChunkBodyLimit() const;
+		void							setChunkBodyLimit(int chunk_body_limit);
+		void							setChunkHeadLimitRoute(int chunk_body_limit);
+		void							setChunkBodyLimitRoute(int chunk_body_limit);
+
 };

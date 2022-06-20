@@ -2,8 +2,7 @@ server
 {
 	server_name = test ;
 	host = 0.0.0.0 ;
-	listen = 3000 ;
-	error_page 404 403 = /error.html ;
+	listen = 4000 ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
 	server_body_size = 1024 ;
@@ -12,19 +11,32 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
+		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
 		index = /index.html /index.htm ;
-		error_page 404 = /404.html ;
-		methods = POST GET DELETE ;
+		methods = GET ;
 		rewrite 301 /moved.html /sub/index.html ;
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		autoindex on ;
 		send_file on ;
 		file_limit = 100 ;
 	}
+	location /sub
+	{
+		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
+		error_page 404 = /home/restray/Documents/webserv/defaultPages/404.html ;
+		index = /index.html /index.htm ;
+		methods = GET POST ;
+	}
+	location /post
+	{
+		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
+		index = /index.html /index.htm ;
+		methods = POST ;
+	}
 	location /php
 	{ 
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
+		error_page 404 = /defaultPages/500.html ;
+		root /mnt/nfs/homes/pleveque/Documents/webserv/cgi/ ;
 		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
@@ -47,11 +59,9 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
-		error_page 404 = /mnt/nfs/homes/tbelhomm/Desktop/webserv/defaultPages/404.html ;
+		root /home/restray/42/webserv/www/ ;
+		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
-		rewrite 301 /moved.html /sub/index.html ;
-		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		index = ;
 		autoindex on ;
 		send_file on ;
@@ -59,11 +69,11 @@ server
 	}
 	location /php
 	{ 
-		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
-		index = ;
+		root /home/restray/42/webserv/cgi/ ;
+		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
 		cgi_timeout = 10 ;
-		cgi_path = /usr/bin/php ;
+		cgi_path = /usr/bin/php-cgi ;
 	}
 }

@@ -284,26 +284,33 @@ std::string &Response::error_body(void)
     this->add_header("Content-Type", "text/html");
     try
     {
+        std::map<int, std::string> errors_pages = this->req->route.get_error_pages();
         // this line throw an error if page not find
-        std::string filename = this->req->route.get_error_pages().at(this->status_code);
-        if (usable_file(filename) && !this->_is_custom_error)
-        {
-            this->_return_body_type = BODY_TYPE_FILE;
-            this->body = filename;
-            this->_is_custom_error = true;
-            this->req->auto_index = false;
-            this->load_body(this->_client_ip);
-        }
-        else
-        {
+        std::map<int, std::string>::iterator status_page_it = errors_pages.find(this->status_code);
+        if (status_page_it != errors_pages.end()) {
+            std::string filename = status_page_it->second;
+            if (usable_file(filename) && !this->_is_custom_error) {
+                this->_return_body_type = BODY_TYPE_FILE;
+                this->body = filename;
+                this->_is_custom_error = true;
+                this->req->auto_index = false;
+                this->load_body(this->_client_ip);
+
+                return (this->body);
+            } else {
+                std::cerr << "[Config][WARNING] Error page " << this->get_str_code() << " is missing." << std::endl;
+            }
+        } else {
             this->_return_body_type = BODY_TYPE_STRING;
-            this->set_status(500, "Internal Server Error");
             this->body = error_template(this->get_str_code(), this->status_message);
             this->_is_custom_error = true;
         }
-    }
+    }   
     catch (const std::exception &e)
     {
+        if (this->_is_custom_error) {
+            std::cerr << "[Config][WARNING] Error page " << this->get_str_code() << " is missing." << std::endl;
+        }
         this->_return_body_type = BODY_TYPE_STRING;
         this->body = error_template(this->get_str_code(), this->status_message);
         this->_is_custom_error = true;

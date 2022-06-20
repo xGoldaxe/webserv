@@ -29,7 +29,7 @@
 #include <queue>
 
 #include "exception_server_not_listening.hpp"
-#include "configuration/webserv.hpp"
+#include "../configuration/webserv.hpp"
 
 class Connection;
 #include "connection.hpp"
@@ -37,7 +37,7 @@ class Connection;
 #define BACKLOG 10000
 #define MAX_RUNNERS 20
 
-#include "class/response.hpp"
+#include "../class/response.hpp"
 
 typedef struct sockaddr_in s_server_addr_in;
 typedef const struct sockaddr* s_server_addr;
@@ -54,7 +54,6 @@ public:
 	void handle_responses();
 	void wait_for_connections();
 	void trigger_queue();
-	bool queue_response(Response *res);
 	size_t countHandledRequest();
 
 	// Getters
@@ -69,7 +68,7 @@ private:
 	std::map<int, Connection>		_connections;
 	std::map<int, std::string>		_socket_addr_eq;
 	std::map<int, int>				_poll_socket_eq;
-	std::queue<Connection*>			_c_queue;
+	std::queue<Connection *>		_c_queue;
 	std::queue<Response *>   		_queue;
 	size_t                   		_request_handled;
 	char							**_env;
@@ -92,6 +91,7 @@ private:
 
 	void _report(int sock, s_server_addr_in server_addr);
 	void _bind_port(int sock, s_server_addr_in server_addr);
+	void _create_run_folder();
 
 	void read_connection(int client_socket);
 	bool close_connection(int client_socket);

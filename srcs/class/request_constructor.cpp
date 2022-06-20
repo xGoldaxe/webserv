@@ -16,28 +16,23 @@ Request *store_req(bool mode, Request *req = NULL)
 
 void store_data_from_raw_req(
 	std::vector<std::string> parsed_first_line,
-	std::map<std::string, std::string> headers)
+	std::map<std::string, std::string> headers,
+	std::string query_string,
+	std::string path_info
+)
 {
+	(void)path_info;
 	Request *stored_req = store_req(false);
 
 	if (!stored_req)
 		throw HTTPCode500();
 
-	if (parsed_first_line[1].find_first_of('?') != std::string::npos) {
-		std::string filename = parsed_first_line[1].substr(0, parsed_first_line[1].find_first_of('?'));
-		std::string query = parsed_first_line[1].substr(parsed_first_line[1].find_first_of('?') + 1);
-
-		stored_req->fill_start_line(
-			parsed_first_line[0],
-			filename,
-			parsed_first_line[2]);
-		stored_req->fill_query(query);
-	} else {
-		stored_req->fill_start_line(
-			parsed_first_line[0],
-			parsed_first_line[1].substr(0, parsed_first_line[1].find_first_of('?')),
-			parsed_first_line[2]);
-	}
+	stored_req->fill_start_line(
+		parsed_first_line[0],
+		parsed_first_line[1],
+		parsed_first_line[2]);
+	stored_req->fill_query( query_string );
+	std::cout << "{" << parsed_first_line[1] << "}" << std::endl;
 	stored_req->fill_headers(headers);
 }
 
@@ -77,38 +72,23 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
-		this->route = find_route(routes, this->legacy_url);
+		this->route = find_route(routes, this->legacy_url, this->method);
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */
-		std::map<std::string, std::string> ::iterator t_encoding = this->headers.find( "Transfer-Encoding" );
-		std::map<std::string, std::string> ::iterator c_length = this->headers.find( "Content-Length" );
-		if ( t_encoding != this->headers.end() )
+		for ( std::map<std::string, std::string>::iterator it = this->headers.begin(); it != this->headers.end(); ++it )
 		{
-			if ( c_length != this->headers.end() )
-				throw std::exception();
-			this->set_status( 501, "Not Implemented" );
-			return ;
-		}
-
-		if ( c_length != this->headers.end() )
-		{
-			char	*end_ptr;
-			this->body_length = strtoul( (c_length->second).c_str(), &end_ptr, 10 );
-			this->body_transfer = LENGTH;
-			if ( this->body_length == 0 )
-				this->fulfilled = true;
-		}
-		else
-		{
-			this->fulfilled = true;
-			this->body_transfer = NO_BODY;
+			if ( it->first == "Transfer-Encoding" )
+				this->transfer_encoding( it->second );
+			else if ( it->first == "Content-Length" )
+				this->content_length( it->second );
 		}
 
 		this->request_validity = true;
 	}
 	catch(const HTTPError& e)
 	{
+		this->request_validity = false;
 		this->set_status( e.getCode(), e.getDescription() );
 	}
 };

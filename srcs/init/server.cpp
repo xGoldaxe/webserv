@@ -21,15 +21,18 @@ void    Server::read_connection( int client_socket )
 		this->close_connection( client_socket );
 		return ;
 	}
-	this->_connections.at(client_socket).read_data();
+
+    std::map<int, Connection>::iterator client_socket_it = this->_connections.find(client_socket);
+    if (client_socket_it != this->_connections.end())
+	    client_socket_it->second.read_data();
+    else
+        close(client_socket);
 }
 
 
 void    Server::add_response( Request * req, int fd )
 {
-    Route route = find_route(this->_routes, req->get_legacy_url());
-
-    Response *res = new Response( fd, this->_index, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, route);
+    Response *res = new Response( fd, this->_index, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, req->get_route(), req->get_body_file() );
 
 	if ( req->is_request_valid() )
 	{
@@ -55,7 +58,7 @@ void    Server::add_response( Request * req, int fd )
             it->second.end_send();
         }
         res->output(this->_request_handled++);
-        delete req;
+        // delete req;
         req = NULL;
     }
 }
@@ -97,6 +100,7 @@ Server::Server(char **env, Server_conf serv_conf) : _request_handled(0),
                                                     _server_body_size(serv_conf.getServerBodySize()),
                                                     _client_header_size(serv_conf.getClientHeaderSize())
 {
+    this->_create_run_folder();
     std::vector<unsigned short> ports = serv_conf.getPort();
 
     for (std::vector<unsigned short>::iterator it = ports.begin(); it != ports.end(); it++)
@@ -151,10 +155,8 @@ Server::~Server()
             close(*it);
         }
 
-        while (!this->_queue.empty()) {
-            delete this->_queue.front();
-            this->_queue.pop();
-        }
+        delete_queue( this->_queue );
+        delete_queue( this->_c_queue );
 
         std::cout << "Server closed." << std::endl;
     }
@@ -221,8 +223,7 @@ void    Server::handle_responses()
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
 
-                std::cout << "fully sent!" << std::endl;
-                //UGLY
+                //file is fully send
                 std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
                 if ( it != this->_connections.end() )
                 {
@@ -244,7 +245,7 @@ void    Server::handle_responses()
         runner_i++;
     }
 
-    while (!this->_queue.empty() && exit_code == 0) {
+    while (!this->_queue.empty() && !shouldQuit()) {
         new_queue.push(this->_queue.front());
         this->_queue.pop();
     }
@@ -343,4 +344,21 @@ void Server::_bind_port(int sock, s_server_addr_in server_addr)
 size_t Server::countHandledRequest()
 {
     return this->_request_handled;
+}
+
+#define CGI_FILES_PATH "memory"
+
+void    Server::_create_run_folder()
+{
+    struct stat st;
+
+    if ( stat(CGI_FILES_PATH, &st) == -1 )
+    {
+        mkdir(CGI_FILES_PATH, 0700);
+    }
+    if ( stat(CGI_FILES_PATH, &st) == -1 )
+    {
+        std::cerr << "Can't create memory folder." << std::endl;
+        exit(0);
+    }
 }

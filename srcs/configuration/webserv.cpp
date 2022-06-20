@@ -25,7 +25,8 @@ static int return_type_parse(std::string s)
 									  "cgi_extension", "body_max_size", "server",
 									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
-									  "host", "max_amount_of_request", "max_uri_size", "cgi_path"};
+									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
+									  "run_file_path", "chunk_head_limit", "chunk_body_limit"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -37,6 +38,52 @@ static int return_type_parse(std::string s)
 		i++;
 	}
 	return (-1);
+}
+
+static bool verify_run_file_path(std::string url)
+{
+	if (!(url.at(url.size() - 1) == '/'))
+		return (false);
+	std::string tested_url;
+	for (std::string::iterator it = url.begin(); it != url.end(); ++it)
+	{
+		if (*it == '?' || *it == ',')
+			break;
+		tested_url += *it;
+	}
+
+	int nb_sub = 0;
+	int nb_regular = 0;
+	int nb_back = 0;
+	std::string actual;
+	for (std::string::iterator it = tested_url.begin(); it != tested_url.end(); ++it)
+	{
+		if (*it == '/' && actual.size() > 0) /* we ignore ////qwe///qwe//ewq case */
+		{
+			// std::cout << actual << std::endl;
+			actual != ".." ? ++nb_regular : ++nb_back;
+			++nb_sub;
+			actual = "";
+		}
+		else if (*it != '/')
+			actual += *it;
+	}
+	if (actual.size() != 0) // case where there is no / at end
+	{
+		// std::cout << actual << std::endl;
+		actual != ".." ? ++nb_regular : ++nb_back;
+		++nb_sub;
+	}
+
+	// std::cout << nb_sub << " " << nb_regular << " " << nb_back << std::endl;
+	if (nb_sub == 0 && !(tested_url.size() > 0 && tested_url[0] == '/'))
+		return false;
+	if (tested_url.size() == 0 || tested_url[0] != '/')
+		return false;
+	if (nb_back > nb_regular)
+		return false;
+
+	return true;
 }
 
 static bool verify_url(std::string url)
@@ -168,6 +215,54 @@ static int check_if_config_is_proper(std::string buffer)
 	return (1);
 }
 
+static std::string parsing_open_file(std::string filename)
+{
+	std::ifstream file;
+	std::stringstream buffer;
+	file.open(filename.c_str(), std::ifstream::in);
+	if (!file.is_open())
+	{
+		throw Webserv_conf::FailedToOpenFile();
+	}
+	buffer << file.rdbuf();
+	file.close();
+	return buffer.str();
+}
+
+static void	check_server_dupe(std::vector<Server_conf> servers)
+{
+	unsigned int i_checkservdupe = 0;
+	unsigned int j_checkservdupe = 1;
+	unsigned int i_checkportdupe = 0;
+	unsigned int j_checkportdupe = 0;
+	while (i_checkservdupe < servers.size())
+	{
+		while (j_checkservdupe < servers.size())
+		{
+			if (servers[i_checkservdupe].getHost().compare(servers[j_checkservdupe].getHost()) == 0
+			|| (servers[i_checkservdupe].getHost().compare("0.0.0.0") == 0)
+			|| (servers[j_checkservdupe].getHost().compare("0.0.0.0") == 0 ))
+			{
+				while (i_checkportdupe < servers[i_checkservdupe].getPort().size())
+				{
+					while (j_checkportdupe < servers[j_checkservdupe].getPort().size())
+					{
+						if (servers[i_checkservdupe].getPort()[i_checkportdupe] == servers[j_checkservdupe].getPort()[j_checkportdupe])
+							throw std::invalid_argument("Parsing error, duplicate port detected!");
+						j_checkportdupe++;
+					}
+					j_checkportdupe = 0;
+					i_checkportdupe++;
+				}
+				i_checkportdupe = 0;
+			}
+			j_checkservdupe++;
+		}
+		i_checkservdupe++;
+		j_checkservdupe = i_checkservdupe + 1;
+	}
+}
+
 Webserv_conf::Webserv_conf(std::string filename)
 {
 	/**
@@ -177,9 +272,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 	http_version = "HTTP/1.1";
 	Server_conf server = Server_conf(1);
 
-	std::ifstream file;
 	std::string buffer;
-	std::stringstream s;
 	std::vector<std::string> words;
 	std::string tmperrorval;
 	size_t pos = 0;
@@ -190,19 +283,11 @@ Webserv_conf::Webserv_conf(std::string filename)
 	int contextlocation = 0;
 	int error;
 
-	file.open(filename.c_str(), std::ifstream::in);
-	if (!file.is_open())
-	{
-		throw Webserv_conf::FailedToOpenFile();
-	}
-	s << file.rdbuf();
-	buffer = s.str();
-	file.close();
+	buffer = parsing_open_file(filename);
 
 	if (check_if_config_is_proper(buffer) == -1)
 		throw std::invalid_argument("The configuration file is invalid!");
 
-	// buffer.erase(std::remove(buffer.begin(), buffer.end(), '\t'), buffer.end());
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
 	std::replace(buffer.begin(), buffer.end(), '{', ' ');
 	std::replace(buffer.begin(), buffer.end(), '}', ' ');
@@ -410,13 +495,13 @@ Webserv_conf::Webserv_conf(std::string filename)
 			}
 			break;
 		case BODY_MAX_SIZE_PARSING:
-			// server int
+			// server location int
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
 
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+				if (std::atoi(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing body_max_size, must be 1 or greater");
 				if (contextlocation)
 					server.setBodyMaxSizeRoute(std::atoi(words[it + 2].c_str()));
@@ -489,7 +574,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered cgi timeout outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+				if (std::atoi(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing cgi_timeout, must be 1 or greater");
 				server.set_cgi_timeout(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
@@ -507,7 +592,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+				if (std::atoi(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
 				server.setReadTimeOut(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
@@ -525,7 +610,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered server body size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+				if (std::atoi(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
 				server.setServerBodySize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
@@ -562,7 +647,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered file_limit outside of location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+				if (std::atoi(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing file_limit_parsing, must be 1 or greater");
 				server.set_file_limit(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
@@ -580,7 +665,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, encountered client_header_size in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1 || std::atof(words[it + 2].c_str()) < 1)
+				if (std::atoi(words[it + 2].c_str()) < 1)
 					throw std::invalid_argument("Error parsing client_header_size, must be 1 or greater");
 				server.setClientHeaderSize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
@@ -659,12 +744,69 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing cgi_path!");
 			}
 			break;
+		case RUN_FILE_PATH_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered run_file_path outside of server");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (!verify_run_file_path(words[it + 2]))
+					throw std::invalid_argument("Invalid run file path!");
+				server.setRunFilePath(words[it + 2]);
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing run_file_path!");
+			}
+			break;
+		case CHUNK_HEAD_LIMIT_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing Chunk Head Limit, must be 1 or greater");
+				if (contextlocation)
+					server.setChunkHeadLimitRoute(std::atoi(words[it + 2].c_str()));
+				else
+					server.setChunkHeadLimit(std::atoi(words[it + 2].c_str()));
+
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Chunk Head Limit!");
+			}
+			break;
+		case CHUNK_BODY_LIMIT_PARSING:
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing Chunk Body Limit, must be 1 or greater");
+				if (contextlocation)
+					server.setChunkBodyLimitRoute(std::atoi(words[it + 2].c_str()));
+				else
+					server.setChunkBodyLimit(std::atoi(words[it + 2].c_str()));
+
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Chunk Body Limit!");
+			}
+			break;
 		default:
 			break;
 		}
 		it++;
 	}
 	this->servers.push_back(server);
+
 	// Assign default variables to servers if none defined in parsing
 	unsigned int checkservers = 0;
 	while (checkservers < this->servers.size())
@@ -673,36 +815,10 @@ Webserv_conf::Webserv_conf(std::string filename)
 			throw std::invalid_argument("A server has no location!");
 		if (this->servers[checkservers].getPort().empty())
 			this->servers[checkservers].addPort(DEFAULT_PORT);
+		this->servers[checkservers].check_methods_route();
 		checkservers++;
 	}
 
 	// Duplicate server_host and duplicate port check
-	unsigned int i_checkservdupe = 0;
-	unsigned int j_checkservdupe = 1;
-	unsigned int i_checkportdupe = 0;
-	unsigned int j_checkportdupe = 0;
-	while (i_checkservdupe < this->servers.size())
-	{
-		while (j_checkservdupe < this->servers.size())
-		{
-			if (this->servers[i_checkservdupe].getHost().compare(this->servers[j_checkservdupe].getHost()) == 0)
-			{
-				while (i_checkportdupe < this->servers[i_checkservdupe].getPort().size())
-				{
-					while (j_checkportdupe < this->servers[j_checkservdupe].getPort().size())
-					{
-						if (this->servers[i_checkservdupe].getPort()[i_checkportdupe] == this->servers[j_checkservdupe].getPort()[j_checkportdupe])
-							throw std::invalid_argument("Parsing error, duplicate port detected!");
-						j_checkportdupe++;
-					}
-					j_checkportdupe = 0;
-					i_checkportdupe++;
-				}
-				i_checkportdupe = 0;
-			}
-			j_checkservdupe++;
-		}
-		i_checkservdupe++;
-		j_checkservdupe = i_checkservdupe + 1;
-	}
+	check_server_dupe(this->servers);
 }

@@ -36,6 +36,7 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	  _index(index),
 	  _is_custom_error(false),
 	  _body_file(req->get_body_file()),
+	  _cgi(NULL),
 	  client_socket(client_socket),
 	  req(req)
 {

@@ -247,8 +247,8 @@ static void	check_server_dupe(std::vector<Server_conf> servers)
 				{
 					while (j_checkportdupe < servers[j_checkservdupe].getPort().size())
 					{
-						if (servers[i_checkservdupe].getPort()[i_checkportdupe] == servers[j_checkservdupe].getPort()[j_checkportdupe])
-							throw std::invalid_argument("Parsing error, duplicate port detected!");
+						// if (servers[i_checkservdupe].getPort()[i_checkportdupe] == servers[j_checkservdupe].getPort()[j_checkportdupe])
+						// 	throw std::invalid_argument("Parsing error, duplicate port detected!");
 						j_checkportdupe++;
 					}
 					j_checkportdupe = 0;

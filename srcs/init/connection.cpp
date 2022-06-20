@@ -1,5 +1,5 @@
 #include "connection.hpp"
-#include "unistd.h"
+#include "unistd.h" /** @todo */
 
 #define ONREAD_TIMEOUT 45
 #define IDLE_TIMEOUT 60
@@ -54,19 +54,19 @@ bool	Connection::check_state()
 
 	if ( this->is_timeout() == true )
 	{
-		std::cout << "trigger timeout" << std::endl;
+		std::cout << "trigger timeout" << std::endl; /** @todo */
 		error_status = 408;
 		error_message = "Request Time-out";
 	}
 	if ( this->_raw_data.size() > MAX_SIZE )
 	{
-		std::cout << "trigger max size" << std::endl;
+		std::cout << "trigger max size" << std::endl; /** @todo */
 		error_status = 413;
 		error_message = "Request Entity Too Large";
 	}
 	if ( this->_requests.size() > MAX_REQUESTS )
 	{
-		std::cout << "trigger too much requests" << std::endl;
+		std::cout << "trigger too much requests" << std::endl; /** @todo */
 		error_status = 429;
 		error_message = "Too Many Requests";
 	}

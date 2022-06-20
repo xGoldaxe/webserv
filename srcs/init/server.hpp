@@ -55,6 +55,7 @@ public:
 	void wait_for_connections();
 	void trigger_queue();
 	size_t countHandledRequest();
+	bool is_server_name(std::string hostname);
 
 	// Getters
 	std::vector<int> get_socket() const;

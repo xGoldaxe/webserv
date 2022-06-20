@@ -144,7 +144,7 @@ Server::Server(const Server &rhs) : _addrs(rhs._addrs),
 
 Server::~Server()
 {
-    if (_is_init) {
+    if (this->_is_init) {
         for (std::vector<int>::iterator it = this->_poll_fds.begin(); it != this->_poll_fds.end(); it++)
         {
             close(*it);
@@ -181,6 +181,7 @@ void Server::init_connection()
         this->_socket_fds.push_back(sock);
         int set_opt = 1;
         setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+        setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int));
 
         this->_bind_port(sock, *it);
 
@@ -196,7 +197,6 @@ void Server::init_connection()
 }
 
 /** @todo trigger an event when everything is sent ( used mainly to close connection when its required (400, 408) ) **/
-/** @todo while its sending, it must also reset the timeout of the connection **/
 void    Server::handle_responses()
 {
     std::queue<Response *> new_queue;
@@ -335,6 +335,21 @@ size_t Server::countHandledRequest()
     return this->_request_handled;
 }
 
+char asciitolower(char in) {
+    if (in <= 'Z' && in >= 'A')
+        return in - ('Z' - 'z');
+    return in;
+}
+
+bool Server::is_server_name(std::string hostname)
+{
+    std::transform(hostname.begin(), hostname.end(), hostname.begin(), asciitolower);
+    if (hostname == this->_server_name) {
+        return true;
+    }
+    return false;
+}
+
 #define CGI_FILES_PATH "memory"
 
 void    Server::_create_run_folder()
@@ -348,6 +363,6 @@ void    Server::_create_run_folder()
     if ( stat(CGI_FILES_PATH, &st) == -1 )
     {
         std::cerr << "Can't create memory folder." << std::endl;
-        exit(0);
+        exit(0); /** @todo @xGoldaxe c'est danger ça!! */
     }
 }

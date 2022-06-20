@@ -1,7 +1,7 @@
 server
 {
-	server_name = test ;
-	host = 0.0.0.0 ;
+	server_name = test.com ;
+	host = 127.0.0.1 ;
 	listen = 3000 ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
@@ -47,9 +47,9 @@ server
 
 server
 {
-	server_name = test ;
+	server_name = test.fr ;
 	host = 127.0.0.1 ;
-	listen = 3784 ;
+	listen = 3000 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;

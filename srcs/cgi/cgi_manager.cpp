@@ -41,6 +41,8 @@ void CGIManager::killCGI()
     if (this->_pid > 0)
     {
         kill(this->_pid, SIGKILL);
+        int status = 0;
+        waitpid(this->_pid, &status, 0);
         this->_pid = 0;
     }
 }

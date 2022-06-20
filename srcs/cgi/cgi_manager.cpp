@@ -20,6 +20,8 @@ CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path,
     this->_path = path;
     this->_cgi_timeout = cgi_timeout;
     this->_pid = 0;
+    this->_sent_headers = false;
+    this->_out_chunk = "";
 
     this->_c_headers = NULL;
 

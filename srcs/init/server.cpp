@@ -195,52 +195,43 @@ void Server::init_connection()
     }
 }
 
-/** @todo stop looking for deconnection, instead look if connection is still alive in _connections **/
 /** @todo trigger an event when everything is sent ( used mainly to close connection when its required (400, 408) ) **/
 /** @todo while its sending, it must also reset the timeout of the connection **/
 void    Server::handle_responses()
 {
     std::queue<Response *> new_queue;
 
-    int runner_i = 0;
-
-    while (!this->_queue.empty() && runner_i < MAX_RUNNERS && !shouldQuit())
+    for (int runner_i = 0; !this->_queue.empty() && runner_i < MAX_RUNNERS && !shouldQuit(); runner_i++)
     {
         Response *res = this->_queue.front();
 
-        if (this->_connections.find(res->client_socket) == this->_connections.end())
+        if (this->_connections.find(res->client_socket) != this->_connections.end())
         {
-            delete this->_queue.front();
-        }
-        else
-        {
-            size_t exchange = res->send_chunk();
-            if (exchange > 0) {
+            std::map<int, Connection>::iterator it = this->_connections.find(res->client_socket);
+            Connection conn = it->second;
+
+            if (res->send_chunk() > 0)
+            {
                 new_queue.push(res);
-            } else {
+            }
+            else
+            {
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
 
-                //file is fully send
-                std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
-                if ( it != this->_connections.end() )
-                {
-                    it->second.end_send();
-                    if ( it->second.get_is_dead() == true )
-                        this->close_connection( it->first );
-                }
+                conn.end_send();
+                if (conn.get_is_dead())
+                    this->close_connection(res->client_socket);
 
-                if (this->_queue.front()->req->is_request_valid())
-                {
-                    this->_queue.front()->output(this->_request_handled++);
-                }
-                delete this->_queue.front();
+                if (res->req->is_request_valid())
+                    res->output(this->_request_handled++);
+                delete res;
             }
         }
+        else
+            delete res;
 
         this->_queue.pop();
-
-        runner_i++;
     }
 
     while (!this->_queue.empty() && !shouldQuit()) {

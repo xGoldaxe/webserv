@@ -201,10 +201,16 @@ int		Response::send_chunk()
 
 		try {
 			chunk_type = this->_cgi->readChunk(this->_body_max_size);
+		} catch (const HTTPCode500 &e) {
+			this->set_status( e.getCode(), e.getDescription() );
+			this->error_body();
+			this->send();
+			return this->send();
 		} catch (const HTTPCode5XX &e) {
 			this->set_status( e.getCode(), e.getDescription() );
 			this->error_body();
-			return (this->send());
+			this->send();
+			return this->send_chunk();
 		}
 
 		if (chunk_type == CHUNK_CONTINUE) {
@@ -287,9 +293,15 @@ std::string Response::load_body(std::string client_ip)
 	else if (this->_route.get_cgi_enable() && this->_route.is_in_extension(get_extension(this->url.c_str())))
 	{
 		this->_return_body_type = BODY_TYPE_CGI;
-
-		this->_cgi = new CGIManager(this->_route.get_root(), this->_route.get_cgi_path(), this->url, this->_route.get_cgi_timeout());
-		this->body = this->_cgi->exec(*this->req, client_ip);
+		
+		try {
+			this->_cgi = new CGIManager(this->_route.get_root(), this->_route.get_cgi_path(), this->url, this->_route.get_cgi_timeout());
+			this->body = this->_cgi->exec(*this->req, client_ip);
+		} catch (const HTTPError &e) {
+			this->set_status( e.getCode(), e.getDescription() );
+			this->error_body();
+			return this->body;
+		}
 
 		std::istringstream resp(this->body);
 		std::string header;
@@ -312,7 +324,8 @@ std::string Response::load_body(std::string client_ip)
 		tmp << resp.rdbuf();
 		this->body = header + tmp.str();
 
-	} else
+	}
+	else
 	{
 		this->_return_body_type = BODY_TYPE_FILE;
 		if (this->_is_custom_error)

@@ -35,7 +35,7 @@ void	Connection::read_data()
 {
 	char    buff[1024];
 	bzero( buff, 1024 );
-	recv( this->_fd, buff, 1024 - 1, 0 );
+	recv( this->_fd, buff, 1024 - 1, MSG_DONTWAIT );
 	if ( this->_is_dead )
 		return ;
 	// if we start to write a new request, we reset the timer!

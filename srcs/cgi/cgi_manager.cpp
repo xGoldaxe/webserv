@@ -33,6 +33,16 @@ CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path,
 CGIManager::~CGIManager()
 {
     this->cleanCHeaders();
+    this->killCGI();
+}
+
+void CGIManager::killCGI()
+{
+    if (this->_pid > 0)
+    {
+        kill(this->_pid, SIGKILL);
+        this->_pid = 0;
+    }
 }
 
 std::string CGIManager::exec(Request &req, std::string client_ip)
@@ -82,6 +92,7 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     int pid = fork();
     if (pid == -1) {
         delete [] exec_path;
+        std::cerr << "[CGI][FATAL] Crashed!!" << std::endl;
         throw HTTPCode500();
     }
     if (pid == 0)
@@ -98,14 +109,18 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
     else
     {
         delete [] exec_path;
-        
+
         close(pipe_in_fd[0]);
         close(pipe_fd[1]);
 
         // Write the body content
         std::string to_write = req.get_body_content();
-        if (write(pipe_in_fd[1], to_write.c_str(), to_write.size()) < 0) {
-            std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
+        if (to_write.size() > 0) {
+            if (write(pipe_in_fd[1], to_write.c_str(), to_write.size()) <= 0) {
+                std::cerr << "[CGI][ERROR] can't transmit body informations." << std::endl;
+                this->killCGI();
+                throw HTTPCode502();
+            }
         }
         close(pipe_in_fd[1]);
 
@@ -116,6 +131,12 @@ std::string CGIManager::exec(Request &req, std::string client_ip)
         this->_pid = pid;
         this->_out_chunk = "";
         this->_remaining = "";
+
+        if (this->_cgi_out_fd <= 0) {
+            std::cerr << "[CGI][ERROR] Invalid output." << std::endl;
+            this->killCGI();
+            throw HTTPCode502();
+        }
     }
     return "";
 }
@@ -125,19 +146,27 @@ int CGIManager::readChunk(std::size_t chunk_size)
     // If we closed the cgi stdout
     if (this->_cgi_out_fd == 0) {
         this->_out_chunk = this->_remaining;
+        this->_remaining = "";
         return (CHUNK_OVER);
     }
 
     struct pollfd fds;
     fds.fd = this->_cgi_out_fd;
     fds.events = POLLIN;
+    fds.revents = 0;
 
     while (!shouldQuit()) {
-        if (poll(&fds, 1, 0) == 1) {
+        int updates = poll(&fds, 1, 0);
+        if (updates > 0 && fds.revents & (POLLIN|POLLHUP)) {
             if (!this->_sent_headers) {
                 char temp;
-                if (read(this->_cgi_out_fd, &temp, 1) < 1) {
+                int res = 0;
+                if ((res = read(this->_cgi_out_fd, &temp, 1)) <= 0) {
+                    close(this->_cgi_out_fd);
                     this->_cgi_out_fd = 0;
+                    fds.fd = -1;
+                    if (res < 0)
+                        this->killCGI();
                     break;
                 }
                 this->_out_chunk += temp;
@@ -155,8 +184,12 @@ int CGIManager::readChunk(std::size_t chunk_size)
 
                 char temp;
                 int res = 0;
-                if ((res = read(this->_cgi_out_fd, &temp, 1)) < 1) {
+                if ((res = read(this->_cgi_out_fd, &temp, 1)) <= 0) {
+                    close(this->_cgi_out_fd);
                     this->_cgi_out_fd = 0;
+                    fds.fd = -1;
+                    if (res < 0)
+                        this->killCGI();
                     break;
                 }
                 this->_out_chunk += temp;
@@ -166,13 +199,18 @@ int CGIManager::readChunk(std::size_t chunk_size)
                     return (CHUNK_CONTINUE);
                 }
             }
-        } else {
-            if (std::time(0) - this->_begin_response_time < this->_cgi_timeout || this->_sent_headers) {
+        } else if (updates < 0) {
+            close(this->_cgi_out_fd);
+            this->_cgi_out_fd = 0;
+            this->killCGI();
+            throw HTTPCode500();
+        } else if (!this->_sent_headers) {
+            if (std::time(0) - this->_begin_response_time < this->_cgi_timeout) {
                 return (CHUNK_NEXT);
             } else {
                 close(this->_cgi_out_fd);
                 this->_cgi_out_fd = 0;
-                kill(this->_pid, SIGABRT);
+                this->killCGI();
                 throw HTTPCode504();
             }
         }
@@ -185,17 +223,12 @@ int CGIManager::readChunk(std::size_t chunk_size)
         close(this->_cgi_out_fd);
         this->_cgi_out_fd = -1;
         throw HTTPCode502();
-    } else if (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM) {
-        std::cerr << "[CGI][Error] CGI Timeout " << this->_cgi_path << std::endl;
-        close(this->_cgi_out_fd);
-        this->_cgi_out_fd = -1;
-        throw HTTPCode504();
     }
-    if (this->_out_chunk.length() == 0 && this->_sent_headers == false) {
-        std::cerr << "[CGI][Error] Unvalid response for " << this->_cgi_path << std::endl;
+    if (this->_out_chunk.length() == 0 && !this->_sent_headers) {
+        std::cerr << "[CGI][Error] Invalid response for " << this->_cgi_path << std::endl;
         close(this->_cgi_out_fd);
         this->_cgi_out_fd = -1;
-        throw HTTPCode502();
+        throw HTTPCode500();
     }
     if (this->_out_chunk == "")
         return (CHUNK_NEXT);

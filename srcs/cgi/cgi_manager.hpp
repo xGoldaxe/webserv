@@ -50,4 +50,5 @@ private:
     void addHeader(std::string name, std::string value);
     void computeEnvArray();
     void cleanCHeaders();
+    void killCGI();
 };

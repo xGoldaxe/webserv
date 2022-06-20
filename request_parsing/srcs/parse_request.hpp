@@ -38,35 +38,6 @@ namespace	preq {
 		return splited;
 	}
 
-	std::map<std::string, std::string>	get_headers_req( std::vector<std::string>::iterator begin, std::vector<std::string>::iterator end ) {
-
-		std::map<std::string, std::string> res;
-
-		for ( std::vector<std::string>::iterator it = begin; it != end; ++it )
-		{
-			std::string header_field = *it;
-			//invalid end of file
-			if ( check_and_trunc_line( &header_field ) == false )
-				throw HTTPCode400();
-			
-			if ( header_field.size() == 0 ) //empty line seperator reached
-				break ;
-
-			const std::basic_string<char>::size_type point_index = header_field.find(':');
-		
-			if ( point_index == std::string::npos || point_index + 1 >= header_field.size() ) // invalid header field
-				throw HTTPCode400();
-
-			std::string	field_name = header_field.substr( 0, point_index );
-			std::string	field_value = header_field.substr( point_index + 1, header_field.size() - 1 );
-			field_value = trim( field_value, &is_space );
-			if ( field_value.size() == 0 )
-				throw HTTPCode400();
-			res.insert( std::pair<std::string, std::string>( field_name, field_value ) );
-		}
-		return res;
-	}
-
 	/* during the parsing at any time, an exception could happened. We just have to
 	catch it and send back an error 400 response */
 

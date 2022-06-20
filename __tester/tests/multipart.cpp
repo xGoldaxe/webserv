@@ -14,6 +14,19 @@ multipart_form_data*	multipart_construct( Asserter &asserter, const std::string 
 	return NULL;
 }
 
+void	parse_part_secure( Asserter &asserter, multipart_form_data *mtpart,
+std::string raw, std::string & name, std::string & filename, std::string & body )
+{
+	try
+	{
+		mtpart->parse_part( raw, name, filename, body );
+	}
+	catch(const std::exception& e)
+	{
+		asserter.throw_exception();
+	}
+}
+
 void	multipart_suite( Asserter &asserter )
 {
 	std::string boundary;
@@ -51,6 +64,7 @@ void	multipart_suite( Asserter &asserter )
 	/* <=======================================> */
 	asserter.name("find_boundary");
 	asserter.add_tag("find_boundary");
+	asserter.suite_comment("find boundary");
 
 	boundary = "boundary";
 	mtpart = multipart_construct( asserter, boundary );
@@ -61,16 +75,85 @@ void	multipart_suite( Asserter &asserter )
 	int	type = PRE;
 	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type ), 
 								static_cast<std::size_t>(14) );
+	asserter.add_comment("state");
 	asserter.verify_assert_equal<int>( type, IN );
 
 	asserter.name("No \\r\\n before");
+	asserter.add_comment("begin");
 	raw = "--boundary\r\nwe dont care";
 	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type ), 
 								static_cast<std::size_t>(0) );
 
+	asserter.add_comment("not begin");
+	raw = "some--boundary\r\nwe dont care";
+	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type ), 
+								std::string::npos );
+	
+	asserter.name("End");
+	raw = "0123456789\r\n--boundary--\r\nwe dont care";
+	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type ), 
+								static_cast<std::size_t>(10) );
+	asserter.add_comment("state");
+	asserter.verify_assert_equal<int>( type, POST );
+
 	asserter.delete_last_tag();
 	/* <=======================================> */
+	asserter.add_tag("parse_part");
+	asserter.suite_comment("parse part");
 
+	std::string name;
+	std::string filename;
+	std::string body;
+	raw = "content-disposition: form-data;\
+ name=\"form1\"; filename=file.txt\r\nuseless-header: blabla\r\n\
+\r\nthis is some serious body";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_assert_equal<std::string>( name, "form1" );
+	asserter.verify_assert_equal<std::string>( filename, "file.txt" );
+	asserter.verify_assert_equal<std::string>( body, "this is some serious body" );
+
+	asserter.name("no body");
+	raw = "content-disposition: form-data;\
+ name=\"form1\"; filename=file.txt\r\nuseless-header: blabla\r\n\
+\r\n";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_assert_equal<std::string>( name, "form1" );
+	asserter.verify_assert_equal<std::string>( filename, "file.txt" );
+	asserter.verify_assert_equal<std::string>( body, "" );
+
+	/* <=======================================> */
+	asserter.name("invald param");
+
+	raw = "content-disposition: form-data;\
+ name=\"form1\"; filename=\r\nuseless-header: blabla\r\n\
+\r\nthis is some serious body";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_exception();
+
+	raw = "content-disposition: form-data;\
+ name=\"\"\r\nuseless-header: blabla\r\n\
+\r\nthis is some serious body";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_exception();
+
+	raw = "content-disposition: form-data;\
+ name=\"form1\r\nuseless-header: blabla\r\n\
+\r\nthis is some serious body";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_exception();
+
+	asserter.name("no content disposition");
+	raw = "useless-header: blabla\r\n\
+\r\nthis is some serious body";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_exception();
+
+	asserter.name("no empty line");
+	raw = "content-disposition: form-data;\
+ name=\"form1\r\nuseless-header: blabla";
+	parse_part_secure( asserter, mtpart, raw, name, filename, body );
+	asserter.verify_exception();
+	/* <=======================================> */
 // 	asserter.add_tag("feed");
 // 	asserter.name("");
 

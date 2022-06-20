@@ -2,7 +2,10 @@
 
 #include <iostream>
 #include <string>
+#include <map>
+#include <vector>
 #include "../errors/http_code.hpp"
+// #include "../request_parsing/srcs/utils.hpp"
 
 #define MAX_MULTIPART_SIZE 8000 // 8mo like PHP
 
@@ -47,7 +50,7 @@ class multipart_form_data
 
 		/* main functions */
 		void	feed( const std::string &str );
-		void	parse_part( std::string & name, std::string & filename, std::string & body );
+		void	parse_part( const std::string & part, std::string & name, std::string & filename, std::string & body );
 		void	store_body( const std::string & body );
 
 		/* verification */

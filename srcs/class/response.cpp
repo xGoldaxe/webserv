@@ -28,21 +28,20 @@ Response::Response(void)
 {
 }
 
-Response::Response(int client_socket, std::vector<std::string> index, Request *req, const char *client_ip, size_t max_size, Route route, std::string body_file )
+Response::Response(int client_socket, std::vector<std::string> index, Request *req, const char *client_ip, size_t max_size)
 	: _return_body_type(BODY_TYPE_STRING),
 	  _client_ip(client_ip),
 	  _body_max_size(max_size),
-	  _route(route),
+	  _route(req->get_route()),
 	  _index(index),
 	  _is_custom_error(false),
-	  _body_file( body_file ),
+	  _body_file(req->get_body_file()),
 	  client_socket(client_socket),
 	  req(req)
 {
 	// this->_add_file( body_file );
-	this->cpy_req = *this->req;
 	this->version = "HTTP/1.1";
-	if ( this->req->is_request_valid() )
+	if (this->req->is_request_valid())
 	{
 		std::string path = this->req->get_legacy_url().substr(this->_route.get_location().size());
 
@@ -70,7 +69,7 @@ Response &   Response::operator=( Response const & rhs )
 	this->version = rhs.version;
 	this->headers = rhs.headers;
 	this->req = rhs.req;
-	this->cpy_req = rhs.cpy_req;
+	this->_cgi = NULL;
 
 	this->status_code = rhs.status_code;
 	this->status_message = rhs.status_message;
@@ -89,7 +88,7 @@ Response::~Response(void)
 {
 	if ( this->req != NULL )
 		delete this->req;
-	if (this->_return_body_type == BODY_TYPE_CGI)
+	if (this->_cgi != NULL)
 		delete this->_cgi;
 }
 
@@ -98,15 +97,15 @@ void Response::output(const size_t req_id)
 	#ifdef DEBUG
 		std::cout << "[" << this->version << "]";
 	#endif
-	std::cout << "[http://" << this->cpy_req.get_header_value("Host") << "]";
+	std::cout << "[http://" << this->req->get_header_value("Host") << "]";
 	std::cout << "[" << this->_client_ip << "]";
 	std::cout << "[" << this->get_str_code() << "]";
 	std::cout << "[" << req_id << "]";
 	#ifdef DEBUG
 		std::cout << "[" << this->_body_max_size << "]";
 	#endif
-	std::cout << " " << this->cpy_req.getMethod();
-	std::cout << " " << this->cpy_req.get_legacy_url() << std::endl;
+	std::cout << " " << this->req->getMethod();
+	std::cout << " " << this->req->get_legacy_url() << std::endl;
 }
 
 std::string Response::get_str_code(void)

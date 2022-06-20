@@ -21,8 +21,7 @@ CGIManager::CGIManager(std::string root, std::string cgi_path, std::string path,
     this->_cgi_timeout = cgi_timeout;
     this->_pid = 0;
 
-    this->_c_headers = new char* [1];
-    this->_c_headers[0] = NULL;
+    this->_c_headers = NULL;
 
     #ifdef DEBUG
         std::cout << "[CGI] New with " << cgi_path << " for " << path << std::endl;
@@ -234,9 +233,12 @@ void CGIManager::computeEnvArray()
 
 void CGIManager::cleanCHeaders()
 {
+    if (this->_c_headers == NULL)
+        return;
     for (int i = 0; this->_c_headers[i] != NULL; i++)
     {
         delete [] this->_c_headers[i];
     }
     delete [] this->_c_headers;
+    this->_c_headers = NULL;
 }

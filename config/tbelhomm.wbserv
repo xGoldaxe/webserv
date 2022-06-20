@@ -11,7 +11,7 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /home/restray/42/webserv/www/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
 		methods = GET ;
 		rewrite 301 /moved.html /sub/index.html ;
@@ -22,21 +22,21 @@ server
 	}
 	location /sub
 	{
-		root /home/restray/42/webserv/www/ ;
-		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
+		error_page 404 = /mnt/nfs/homes/tbelhomm/Desktop/webserv/defaultPages/404.html ;
 		index = /index.html /index.htm ;
 		methods = GET POST ;
 	}
 	location /post
 	{
-		root /home/restray/42/webserv/www/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
 		methods = POST ;
 	}
 	location /php
 	{ 
 		error_page 404 = /defaultPages/500.html ;
-		root /home/restray/42/webserv/cgi/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
 		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
@@ -59,8 +59,8 @@ server
 	max_uri_size = 40 ;
 	location /
 	{
-		root /home/restray/42/webserv/www/ ;
-		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
+		error_page 404 = /mnt/nfs/homes/tbelhomm/Desktop/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
 		index = ;
 		autoindex on ;
@@ -69,12 +69,12 @@ server
 	}
 	location /php
 	{ 
-		root /home/restray/42/webserv/cgi/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
 		methods = POST GET HEAD ;
 		index = /index.php ;
-		enable_cgi on ; 
 		send_file on ;
 		file_limit = 100 ;
+		enable_cgi on ; 
 		cgi_extension = php ;
 		cgi_timeout = 30 ;
 		cgi_path = /usr/bin/php-cgi ;

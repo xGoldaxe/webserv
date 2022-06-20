@@ -29,7 +29,6 @@ class Response
 	private:
 		std::string								version;
 		std::map<std::string, std::string>		headers;
-		Request									cpy_req;
 		int										_return_body_type;
 		std::ifstream							_in_file;
 		size_t									_file_len;
@@ -61,7 +60,7 @@ class Response
 		typedef std::map<std::string, std::string> headers_t;
 
 		/* coplien */
-		Response(int client_socket, std::vector<std::string> conf, Request *req, const char *client_ip, size_t max_size, Route route, std::string body_file );
+		Response(int client_socket, std::vector<std::string> conf, Request *req, const char *client_ip, size_t max_size);
 		~Response( void );
 
 		/* end coplien */

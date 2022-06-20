@@ -32,7 +32,7 @@ void    Server::read_connection( int client_socket )
 
 void    Server::add_response( Request * req, int fd )
 {
-    Response *res = new Response( fd, this->_index, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size, req->get_route(), req->get_body_file() );
+    Response *res = new Response( fd, this->_index, req, this->_socket_addr_eq[fd].c_str(), this->_body_max_size);
 
 	if ( req->is_request_valid() )
 	{
@@ -58,7 +58,7 @@ void    Server::add_response( Request * req, int fd )
             it->second.end_send();
         }
         res->output(this->_request_handled++);
-        // delete req;
+        delete req;
         req = NULL;
     }
 }
@@ -207,10 +207,8 @@ void    Server::handle_responses()
     while (!this->_queue.empty() && runner_i < MAX_RUNNERS && !shouldQuit())
     {
         Response *res = this->_queue.front();
-        
-        /* with MSG_PEEK, no data will be ride of the socket */
-        char buffer[256];
-        if (recv(res->client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0)
+
+        if (this->_connections.find(res->client_socket) == this->_connections.end())
         {
             delete this->_queue.front();
         }

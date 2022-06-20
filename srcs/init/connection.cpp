@@ -102,10 +102,10 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 	{
 		keep_going = false;
 
-		if ( this->check_state() == false )
+		if (!this->check_state())
 			break ;
 		// we can create a request
-		if ( this->is_ready() && this->_is_init == false )
+		if (this->is_ready() && !this->_is_init)
 		{
 			this->init_request(routes);
 			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
@@ -125,7 +125,7 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 		{
 			this->_requests.push( this->_req );
 
-			if ( this->is_invalid_req() )
+			if (this->is_invalid_req())
 			{
 				this->_is_dead = true;
 				this->soft_clear();

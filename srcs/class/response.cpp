@@ -203,8 +203,7 @@ int		Response::send_chunk()
 		} catch (const HTTPCode5XX &e) {
 			this->set_status( e.getCode(), e.getDescription() );
 			this->error_body();
-			this->send();
-			return (1);
+			return (this->send());
 		}
 
 		if (chunk_type == CHUNK_CONTINUE) {

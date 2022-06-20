@@ -208,7 +208,6 @@ void    Server::handle_responses()
         if (this->_connections.find(res->client_socket) != this->_connections.end())
         {
             std::map<int, Connection>::iterator it = this->_connections.find(res->client_socket);
-            Connection conn = it->second;
 
             if (res->send_chunk() > 0)
             {
@@ -219,8 +218,8 @@ void    Server::handle_responses()
                 std::string response_content = "0\r\n\r\n";
                 ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
 
-                conn.end_send();
-                if (conn.get_is_dead())
+                it->second.end_send();
+                if (it->second.get_is_dead())
                     this->close_connection(res->client_socket);
 
                 if (res->req->is_request_valid())

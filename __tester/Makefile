@@ -10,6 +10,7 @@ SRCS	=	../srcs/utils/file.cpp \
 			../srcs/configuration/server.cpp \
 			../srcs/configuration/webserv.cpp \
 			../srcs/configuration/redirection.cpp \
+			../srcs/processing/multipart_form_data.cpp \
 
 TESTS	=	main.cpp\
 			tests/demo.cpp \
@@ -17,6 +18,7 @@ TESTS	=	main.cpp\
 			tests/utils.cpp \
 			tests/content-length.cpp \
 			tests/header_chunked.cpp \
+			tests/multipart.cpp \
 
 INTERNAL_HEADERS = 	internal/assert_object.hpp \
 					internal/util.hpp \
@@ -26,6 +28,7 @@ HEADERS =	../srcs/utils/file.hpp \
 			../srcs/utils/utils.hpp \
 			../srcs/errors/http_code.hpp \
 			../srcs/class/chunk_buffer.hpp \
+			../srcs/processing/multipart_form_data.hpp \
 
 INT_OBJS	=	${INTERNAL_SRCS:%.cpp=.build/%.o}
 OBJS		=	${SRCS:%.cpp=%.o}

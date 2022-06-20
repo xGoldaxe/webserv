@@ -43,10 +43,14 @@ class multipart_form_data
 		std::string	get_filename(void) const;
 		std::string	get_name(void) const;
 		std::string	get_content(void) const;
+		int			get_state(void) const;
 
 		/* main functions */
 		void	feed( const std::string &str );
+		void	parse_part( std::string & name, std::string & filename, std::string & body );
+		void	store_body( const std::string & body );
 
 		/* verification */
-		bool	verify_boundary( const std::string &boundary );
+		bool			verify_boundary( const std::string &boundary );
+		std::size_t		find_boundary( const std::string &boundary, const std::string & buffer, int & type );
 };

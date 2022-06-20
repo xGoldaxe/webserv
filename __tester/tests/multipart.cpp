@@ -18,7 +18,9 @@ void	multipart_suite( Asserter &asserter )
 {
 	std::string boundary;
 	multipart_form_data *mtpart = NULL;
+	asserter.add_tag("multipart");
 	asserter.new_suite("tests/multipart.cpp");
+	asserter.delete_last_tag();
 
 	asserter.add_tag("verify_boundary");
 	asserter.suite_comment("We try the multipart_form_data boundary verification");
@@ -46,32 +48,54 @@ void	multipart_suite( Asserter &asserter )
 	/* <=======================================> */
 	delete mtpart;
 	asserter.delete_last_tag();
+	/* <=======================================> */
+	asserter.name("find_boundary");
+	asserter.add_tag("find_boundary");
 
-	asserter.add_tag("feed");
-	asserter.name("");
-
-	boundary = "simple boundary";
+	boundary = "boundary";
 	mtpart = multipart_construct( asserter, boundary );
-	asserter.verify_assert_equal<std::string>( mtpart->get_boundary(), "simple boundary" );
+	asserter.verify_assert_equal<std::string>( mtpart->get_boundary(), "boundary" );
 
-	asserter.name("normal feed");
-	std::string raw = "\
-This is the preamble.  It is to be ignored, thoughit\r\n\
-is a handy place for mail composers to include an\r\n\
-explanatory note to non-MIME compliant readers.\r\n\
---simple boundary\r\n\
-content-disposition: form-data; name=\"field1\"\r\n\
-\r\n\
-This is implicitly typed plain ASCII text.\r\n\
-It does NOT end with a linebreak.\r\n\
---simple boundary\r\n\
-content-disposition: form-data; name=\"field2\"\r\n\
-\r\n\
-This is implicitly typed plain ASCII text.\r\n\
-It does NOT end with a linebreak.\r\n\
---simple boundary--\r\n\
-This is the epilogue.  It is also to be ignored.";
-	mtpart->feed( raw );
+	asserter.name("Normal find");
+	std::string raw = "salut les amis\r\n--boundary\r\nwe dont care";
+	int	type = PRE;
+	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type ), 
+								static_cast<std::size_t>(14) );
+	asserter.verify_assert_equal<int>( type, IN );
+
+	asserter.name("No \\r\\n before");
+	raw = "--boundary\r\nwe dont care";
+	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type ), 
+								static_cast<std::size_t>(0) );
+
+	asserter.delete_last_tag();
+	/* <=======================================> */
+
+// 	asserter.add_tag("feed");
+// 	asserter.name("");
+
+// 	boundary = "simple boundary";
+// 	mtpart = multipart_construct( asserter, boundary );
+// 	asserter.verify_assert_equal<std::string>( mtpart->get_boundary(), "simple boundary" );
+
+// 	asserter.name("normal feed");
+// 	raw = "\
+// This is the preamble.  It is to be ignored, thoughit\r\n\
+// is a handy place for mail composers to include an\r\n\
+// explanatory note to non-MIME compliant readers.\r\n\
+// --simple boundary\r\n\
+// content-disposition: form-data; name=\"field1\"\r\n\
+// \r\n\
+// This is implicitly typed plain ASCII text.\r\n\
+// It does NOT end with a linebreak.\r\n\
+// --simple boundary\r\n\
+// content-disposition: form-data; name=\"field2\"\r\n\
+// \r\n\
+// This is implicitly typed plain ASCII text.\r\n\
+// It does NOT end with a linebreak.\r\n\
+// --simple boundary--\r\n\
+// This is the epilogue.  It is also to be ignored.";
+// 	mtpart->feed( raw );
 	/* <=======================================> */
 
 

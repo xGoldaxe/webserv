@@ -137,9 +137,9 @@ std::vector<Server_conf> Webserv_conf::getServers() const
 	return this->servers;
 }
 
-std::vector<std::vector<Server_conf> > Webserv_conf::getSortedServers() const
+std::vector<Bundle_server> Webserv_conf::getBundleServers() const
 {
-	return this->sorted_servers;
+	return this->bundle_servers;
 }
 
 std::string Webserv_conf::getHttpVersion() const
@@ -406,7 +406,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if ((it + 2) < words.size() && words[it + 2].compare(";") == 0)
 			{
-				if (!verify_url(words[it + 1]))
+				if (!verify_run_file_path(words[it + 1]))
 					throw std::invalid_argument("Invalid root path");
 				if (contextlocation == 0)
 					server.setName(words[it + 1]);
@@ -836,41 +836,52 @@ Webserv_conf::Webserv_conf(std::string filename)
 	// Duplicate check
 	check_server_dupe(this->servers);
 
+	std::vector<std::vector<Server_conf> > sorted_servers = std::vector<std::vector<Server_conf> >();
+
 	// iterate over servers and add them to the vector of servers
 	unsigned int jterator = 0;
 	for (unsigned int i = 0; i < this->servers.size(); i++)
 	{
-		while (jterator < this->sorted_servers.size())
+		while (jterator < sorted_servers.size())
 		{
-			if (!this->sorted_servers[jterator].empty()
-				&& this->sorted_servers[jterator][0].getHost() == this->servers[i].getHost()
-				&& this->sorted_servers[jterator][0].getPort() == this->servers[i].getPort())
+			if (!sorted_servers[jterator].empty()
+				&& sorted_servers[jterator][0].getHost() == servers[i].getHost()
+				&& sorted_servers[jterator][0].getPort() == servers[i].getPort())
 			{
-				this->sorted_servers[jterator].push_back(this->servers[i]);
+				sorted_servers[jterator].push_back(this->servers[i]);
 				break;
 			}
 			jterator++;
 		}
-		if (jterator == this->sorted_servers.size())
+		if (jterator == sorted_servers.size())
 		{
-			this->sorted_servers.push_back(std::vector<Server_conf>());
-			this->sorted_servers.back().push_back(this->servers[i]);
+			sorted_servers.push_back(std::vector<Server_conf>());
+			sorted_servers.back().push_back(this->servers[i]);
 		}
 		
 		jterator = 0;
 	}
 
-#ifdef DEBUG
-	// print result of sorting
-	for (unsigned int i = 0; i < this->sorted_servers.size(); i++)
+	// bundle all the results into the bundled_servers vector
+	for (unsigned int i = 0; i < sorted_servers.size(); i++)
 	{
-		std::cout << "************Vector " << i << " *************" << std::endl;
-		for (unsigned int j = 0; j < this->sorted_servers[i].size(); j++)
+		this->bundle_servers.push_back(Bundle_server());
+		for (unsigned int j = 0; j < sorted_servers[i].size(); j++)
 		{
-			this->sorted_servers[i][j].shortprintServer();
+			this->bundle_servers[i].addServer(sorted_servers[i][j]);
 		}
 	}
-#endif
-
-
+	print_bundled_servers();
+	std::cout << "dogen" << std::endl;
 }
+
+void Webserv_conf::print_bundled_servers()
+{
+	std::cout << "hello";
+	for (unsigned int i = 0; i < this->bundle_servers.size(); i++)
+	{
+		std::cout << "************Vector " << i << " *************" << std::endl;
+		this->bundle_servers[i].print_servers();
+	}
+}
+

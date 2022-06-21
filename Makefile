@@ -13,6 +13,7 @@ SRCS	=	main.cpp \
 			configuration/redirection.cpp \
 			configuration/webserv.cpp \
 			configuration/server.cpp \
+			configuration/bundle_server.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \

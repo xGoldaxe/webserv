@@ -137,6 +137,11 @@ std::vector<Server_conf> Webserv_conf::getServers() const
 	return this->servers;
 }
 
+std::vector<std::vector<Server_conf> > Webserv_conf::getSortedServers() const
+{
+	return this->sorted_servers;
+}
+
 std::string Webserv_conf::getHttpVersion() const
 {
 	return this->http_version;
@@ -828,6 +833,44 @@ Webserv_conf::Webserv_conf(std::string filename)
 		checkservers++;
 	}
 
-	// Duplicate server_host and duplicate port check
+	// Duplicate check
 	check_server_dupe(this->servers);
+
+	// iterate over servers and add them to the vector of servers
+	unsigned int jterator = 0;
+	for (unsigned int i = 0; i < this->servers.size(); i++)
+	{
+		while (jterator < this->sorted_servers.size())
+		{
+			if (!this->sorted_servers[jterator].empty()
+				&& this->sorted_servers[jterator][0].getHost() == this->servers[i].getHost()
+				&& this->sorted_servers[jterator][0].getPort() == this->servers[i].getPort())
+			{
+				this->sorted_servers[jterator].push_back(this->servers[i]);
+				break;
+			}
+			jterator++;
+		}
+		if (jterator == this->sorted_servers.size())
+		{
+			this->sorted_servers.push_back(std::vector<Server_conf>());
+			this->sorted_servers.back().push_back(this->servers[i]);
+		}
+		
+		jterator = 0;
+	}
+
+#ifdef DEBUG
+	// print result of sorting
+	for (unsigned int i = 0; i < this->sorted_servers.size(); i++)
+	{
+		std::cout << "************Vector " << i << " *************" << std::endl;
+		for (unsigned int j = 0; j < this->sorted_servers[i].size(); j++)
+		{
+			this->sorted_servers[i][j].shortprintServer();
+		}
+	}
+#endif
+
+
 }

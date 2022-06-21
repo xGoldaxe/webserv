@@ -100,5 +100,6 @@ class Server_conf
 		void							setChunkBodyLimit(int chunk_body_limit);
 		void							setChunkHeadLimitRoute(int chunk_body_limit);
 		void							setChunkBodyLimitRoute(int chunk_body_limit);
+		void 							shortprintServer();
 
 };

@@ -337,3 +337,36 @@ void Server_conf::setChunkBodyLimitRoute(int chunk_body_limit)
 {
 	this->routes.back().setChunkBodyLimit(chunk_body_limit);
 }
+
+
+void Server_conf::shortprintServer()
+{
+#ifdef DEBUG
+
+	std::vector<unsigned short>::iterator itp;
+	std::vector<std::string>::iterator its;
+
+	std::cout << "********Server********" << std::endl;
+
+	std::cout << "Server name : ";
+	if (this->server_name.empty())
+		std::cout << "None";
+	for (its = this->server_name.begin(); its != this->server_name.end(); its++)
+	{
+		std::cout << *its << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << "Host : " << this->host << std::endl;
+
+	if ((!this->port.empty()))
+	{
+		std::cout << "Ports : ";
+		for (itp = this->port.begin(); itp != this->port.end(); itp++)
+		{
+			std::cout << *itp << " ";
+		}
+		std::cout << std::endl;
+	}
+#endif
+}

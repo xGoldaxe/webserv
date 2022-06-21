@@ -1,0 +1,274 @@
+server
+{
+	server_name = test ;
+	host = 127.0.0.1 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+
+server
+{
+	server_name = test ;
+	host = 127.0.0.2 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+server
+{
+	server_name = webserv.fr ;
+	host = 127.0.0.1 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+server
+{
+	server_name = test ;
+	host = 127.0.0.3 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+server
+{
+	server_name = bgbgbgbg ;
+	host = 127.0.0.2 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+server
+{
+	server_name = test ;
+	host = 127.0.0.2 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}
+
+server
+{
+	server_name = test ;
+	host = 127.0.0.1 ;
+	listen = 3001 ;
+	error_page 404 403 = /error.html ;
+	body_max_size = 1024 ;
+	read_timeout = 10 ;
+	server_body_size = 1024 ;
+	client_header_size = 1024 ;
+	max_amount_of_request = 100 ;
+	max_uri_size = 40 ;
+	chunk_head_limit = 110 ;
+	chunk_body_limit = 120 ;
+	run_file_path = /run/webserv/ ;
+	location /
+	{
+		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+		index = /index.html /index.htm ;
+		error_page 404 = /404.html ;
+		methods = POST GET DELETE ;
+		rewrite 301 /moved.html /sub/index.html ;
+		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		autoindex on ;
+		send_file on ;
+		file_limit = 100 ;
+		chunk_head_limit = 130 ;
+		chunk_body_limit = 140 ;
+	}
+	location /php
+	{ 
+		root /mnt/nfs/homes/datack/Desktop/webserv/cgi/ ;
+		index = /index.php ;
+		enable_cgi on ; 
+		cgi_extension = php ;
+		cgi_timeout = 10 ;
+		cgi_path = /usr/bin/php ;
+	}
+}

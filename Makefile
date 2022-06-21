@@ -23,6 +23,11 @@ SRCS	=	main.cpp \
 			class/response_error_page.cpp \
 			class/read_chunk.cpp \
 			request_header/request_header.cpp \
+			processing/multipart_form_data.cpp \
+			../request_parsing/srcs/parse_request.cpp \
+			../request_parsing/srcs/parse_url.cpp \
+			../request_parsing/srcs/utils.cpp \
+			../request_parsing/srcs/verify_absolute_url.cpp \
 
 HEADERS =	errors/http_code.hpp \
 			exit_handle.hpp \

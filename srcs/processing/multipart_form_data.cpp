@@ -1,4 +1,6 @@
 #include "multipart_form_data.hpp"
+#include "../../request_parsing/srcs/req_parse.hpp"
+#include "../utils/utils.hpp"
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -6,12 +8,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-multipart_form_data::multipart_form_data( const std::string &boundary, std::size_t max_size )
+multipart_form_data::multipart_form_data( const std::string &boundary, std::size_t max_size, std::size_t max_upload )
 {
-	if ( this->verify_boundary( boundary ) == false )
-		throw HTTPCode400();
+	this->set_boundary( boundary );
 	this->max_size = max_size;
-	this->boundary = boundary;
+	this->max_upload = max_upload;
 
 	this->buffer = "";
 	this->filename = "";
@@ -21,8 +22,33 @@ multipart_form_data::multipart_form_data( const std::string &boundary, std::size
 	this->state = PRE;
 }
 
+void	multipart_form_data::set_boundary( const std::string &boundary )
+{
+	if ( this->verify_boundary( boundary ) == false )
+		throw HTTPCode400();
+	this->boundary = boundary;
+}
+
+multipart_form_data::multipart_form_data(void)
+{}
+
 multipart_form_data::~multipart_form_data(void)
 {}
+
+multipart_form_data &multipart_form_data::operator=( multipart_form_data const &rhs )
+{
+	this->max_size = rhs.get_max_size();
+	this->max_upload = rhs.get_max_upload();
+	this->boundary = rhs.get_boundary();
+
+	this->buffer = rhs.get_buffer();
+	this->filename = rhs.get_filename();
+	this->name = rhs.get_name();
+	this->body_content = rhs.get_content();
+
+	this->state = rhs.get_state();
+	return *this;
+}
 
 /* ************************************************************************** */
 /*                                                                            */
@@ -54,7 +80,14 @@ int	multipart_form_data::get_state(void) const
 {
 	return this->state;
 }
-
+std::size_t	multipart_form_data::get_max_size(void) const
+{
+	return this->max_size;
+}
+std::size_t	multipart_form_data::get_max_upload(void) const
+{
+	return this->max_upload;
+}
 /* ************************************************************************** */
 /*                                                                            */
 /*            @MAIN FUNCTIONS                                                 */
@@ -67,7 +100,8 @@ void	multipart_form_data::feed( const std::string &str )
 	while (1)
 	{
 		int type;
-		std::size_t find = this->find_boundary( this->boundary, this->buffer, type );
+		std::size_t boundary_size;
+		std::size_t find = this->find_boundary( this->boundary, this->buffer, type, boundary_size );
 		if ( find == std::string::npos )
 		{
 			if ( this->buffer.size() > this->max_size )
@@ -78,7 +112,8 @@ void	multipart_form_data::feed( const std::string &str )
 			throw HTTPCode413();
 		
 		std::string part = this->buffer.substr( 0, find );
-		this->buffer = this->buffer.substr( find + this->boundary.size(), this->buffer.size() );
+		this->buffer = this->buffer.substr( find + boundary_size, this->buffer.size() );
+
 		if ( this->state == IN )
 		{
 			this->parse_part( part, this->name, this->filename, this->body_content ); // can throw 400
@@ -90,10 +125,9 @@ void	multipart_form_data::feed( const std::string &str )
 			this->filename = "";
 			this->body_content = "";
 		}
+		this->state = type;
 	}
 }
-
-#include "../request_parsing/srcs/utils.hpp"
 
 void	multipart_form_data::parse_part( const std::string & part, std::string & name, std::string & filename, std::string & body )
 {
@@ -103,47 +137,32 @@ void	multipart_form_data::parse_part( const std::string & part, std::string & na
 	std::size_t empty_line_index = part.find( "\r\n\r\n" );
 	if ( empty_line_index == std::string::npos )
 		throw HTTPCode400();
+	if ( part.size() - ( empty_line_index + 4 ) > this->max_upload )
+		throw HTTPCode413();
+	
 	std::string head = part.substr( 0, empty_line_index );
 	std::vector<std::string> lines = preq::read_until( part, &preq::check_line );
 	std::map<std::string, std::string> headers = preq::get_headers_req( lines.begin(), lines.end() );
 
-	std::map<std::string, std::string>::iterator cd_head = headers.find( std::string( "content-disposition" ) );
+	std::map<std::string, std::string>::iterator cd_head = headers.find( std::string( "Content-Disposition" ) );
 	if ( cd_head == headers.end() )
 		throw HTTPCode400();
 
-	std::vector<std::string> params = preq::split_str_c( cd_head->second, ';' );
-
-	for ( std::vector<std::string>::iterator it = params.begin(); it != params.end(); ++it )
-		*it = preq::trim( *it, &preq::is_space );
+	std::vector<std::string> params = split_params( cd_head->second );
 
 	if ( params.size() < 1 || params[0] != "form-data" )
 		throw HTTPCode400();
 
 	if ( params.size() > 1 )
 	{
-		/** @anchor need to be clean + tested separetly **/
-		for ( std::vector<std::string>::iterator it = params.begin() + 1; it != params.end(); ++it )
-		{
-			std::size_t find = it->find( "=" );
-			if ( find == std::string::npos )
-				throw HTTPCode400();
+		std::map<std::string, std::string> p_params = parse_params( params.begin() + 1, params.end() );
 
-			std::string nm = it->substr( 0, find );
-			std::string val = it->substr( find + 1, it->size() );
-			if ( val.size() < 1 )
-				throw HTTPCode400();
-			if ( val[0] == '"' )
-			{
-				if ( val.size() < 3 )
-					throw HTTPCode400();
-				if ( val[ val.size() - 1 ] != '"' )
-					throw HTTPCode400();
-				val = val.substr( 1, val.size() - 2 );
-			}
-			if ( nm == "name" )
-				name = val;
-			else if ( nm == "filename" )
-				filename = val;
+		for ( std::map<std::string, std::string>::iterator it = p_params.begin(); it != p_params.end(); ++it )
+		{
+			if ( it->first == "name" )
+				name = it->second;
+			else if ( it->first == "filename" )
+				filename = it->second;
 		}
 	}
 	body = part.substr( empty_line_index + 4, part.size() );
@@ -151,7 +170,7 @@ void	multipart_form_data::parse_part( const std::string & part, std::string & na
 
 void	multipart_form_data::store_body( const std::string & body )
 {
-	(void)body;
+	std::cout << "BODY: {" << body << "}" << std::endl; 
 }
 
 /* ************************************************************************** */
@@ -169,17 +188,19 @@ bool	multipart_form_data::verify_boundary( const std::string & boundary )
 	return true;
 }
 
-std::size_t	multipart_form_data::find_boundary( const std::string & boundary, const std::string & buffer, int & type )
+std::size_t	multipart_form_data::find_boundary( const std::string & boundary, const std::string & buffer, int & type, std::size_t & boundary_size )
 {
 	std::size_t find = buffer.find( "--" + boundary + "\r\n" );
 	if ( find == 0 )
 	{
 		type = IN;
+		boundary_size = 4 + boundary.size();
 		return 0;
 	}
-	find = buffer.find( "--" + boundary + "\r\n" );
+	find = buffer.find( "--" + boundary + std::string("--") + "\r\n" );
 	if ( find == 0 )
 	{
+		boundary_size = 6 + boundary.size();
 		type = POST;
 		return 0;
 	}
@@ -190,9 +211,13 @@ std::size_t	multipart_form_data::find_boundary( const std::string & boundary, co
 	{
 		find = buffer.find( "\r\n" + std::string( "--" ) + boundary + std::string( "--" ) + "\r\n");
 		if ( find != std::string::npos )
+		{
 			type = POST;
+			boundary_size = 8 + boundary.size();
+		}
 		return find;
 	}
+	boundary_size = 6 + boundary.size();
 	type = IN;
 	return find;
 }

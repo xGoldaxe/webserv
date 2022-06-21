@@ -1,7 +1,6 @@
 #include "request.hpp"
 
 
-/** @deprecated the return is for debug **/
 Request::~Request(void)
 {
 	if ( this->processed_file != NULL )
@@ -30,6 +29,8 @@ Request::Request(void)
 
 	this->body_transfer = NO_BODY;
 	this->_body_content = "";
+
+	this->multipart_obj = multipart_form_data( "boundary" );
 }
 
 /* end coplien */
@@ -347,7 +348,7 @@ void	Request::process_file(void)
 		char* buffer = new char[size];
 
 		this->processed_file->read( buffer, size );
-		std::cout.write ( buffer, size );
+		this->multipart_obj.feed( buffer );
 		delete[] buffer;
 	}
 	catch(const HTTPError& e)

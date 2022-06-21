@@ -1,4 +1,7 @@
-#include "../webserv.hpp"
+#include "class/request.hpp"
+#include "class/response.hpp"
+#include <iostream>
+#include <string>
 #include <ctime>
 
 static inline std::string get_formatted_datetime()

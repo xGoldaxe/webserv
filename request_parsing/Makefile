@@ -1,5 +1,9 @@
 SRCS	=	print_or_store.cpp \
 			main.cpp \
+			parse_request.cpp \
+			parse_url.cpp \
+			utils.cpp \
+			verify_absolute_url.cpp \
 			outside/http_code.cpp \
 			outside/string.cpp \
 

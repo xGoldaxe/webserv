@@ -8,6 +8,7 @@
 #include "../class/route.hpp"
 #include "../configuration/webserv.hpp"
 #include "../class/chunk_buffer.hpp"
+#include "../processing/multipart_form_data.hpp"
 
 #define CHUNKED 2
 #define LENGTH 1
@@ -51,6 +52,7 @@ class Request
 		std::string								_body_content;
 		int										body_transfer;
 		bool									fulfilled;
+		multipart_form_data						multipart_obj;
 
 		std::ifstream							*processed_file;
 		
@@ -126,6 +128,7 @@ class Request
 		/* headers */
 		void	content_length( const std::string &content );
 		void	transfer_encoding( const std::string &content );
+		void	multipart( const std::string &content );
 
 		/* verification */
 		bool	allow_body(void) const;

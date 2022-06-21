@@ -1,4 +1,6 @@
-#include "../webserv.hpp"
+#include "../class/request.hpp"
+#include "../class/response.hpp"
+#include <iostream>
 
 int	http_header_server( Request &req, Response &res )
 {

@@ -315,8 +315,6 @@ this content will be store\r\n\
 	asserter.verify_exception();
 	/* <=======================================> */
 
-
-
 	asserter.clear_tag();
 	asserter.end_suite();
 }

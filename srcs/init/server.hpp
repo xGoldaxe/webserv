@@ -76,7 +76,7 @@ private:
 	bool							_is_init;
 
 	// Configuration
-	std::string						_server_name;
+	std::vector<std::string>		_server_name;
 	std::string						_host;
 	std::vector<std::string>		_index;
 	int								_body_max_size;
@@ -98,4 +98,6 @@ private:
 	bool close_connection(int client_socket);
 
 	void add_response(Request *req, int fd);
+	bool is_a_server_name(std::string server_name);
+
 };

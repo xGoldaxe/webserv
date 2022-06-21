@@ -8,7 +8,7 @@
 
 #include "../class/route.hpp"
 
-#define DEFAULT_SERVER_NAME "webserv (42) v0.1-dev"
+#define DEFAULT_SERVER_NAME "webserv.bg"
 #define DEFAULT_ROOT "."
 #define DEFAULT_BODY_MAX_SIZE 2048
 #define DEFAULT_PORT 3000
@@ -31,7 +31,7 @@ class Server_conf
 	private:
 		std::vector<unsigned short>			port;
 		std::vector<Route>					routes;
-		std::string							server_name;
+		std::vector<std::string>			server_name;
 		std::string							host;
 		std::vector<std::string>			index;
 		int									body_max_size;
@@ -59,7 +59,7 @@ class Server_conf
 		std::vector<unsigned short>		getPort() const;
 		std::vector<Route>				getRoutes() const;
 		std::string						getHost() const;
-		std::string						getName() const;
+		std::vector<std::string>		getName() const;
 		std::vector<std::string>		getIndex() const;
 		int								getBodyMaxSize() const;
 		std::string						getRoot() const;

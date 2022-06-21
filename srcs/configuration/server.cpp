@@ -1,10 +1,11 @@
 #include "server.hpp"
 
-Server_conf::Server_conf(void) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT),
+Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT),
 								 read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE),
 								 max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST), max_uri_size(DEFAULT_MAX_URI_SIZE),
 								 run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER)
 {
+	this->server_name.push_back(DEFAULT_SERVER_NAME);
 	this->port.push_back(3000);
 	this->index.push_back("index.html");
 	Route route1("/", "./www");
@@ -23,7 +24,7 @@ Server_conf::~Server_conf(void)
 }
 
 // empty
-Server_conf::Server_conf(int emp) : server_name(DEFAULT_SERVER_NAME), host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE),
+Server_conf::Server_conf(int emp) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE),
 									root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST),
 									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER)
 {
@@ -51,7 +52,7 @@ std::vector<Route> Server_conf::getRoutes() const
 {
 	return this->routes;
 }
-std::string Server_conf::getName() const
+std::vector<std::string> Server_conf::getName() const
 {
 	return this->server_name;
 }
@@ -92,8 +93,7 @@ void Server_conf::addRoute(Route route)
 }
 void Server_conf::setName(std::string server_name)
 {
-	this->server_name.clear();
-	this->server_name.append(server_name);
+	this->server_name.push_back(server_name);
 }
 void Server_conf::addIndex(std::string index)
 {
@@ -196,11 +196,20 @@ void Server_conf::printServer()
 	std::vector<unsigned short>::iterator itp;
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
+	std::vector<std::string>::iterator its;
 	unsigned int itr = 0;
 
 	std::cout << "********Server********" << std::endl;
 
-	std::cout << "Server name : " << this->server_name << std::endl;
+	std::cout << "Server name : ";
+	if (this->server_name.empty())
+		std::cout << "None";
+	for (its = this->server_name.begin(); its != this->server_name.end(); its++)
+	{
+		std::cout << *its << " ";
+	}
+	std::cout << std::endl;
+
 	std::cout << "Host : " << this->host << std::endl;
 	std::cout << "Body Max Size : " << this->body_max_size << std::endl;
 	std::cout << "root : " << this->root << std::endl;

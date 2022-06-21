@@ -341,10 +341,22 @@ char asciitolower(char in) {
     return in;
 }
 
+bool Server::is_a_server_name(std::string server_name)
+{
+	std::vector<std::string>::iterator it;
+
+	for (it = this->_server_name.begin(); it != this->_server_name.end(); it++)
+	{
+		if (server_name.compare(*it) == 0)
+			return true;
+	}
+	return false;
+}
+
 bool Server::is_server_name(std::string hostname)
 {
     std::transform(hostname.begin(), hostname.end(), hostname.begin(), asciitolower);
-    if (hostname == this->_server_name) {
+    if (this->is_a_server_name(hostname)) {
         return true;
     }
     return false;

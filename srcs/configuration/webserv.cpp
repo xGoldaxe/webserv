@@ -314,14 +314,18 @@ Webserv_conf::Webserv_conf(std::string filename)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
 				throw std::invalid_argument("Error parsing, encountered server_name in a location");
-			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0)
 			{
-				server.setName(words[it + 2]);
-				it = it + 3;
+				it = it + 2;
+				while (it < words.size() && words[it].compare(";") != 0)
+				{
+					server.setName(words[it]);
+					it++;
+				}
 			}
 			else
 			{
-				throw std::invalid_argument("Error parsing server_name");
+				throw std::invalid_argument("Error parsing Index!");
 			}
 			break;
 		case LISTEN_PARSING:
@@ -811,10 +815,15 @@ Webserv_conf::Webserv_conf(std::string filename)
 	unsigned int checkservers = 0;
 	while (checkservers < this->servers.size())
 	{
+		if (this->servers[checkservers].getName().empty())
+			this->servers[checkservers].setName(DEFAULT_SERVER_NAME);
+
 		if (this->servers[checkservers].getRoutes().empty())
 			throw std::invalid_argument("A server has no location!");
+
 		if (this->servers[checkservers].getPort().empty())
 			this->servers[checkservers].addPort(DEFAULT_PORT);
+
 		this->servers[checkservers].check_methods_route();
 		checkservers++;
 	}

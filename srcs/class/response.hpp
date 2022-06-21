@@ -40,12 +40,15 @@ class Response
 		bool									_is_custom_error;
 		std::string								_body_file;
 		CGIManager								*_cgi;
+		bool									_loaded_body;
+		bool									auto_index;
+		std::vector<std::pair<std::string, std::string> >	posted_files;
 
 		Response &operator=(Response const &rhs);
 		Response( Response const &src );
 		Response(void);
 
-
+		std::string _template_body( const std::string & legacy_url, const std::string & message );
 
 	public:
 	

@@ -86,12 +86,10 @@ std::map<std::string, std::string> parse_params( std::vector<std::string>::itera
 
 		std::string name = it->substr( 0, find );
 		std::string val = it->substr( find + 1, it->size() );
-		if ( val.size() < 1 )
-			throw HTTPCode400();
 		//then verify quotes
 		if ( val[0] == '"' )
 		{
-			if ( val.size() < 3 )
+			if ( val.size() < 2 )
 				throw HTTPCode400();
 			if ( val[ val.size() - 1 ] != '"' )
 				throw HTTPCode400();
@@ -114,3 +112,4 @@ std::vector<std::string>	split_params( const std::string & raw )
 	
 	return params;
 }
+

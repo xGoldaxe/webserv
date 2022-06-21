@@ -13,7 +13,7 @@ server
 	{
 		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
 		index = /index.html /index.htm ;
-		methods = GET POST ;
+		methods = GET POST DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		autoindex on ;
@@ -22,10 +22,11 @@ server
 	}
 	location /sub
 	{
-		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
-		error_page 404 = /home/restray/Documents/webserv/defaultPages/404.html ;
+		root /mnt/nfs/homes/pleveque/Documents/webserv/www/sub/ ;
+		error_page 404 = /mnt/nfs/homes/pleveque/Documents/webserv/defaultPages/404.html ;
 		index = /index.html /index.htm ;
 		methods = GET POST ;
+		autoindex on ;
 	}
 	location /post
 	{

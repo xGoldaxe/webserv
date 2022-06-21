@@ -18,9 +18,20 @@ std::string get_extension(std::string path)
     return filename.substr(position + 1);
 }
 
+std::string delete_filename( const std::string & path )
+{
+	std::size_t pos = path.find_last_of("/");
+     if ( pos == std::string::npos )
+        return std::string();
+    return path.substr( 0, pos );
+}
+
+
 std::string get_filename(std::string file_name)
 {
-    int position = file_name.find_last_of("/");
+    std::size_t position = file_name.find_last_of("/");
+    if ( position == std::string::npos )
+        return file_name;
     return file_name.substr(position + 1);
 }
 

@@ -11,6 +11,10 @@ SRCS	=	../srcs/utils/file.cpp \
 			../srcs/configuration/webserv.cpp \
 			../srcs/configuration/redirection.cpp \
 			../srcs/processing/multipart_form_data.cpp \
+			../request_parsing/srcs/parse_request.cpp \
+			../request_parsing/srcs/parse_url.cpp \
+			../request_parsing/srcs/utils.cpp \
+			../request_parsing/srcs/verify_absolute_url.cpp \
 
 TESTS	=	main.cpp\
 			tests/demo.cpp \

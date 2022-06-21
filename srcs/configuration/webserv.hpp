@@ -47,7 +47,6 @@ class Webserv_conf
 {
 	private:
 		std::vector<Server_conf>	servers;
-		std::vector<Bundle_server>	bundle_servers;
 		std::string 				http_version;
 	public:
 		Webserv_conf(void);
@@ -55,9 +54,7 @@ class Webserv_conf
 		~Webserv_conf(void);
 
 		std::vector<Server_conf> 	getServers() const;
-		std::vector<Bundle_server> 	getBundleServers() const;
 		std::string				 	getHttpVersion() const;
-		void						print_bundled_servers();
 
 		Webserv_conf &   operator=( Webserv_conf const & rhs );
 

@@ -142,10 +142,7 @@ std::vector<Server_conf> Webserv_conf::getServers() const
 	return this->servers;
 }
 
-std::vector<Bundle_server> Webserv_conf::getBundleServers() const
-{
-	return this->bundle_servers;
-}
+
 
 std::string Webserv_conf::getHttpVersion() const
 {
@@ -881,6 +878,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 		}
 	}
 */
+/*
 	unsigned int jterator = 0;
 	for (unsigned int i = 0; i < this->servers.size(); i++)
 	{
@@ -890,31 +888,19 @@ Webserv_conf::Webserv_conf(std::string filename)
 				&& this->bundle_servers[jterator].getServers()[0].getHost() == servers[i].getHost()
 				&& this->bundle_servers[jterator].getServers()[0].getPort() == servers[i].getPort())
 			{
-				this->bundle_servers[jterator].addServer(this->servers[i]);
+				this->bundle_servers[jterator].addServer(Server_conf(this->servers[i]));
 				break;
 			}
 			jterator++;
 		}
 		if (jterator == this->bundle_servers.size())
 		{
-			this->bundle_servers.push_back(Bundle_server(this->servers[i]));
+			this->bundle_servers.push_back(Bundle_server(Server_conf(this->servers[i])));
 		}
 		
 		jterator = 0;
 	}
-
-
-	print_bundled_servers();
-	std::cout << "dogen" << std::endl;
+*/
 }
 
-void Webserv_conf::print_bundled_servers()
-{
-	std::cout << "hello";
-	for (unsigned int i = 0; i < this->bundle_servers.size(); i++)
-	{
-		std::cout << "************Vector " << i << " *************" << std::endl;
-		this->bundle_servers[i].print_servers();
-	}
-}
 

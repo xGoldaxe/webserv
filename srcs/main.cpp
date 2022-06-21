@@ -18,7 +18,6 @@ int main(int argc, char **argv, char **env)
 	try
 	{
 		conf = Webserv_conf(config_filename);
-		conf.print_bundled_servers();
 	}
 	catch (const std::exception &e)
 	{
@@ -31,6 +30,7 @@ int main(int argc, char **argv, char **env)
 
 	std::vector<Server *> servers;
 	std::vector<Server_conf> servers_config = conf.getServers();
+	std::vector<Bundle_server> bundle = pack_servers(servers_config);
 	for (std::vector<Server_conf>::iterator it = servers_config.begin(); it != servers_config.end(); it++)
 	{
 		servers.push_back(new Server(env, *it));

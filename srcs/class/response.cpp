@@ -485,29 +485,32 @@ void Response::try_url(std::string client_ip) {
 	{
 		this->check_file_url();
 		// here we route the methods
-		if ( this->req->getMethod() == "DELETE" )
+		if ( this->_route.get_auto_index() == true )
 		{
-			if ( is_file( this->url ) != IS_FILE_NOT_FOLDER )
-				HTTPCode403();
-			int status = remove( this->url.c_str() );
-    		if ( status != 0 )
-				HTTPCode403();
-			this->_template_body( this->req->get_legacy_url(), "deleted sucessfully!");
-		}
-		else if ( this->req->getMethod() == "POST" )
-		{
-			std::string subpath = delete_filename( this->get_url() ) + "/";
-			for ( std::vector< std::pair<std::string, std::string> >::iterator it = this->posted_files.begin();
-			it != this->posted_files.end(); ++it )
+			if ( this->req->getMethod() == "DELETE" )
 			{
-				std::string path = subpath + it->first;
-				if ( is_file( path ) != IS_FILE_NOT_FOLDER )
-					throw HTTPCode403();
-				std::ofstream File( path.c_str() );
-				if ( File.is_open() == false )
-					throw HTTPCode403();
+				if ( is_file( this->url ) != IS_FILE_NOT_FOLDER )
+					HTTPCode403();
+				int status = remove( this->url.c_str() );
+				if ( status != 0 )
+					HTTPCode403();
+				this->_template_body( this->req->get_legacy_url(), "deleted sucessfully!");
+			}
+			else if ( this->req->getMethod() == "POST" )
+			{
+				std::string subpath = delete_filename( this->get_url() ) + "/";
+				for ( std::vector< std::pair<std::string, std::string> >::iterator it = this->posted_files.begin();
+				it != this->posted_files.end(); ++it )
+				{
+					std::string path = subpath + it->first;
+					if ( is_file( path ) != IS_FILE_NOT_FOLDER )
+						throw HTTPCode403();
+					std::ofstream File( path.c_str() );
+					if ( File.is_open() == false )
+						throw HTTPCode403();
 
-				File << it->second;
+					File << it->second;
+				}
 			}
 		}
 		this->set_status( 200, "OK" );

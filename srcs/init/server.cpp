@@ -43,6 +43,7 @@ void    Server::add_response( Request * req, int fd )
 	}
     else
     {
+		res->add_header( "Connection", "close" );
 		res->error_body();
     }
 

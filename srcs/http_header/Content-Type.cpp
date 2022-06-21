@@ -1,4 +1,8 @@
-#include "../webserv.hpp"
+#include "../class/request.hpp"
+#include "../class/response.hpp"
+#include <iostream>
+#include <string>
+extern MimeTypes mimes;
 
 int	http_header_content_type( Request &req, Response &res )
 {

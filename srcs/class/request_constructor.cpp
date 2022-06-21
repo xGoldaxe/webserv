@@ -1,8 +1,11 @@
-#include "webserv.hpp"
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
 #include <string.h>
 #include <unistd.h>
+#include "request.hpp"
 #include "../../request_parsing/srcs/req_parse.hpp"
-#include "../../request_parsing/srcs/parse_request.hpp"
 
 Request *store_req(bool mode, Request *req = NULL)
 {
@@ -82,7 +85,14 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 				this->transfer_encoding( it->second );
 			else if ( it->first == "Content-Length" )
 				this->content_length( it->second );
+			else if ( it->first == "Content-Type" )
+				this->multipart( it->second );
 		}
+		
+		if ( this->fulfilled == false )
+			this->state = FEEDING;
+		else
+			this->state = READY;
 
 		this->request_validity = true;
 	}

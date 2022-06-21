@@ -8,10 +8,18 @@
 #include "../class/route.hpp"
 #include "../configuration/webserv.hpp"
 #include "../class/chunk_buffer.hpp"
+#include "../processing/multipart_form_data.hpp"
 
 #define CHUNKED 2
 #define LENGTH 1
 #define NO_BODY 0
+
+//state
+#define PARSING 0
+#define FEEDING 1
+#define PROCESSING 2 
+#define READY 3
+#define INVALID 4
 
 #define CHUNK_HEAD_LIMIT 20
 #define CHUNK_BODY_LIMIT 100
@@ -27,6 +35,7 @@ class Request
 		int 			write_on_file( std::string str );
 
 	protected:
+		int 									state;
 		Webserv_conf							conf;
 		std::string								method;
 		std::string								legacy_url;
@@ -43,6 +52,9 @@ class Request
 		std::string								_body_content;
 		int										body_transfer;
 		bool									fulfilled;
+		multipart_form_data						multipart_obj;
+
+		std::ifstream							*processed_file;
 		
 		/* not copied */
 		std::ofstream							*body_file;
@@ -91,10 +103,15 @@ class Request
 
 		std::string get_header_value(std::string name) const;
 
+		/* feed body */
 		std::string	feed_body( std::string add_str );
-		bool		is_fulfilled(void) const;
 		void		try_construct(std::string raw_request, std::vector<Route> routes);
 		void		check_file_url(void);
+
+		/* processing */
+		void		start_processing(void);
+		void		process_file(void);
+
 
 		void							set_status( int status_code, std::string error_message );
 		std::pair<int, std::string>		get_status(void) const;
@@ -111,6 +128,11 @@ class Request
 		/* headers */
 		void	content_length( const std::string &content );
 		void	transfer_encoding( const std::string &content );
+		void	multipart( const std::string &content );
+
+		/* verification */
+		bool	allow_body(void) const;
+		int		get_state(void) const;
 };
 
 #include "../class/response.hpp"

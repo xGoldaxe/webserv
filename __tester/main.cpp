@@ -11,4 +11,5 @@ int	main( int argc, char **argv )
 	content_length_test( asserter );
 	util_test( asserter );
 	header_chunked( asserter );
+	multipart_suite( asserter );
 }

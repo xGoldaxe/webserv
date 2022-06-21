@@ -836,6 +836,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 	// Duplicate check
 	check_server_dupe(this->servers);
 
+/*
+
 	std::vector<std::vector<Server_conf> > sorted_servers = std::vector<std::vector<Server_conf> >();
 
 	// iterate over servers and add them to the vector of servers
@@ -861,7 +863,9 @@ Webserv_conf::Webserv_conf(std::string filename)
 		
 		jterator = 0;
 	}
+*/
 
+/*
 	// bundle all the results into the bundled_servers vector
 	for (unsigned int i = 0; i < sorted_servers.size(); i++)
 	{
@@ -871,6 +875,30 @@ Webserv_conf::Webserv_conf(std::string filename)
 			this->bundle_servers[i].addServer(sorted_servers[i][j]);
 		}
 	}
+*/
+	unsigned int jterator = 0;
+	for (unsigned int i = 0; i < this->servers.size(); i++)
+	{
+		while (jterator < this->bundle_servers.size())
+		{
+			if (!this->bundle_servers[jterator].getServers().empty()
+				&& this->bundle_servers[jterator].getServers()[0].getHost() == servers[i].getHost()
+				&& this->bundle_servers[jterator].getServers()[0].getPort() == servers[i].getPort())
+			{
+				this->bundle_servers[jterator].addServer(this->servers[i]);
+				break;
+			}
+			jterator++;
+		}
+		if (jterator == this->bundle_servers.size())
+		{
+			this->bundle_servers.push_back(Bundle_server(this->servers[i]));
+		}
+		
+		jterator = 0;
+	}
+
+
 	print_bundled_servers();
 	std::cout << "dogen" << std::endl;
 }

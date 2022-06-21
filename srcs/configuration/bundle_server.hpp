@@ -8,6 +8,7 @@ class Bundle_server
 		std::vector<Server_conf>	servers;
 	public:
 		Bundle_server();
+		Bundle_server(Server_conf server);
 		Bundle_server(std::vector<Server_conf> servers);
 
 		void						 addServer(Server_conf server);

@@ -4,6 +4,11 @@ Bundle_server::Bundle_server()
 {
 }
 
+Bundle_server::Bundle_server(Server_conf server)
+{
+	this->servers.push_back(server);
+}
+
 Bundle_server::Bundle_server(std::vector<Server_conf> servers) : servers(servers)
 {
 }

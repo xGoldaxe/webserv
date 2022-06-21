@@ -15,6 +15,11 @@ Webserv_conf::Webserv_conf(void)
 	this->servers.push_back(server);
 }
 
+Webserv_conf::~Webserv_conf(void)
+{
+}
+
+
 static int return_type_parse(std::string s)
 {
 	unsigned int i = 0;

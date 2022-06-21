@@ -52,6 +52,8 @@ class Webserv_conf
 	public:
 		Webserv_conf(void);
 		Webserv_conf(std::string filename);
+		~Webserv_conf(void);
+
 		std::vector<Server_conf> 	getServers() const;
 		std::vector<Bundle_server> 	getBundleServers() const;
 		std::string				 	getHttpVersion() const;

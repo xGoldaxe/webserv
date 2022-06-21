@@ -49,7 +49,10 @@ class Server_conf
 	public:
 		Server_conf(void);
 		~Server_conf(void);
+		Server_conf(const Server_conf &rhs);
 		Server_conf(int emp);
+		Server_conf& operator=(const Server_conf& other);
+
 
 
 		void 							setBodyMaxSizeRoute(int body_max_size);

@@ -19,6 +19,41 @@ Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_
 	// routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
+Server_conf::Server_conf ( const Server_conf & rhs) : port(rhs.port), routes(rhs.routes),server_name(rhs.server_name)
+													, host(rhs.host), index(rhs.index), body_max_size(rhs.body_max_size)
+													, root(rhs.root), error_pages(rhs.error_pages), read_timeout(rhs.read_timeout)
+													, server_body_size(rhs.server_body_size), client_header_size(rhs.client_header_size)
+													, max_amount_of_request(rhs.max_amount_of_request), max_uri_size(rhs.max_uri_size)
+													, run_file_path(rhs.run_file_path), chunk_head_limit(rhs.chunk_head_limit),
+													chunk_body_limit(rhs.chunk_body_limit)
+{
+}	
+
+Server_conf &Server_conf::operator=(const Server_conf &rhs)
+{
+	if (this != &rhs)
+	{
+		this->port = rhs.port;
+		this->routes = rhs.routes;
+		this->server_name = rhs.server_name;
+		this->host = rhs.host; 
+		this->index = rhs.index;
+		this->body_max_size = rhs.body_max_size;
+		this->root = (rhs.root);
+		this->error_pages = (rhs.error_pages);
+		this->read_timeout = (rhs.read_timeout);
+		this->server_body_size= (rhs.server_body_size);
+		this->client_header_size = (rhs.client_header_size);
+		this->max_amount_of_request = (rhs.max_amount_of_request);
+		this->max_uri_size = (rhs.max_uri_size);
+		this->run_file_path = (rhs.run_file_path);
+		this->chunk_head_limit = (rhs.chunk_head_limit);
+		this->chunk_body_limit = (rhs.chunk_body_limit);
+	}
+	return (*this);
+}
+
+
 Server_conf::~Server_conf(void)
 {
 }

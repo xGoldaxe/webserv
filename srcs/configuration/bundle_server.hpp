@@ -13,7 +13,9 @@ class Bundle_server
 
 		void						 addServer(Server_conf server);
 		std::vector<Server_conf>	 getServers() const;
-		Server_conf					 get_server_from_hostname(std::string hostname);
+		std::string					 getHost() const;
+		unsigned short				 getPort() const;
+		Server_conf					 get_server_from_server_name(std::string hostname);
 		void						 print_servers(void);
 		Bundle_server &  			 operator=( Bundle_server const & rhs );
 

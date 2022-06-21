@@ -373,6 +373,28 @@ void Server_conf::setChunkBodyLimitRoute(int chunk_body_limit)
 	this->routes.back().setChunkBodyLimit(chunk_body_limit);
 }
 
+bool Server_conf::name_is_in_list(std::string server_name)
+{
+	unsigned int i = 0;
+
+	while(i < this->server_name.size())
+	{
+		if(this->server_name[i].compare(server_name) == 0)
+			return true;
+		i++;
+	}
+
+
+	return false;
+}
+
+void Server_conf::sortPort()
+{
+	std::sort(this->port.begin(), this->port.end());
+}
+
+
+
 
 void Server_conf::shortprintServer()
 {

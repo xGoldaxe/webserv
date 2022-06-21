@@ -104,5 +104,7 @@ class Server_conf
 		void							setChunkHeadLimitRoute(int chunk_body_limit);
 		void							setChunkBodyLimitRoute(int chunk_body_limit);
 		void 							shortprintServer();
+		bool							name_is_in_list(std::string server_name);
+		void 							sortPort();
 
 };

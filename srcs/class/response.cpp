@@ -37,6 +37,9 @@ Response::Response(int client_socket, std::vector<std::string> index, Request *r
 	  _is_custom_error(false),
 	  _body_file(req->get_body_file()),
 	  _cgi(NULL),
+	  _loaded_body( false ),
+	  auto_index( false ),
+	  posted_files( req->get_posted_files() ),
 	  client_socket(client_socket),
 	  req(req)
 {
@@ -286,7 +289,10 @@ std::string auto_index_template(std::string url, std::string legacy_url);
 
 std::string Response::load_body(std::string client_ip)
 {
-	if (this->req->auto_index) {
+	if ( this->_loaded_body == true )
+		return this->body;
+	this->_loaded_body = true;
+	if (this->auto_index) {
 		this->add_header("Content-Type", "text/html");
 		this->body = auto_index_template( this->url, this->req->get_legacy_url() );
 	}
@@ -380,6 +386,25 @@ std::string auto_index_template(std::string url, std::string legacy_url)
 		</html>"));
 }
 
+std::string Response::_template_body( const std::string & legacy_url, const std::string & message )
+{
+	if ( this->_loaded_body )
+		return this->body;
+	this->_loaded_body = true;
+	this->add_header("Content-Type", "text/html");
+	this->body = std::string( std::string("<!DOCTYPE html>\
+		<html lang=\"en\">\
+		<head>\
+			<meta charset=\"UTF-8\">\
+			<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\
+			<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
+		</head>\
+		<body>\
+			<h1>") + legacy_url + " " + message + std::string("</h1>\
+		</body>\
+		</html>") );
+	return this->body;
+}
 /* ************************************************************************** */
 /*                                                                            */
 /*            @FROM REQUEST TO RESPONSE                                       */
@@ -415,14 +440,20 @@ std::string go_through_it_until(std::vector<std::string> values,
 
 void	Response::check_file_url(void)
 {
+	this->auto_index = false;
 	if ( is_file( this->url ) == IS_FILE_NOT_FOLDER  )
 	{
-		this->req->auto_index = false;
 		if ( !file_readable( this->url ) )
 			throw HTTPCode403();
+		return ;
 	}
-	else if (is_file( this->url ) == IS_FILE_FOLDER && *(this->req->get_legacy_url().rbegin()) == '/')
+	else if ( is_file( this->url ) == IS_FILE_FOLDER )
 	{
+		if ( this->_route.get_auto_index() == true )
+		{
+			this->auto_index = true;
+			return ;
+		}
 		std::vector<std::string> indexes = this->_route.get_index();
 		for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++) {
 			if (is_file( this->url + *it ) == IS_FILE_NOT_FOLDER) {
@@ -431,12 +462,8 @@ void	Response::check_file_url(void)
 				return;
 			}
 		}
-		this->req->auto_index = true;
 	}
-	else
-	{
-		throw HTTPCode404();
-	}
+	throw HTTPCode404();
 }
 
 /* this function is use to route the url, and test many case ( redirection, cache ... )
@@ -454,12 +481,43 @@ void Response::try_url(std::string client_ip) {
 	} catch (const std::out_of_range &e) {}
 
 	// Try to reach local file
-	try {
+	try
+	{
 		this->check_file_url();
+		// here we route the methods
+		if ( this->_route.get_auto_index() == true )
+		{
+			if ( this->req->getMethod() == "DELETE" )
+			{
+				if ( is_file( this->url ) != IS_FILE_NOT_FOLDER )
+					HTTPCode403();
+				int status = remove( this->url.c_str() );
+				if ( status != 0 )
+					HTTPCode403();
+				this->_template_body( this->req->get_legacy_url(), "deleted sucessfully!");
+			}
+			else if ( this->req->getMethod() == "POST" )
+			{
+				std::string subpath = delete_filename( this->get_url() ) + "/";
+				for ( std::vector< std::pair<std::string, std::string> >::iterator it = this->posted_files.begin();
+				it != this->posted_files.end(); ++it )
+				{
+					std::string path = subpath + it->first;
+					if ( is_file( path ) != IS_FILE_ERROR )
+						throw HTTPCode403();
+					std::ofstream File( path.c_str() );
+					if ( File.is_open() == false )
+						throw HTTPCode403();
+
+					File << it->second;
+				}
+			}
+		}
 		this->set_status( 200, "OK" );
 		this->load_body(client_ip); ////
 		http_header_content_type( *this->req, *this );
-	} catch (const HTTPError &e) {
+	}
+	catch (const HTTPError &e) {
 		this->set_status( e.getCode(), e.getDescription() );
 		this->error_body();
 	}

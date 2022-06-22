@@ -154,16 +154,11 @@ void	multipart_suite( Asserter &asserter )
 	asserter.name("invald param");
 
 	raw = "Content-Disposition: form-data;\
- name=\"form1\"; filename=\r\nuseless-header: blabla\r\n\
+ name=\"form1\"; filename=\"\r\nnuseless-header: blabla\r\n\
 \r\nthis is some serious body";
 	parse_part_secure( asserter, mtpart, raw, name, filename, body );
 	asserter.verify_exception();
 
-	raw = "Content-Disposition: form-data;\
- name=\"\"\r\nuseless-header: blabla\r\n\
-\r\nthis is some serious body";
-	parse_part_secure( asserter, mtpart, raw, name, filename, body );
-	asserter.verify_exception();
 
 	raw = "Content-Disposition: form-data;\
  name=\"form1\r\nuseless-header: blabla\r\n\
@@ -247,6 +242,8 @@ This is the epilogue.  It is also to be ignored.";
 	mtpart->feed( raw );
 	asserter.verify_assert_bool( true );
 
+	delete mtpart;
+	mtpart = multipart_construct( asserter, boundary );
 	asserter.name("normal feed");
 	raw = "--simple boundary\r\n\
 Content-Disposition: form-data; name=\"field1\"\r\n\
@@ -266,7 +263,19 @@ this content will be store\r\n\
 ";
 	mtpart->feed( raw );
 	asserter.verify_assert_bool( true );
-
+	
+	delete mtpart;
+	mtpart = multipart_construct( asserter, boundary );
+	asserter.name("filename with no body");
+	raw = "--simple boundary\r\n\
+Content-Disposition: form-data; name=\"field1\"; filename=\"test.txt\"\r\n\
+\r\n\r\n\
+--simple boundary--\r\n";
+	secure_feed( asserter, mtpart, raw );
+	asserter.verify_assert_bool( true );
+	
+	delete mtpart;
+	mtpart = multipart_construct( asserter, boundary );
 	raw = "\
 Content-Disposition: form-data; name=\"field1\"\r\n\
 \r\n\
@@ -276,6 +285,8 @@ It does NOT end with a linebreak.\r\n\
 	mtpart->feed( raw );
 	asserter.verify_assert_bool( true );
 
+	delete mtpart;
+	mtpart = multipart_construct( asserter, boundary );
 	asserter.name("normal feed");
 	raw = "--simple boundary\r\n\
 Content-Disposition: form-datadqd; name=\"field1\"\r\n\
@@ -296,6 +307,8 @@ this content will be store\r\n\
 	secure_feed( asserter, mtpart, raw );
 	asserter.verify_exception();
 
+	delete mtpart;
+	mtpart = multipart_construct( asserter, boundary );
 	raw = "--simple boundary\r\n\
 Content-Disposition: form-data; name=\"field1\"\r\n\
 \r\n\
@@ -313,6 +326,7 @@ this content will be store\r\n\
 ";
 	secure_feed( asserter, mtpart, raw );
 	asserter.verify_exception();
+	delete mtpart;
 	/* <=======================================> */
 
 	asserter.clear_tag();

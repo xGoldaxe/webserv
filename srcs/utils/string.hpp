@@ -17,3 +17,4 @@ std::string get_extension(std::string file_name);
 std::string intToHex(int nb);
 std::string ulToStr(std::size_t nb);
 std::string time_to_str( time_t tme );
+std::string delete_filename( const std::string & path );

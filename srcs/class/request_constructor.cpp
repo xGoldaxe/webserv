@@ -67,7 +67,7 @@ void Request::fill_body(std::string body)
 // change it through the config
 #define MAX_BUFFER_SIZE 16384
 #define TIMEOUT_TIME 3
-void	Request::try_construct( std::string raw_request, std::vector<Route> routes) 
+void	Request::try_construct( std::string raw_request, Bundle_server bundle) 
 {
 	try
 	{
@@ -75,7 +75,12 @@ void	Request::try_construct( std::string raw_request, std::vector<Route> routes)
 
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
-		this->route = find_route(routes, this->legacy_url, this->method);
+		std::string host = this->get_header_value("Host");
+		if (host == "") {
+			throw HTTPCode400();
+		}
+
+		this->route = find_route(bundle.get_server_from_server_name(host).getRoutes(), this->legacy_url, this->method);
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */

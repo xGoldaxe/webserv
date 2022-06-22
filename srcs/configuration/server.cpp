@@ -19,6 +19,41 @@ Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_
 	// routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
+Server_conf::Server_conf ( const Server_conf & rhs) : port(rhs.port), routes(rhs.routes),server_name(rhs.server_name)
+													, host(rhs.host), index(rhs.index), body_max_size(rhs.body_max_size)
+													, root(rhs.root), error_pages(rhs.error_pages), read_timeout(rhs.read_timeout)
+													, server_body_size(rhs.server_body_size), client_header_size(rhs.client_header_size)
+													, max_amount_of_request(rhs.max_amount_of_request), max_uri_size(rhs.max_uri_size)
+													, run_file_path(rhs.run_file_path), chunk_head_limit(rhs.chunk_head_limit),
+													chunk_body_limit(rhs.chunk_body_limit)
+{
+}	
+
+Server_conf &Server_conf::operator=(const Server_conf &rhs)
+{
+	if (this != &rhs)
+	{
+		this->port = rhs.port;
+		this->routes = rhs.routes;
+		this->server_name = rhs.server_name;
+		this->host = rhs.host; 
+		this->index = rhs.index;
+		this->body_max_size = rhs.body_max_size;
+		this->root = (rhs.root);
+		this->error_pages = (rhs.error_pages);
+		this->read_timeout = (rhs.read_timeout);
+		this->server_body_size= (rhs.server_body_size);
+		this->client_header_size = (rhs.client_header_size);
+		this->max_amount_of_request = (rhs.max_amount_of_request);
+		this->max_uri_size = (rhs.max_uri_size);
+		this->run_file_path = (rhs.run_file_path);
+		this->chunk_head_limit = (rhs.chunk_head_limit);
+		this->chunk_body_limit = (rhs.chunk_body_limit);
+	}
+	return (*this);
+}
+
+
 Server_conf::~Server_conf(void)
 {
 }
@@ -75,6 +110,11 @@ std::string Server_conf::getHost() const
 std::string Server_conf::getRoot() const
 {
 	return this->root;
+}
+
+void Server_conf::resetPorts()
+{
+	this->port.clear();
 }
 
 void Server_conf::addPort(unsigned short port)
@@ -197,7 +237,7 @@ void Server_conf::printServer()
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
 	std::vector<std::string>::iterator its;
-	unsigned int itr = 0;
+	std::vector<Route>::iterator itr;
 
 	std::cout << "********Server********" << std::endl;
 
@@ -255,9 +295,10 @@ void Server_conf::printServer()
 	std::cout << std::endl;
 	if (this->routes.empty())
 		std::cout << "None";
-	while (itr < this->routes.size())
+	itr = this->routes.begin();
+	while (itr != this->routes.end())
 	{
-		this->routes[itr].printRoute();
+		(*itr).printRoute();
 		itr++;
 	}
 	std::cout << std::endl;
@@ -291,11 +332,10 @@ void Server_conf::set_cgi_path(std::string cgi_path)
 
 void Server_conf::check_methods_route(void)
 {
-	unsigned int itr = 0;
-
-	while (itr < this->routes.size())
+	std::vector<Route>::iterator itr = this->routes.begin();
+	while (itr != this->routes.end())
 	{
-		this->routes[itr].check_methods_route();
+		(*itr).check_methods_route();
 		itr++;
 	}
 }
@@ -337,6 +377,26 @@ void Server_conf::setChunkBodyLimitRoute(int chunk_body_limit)
 {
 	this->routes.back().setChunkBodyLimit(chunk_body_limit);
 }
+
+bool Server_conf::name_is_in_list(std::string server_name)
+{
+	std::vector<std::string>::iterator it = this->server_name.begin();
+
+	while(it != this->server_name.end())
+	{
+		if((*it).compare(server_name) == 0)
+			return true;
+		it++;
+	}
+	return false;
+}
+
+void Server_conf::sortPort()
+{
+	std::sort(this->port.begin(), this->port.end());
+}
+
+
 
 
 void Server_conf::shortprintServer()

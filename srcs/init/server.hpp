@@ -46,7 +46,7 @@ class Response;
 
 class Server {
 public:
-	Server(char **env, Server_conf serv_conf);
+	Server(char **env, Bundle_server bundle);
 	Server(const Server &rhs);
 	~Server();
 	void init_connection();
@@ -58,20 +58,21 @@ public:
 	bool is_server_name(std::string hostname);
 
 	// Getters
-	std::vector<int> get_socket() const;
-	std::vector<int> get_poll_fd() const;
+	int get_socket() const;
+	int get_poll_fd() const;
 
 private:
 	// Internal variables
-	std::vector<s_server_addr_in>	_addrs;
-	std::vector<int> 				_socket_fds;
-	std::vector<int>				_poll_fds;
+	s_server_addr_in				_addr;
+	int 							_socket_fd;
+	int								_poll_fd;
 	std::map<int, Connection>		_connections;
 	std::map<int, std::string>		_socket_addr_eq;
 	std::map<int, int>				_poll_socket_eq;
 	std::queue<Connection *>		_c_queue;
 	std::queue<Response *>   		_queue;
 	size_t                   		_request_handled;
+	Bundle_server					_virtual_servers;
 	char							**_env;
 	bool							_is_init;
 

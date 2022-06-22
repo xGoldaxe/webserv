@@ -95,7 +95,7 @@ bool	Connection::check_state()
 	return true;
 }
 
-void	Connection::queue_iteration(std::vector<Route> routes)
+void	Connection::queue_iteration(Bundle_server bundle)
 {
 	if (this->_is_dead)
 		return ;
@@ -110,7 +110,7 @@ void	Connection::queue_iteration(std::vector<Route> routes)
 		// we can create a request
 		if (this->is_ready() && !this->_is_init)
 		{
-			this->init_request(routes);
+			this->init_request(bundle);
 			this->_raw_data = this->_raw_data.substr( this->_raw_data.find( "\r\n\r\n" ) + 4, this->_raw_data.size() );
 		}
 
@@ -151,13 +151,12 @@ void	Connection::update_timeout()
 }
 
 /* init with conf informations, and other usefull things for req and res */
-bool	Connection::init_request(std::vector<Route> routes)
+bool	Connection::init_request(Bundle_server bundle)
 {
-	Webserv_conf conf;
 	this->_is_init = true;
 
 	this->_req = new Request();
-	this->_req->try_construct(this->_raw_data, routes); // set the request to valid in case of success
+	this->_req->try_construct(this->_raw_data, bundle); // set the request to valid in case of success
 
 	return this->_req->is_request_valid();
 }

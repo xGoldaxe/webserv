@@ -12,6 +12,7 @@
 #include "init/connection.hpp"
 #include "configuration/webserv.hpp"
 #include "cgi/cgi_manager.hpp"
+#include "utils/bundle_server_management.hpp"
 
 #include "http_header/http_header.hpp"
 

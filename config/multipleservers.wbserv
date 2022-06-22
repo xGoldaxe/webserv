@@ -11,6 +11,17 @@ server
 
 server
 {
+	host = 127.0.0.1 ;
+	listen = 3000 ;
+	server_name = Uno_Deux ;
+
+	location /testuno
+	{
+	}
+}
+
+server
+{
 	listen = 3001 ;
 	server_name = Duo ;
 

@@ -8,7 +8,7 @@ int	main( int argc, char **argv )
 	Asserter asserter( &argv[1] );
 	demo_suite( asserter );
 	all_tests( asserter );
-	content_length_test( asserter );
+	// content_length_test( asserter );
 	util_test( asserter );
 	header_chunked( asserter );
 	multipart_suite( asserter );

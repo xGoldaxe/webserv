@@ -396,9 +396,11 @@ Route find_route(std::vector<Route> routes, std::string url, std::string method)
 			if (std::find(methods.begin(), methods.end(), method) == methods.end()) {
 				method_denied = it->get_location();
 				continue;
-			} else if (method_denied.size() > it->get_location().size()) {
-				throw HTTPCode405();
-			}
+			} 
+			// else if (method_denied.size() > it->get_location().size()) {
+			// 	throw HTTPCode405();
+			// }
+			/** @todo  **/
 			return Route(*it);
 		} else if (it->has_redirection(test_url)) {
 			return Route(*it);

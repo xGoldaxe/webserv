@@ -100,7 +100,7 @@ std::vector<std::pair<std::string, std::string> >	multipart_form_data::get_files
 
 void	multipart_form_data::feed( const std::string &str )
 {
-	this->buffer += str;
+	this->buffer.append( str.data(), str.size() );
 	while (1)
 	{
 		int type;
@@ -117,9 +117,9 @@ void	multipart_form_data::feed( const std::string &str )
 		
 		std::string part = this->buffer.substr( 0, find );
 		this->buffer = this->buffer.substr( find + boundary_size, this->buffer.size() );
-
 		if ( this->state == IN )
 		{
+
 			this->parse_part( part, this->name, this->filename, this->body_content ); // can throw 400
 			if ( this->filename != "" )
 			{
@@ -192,7 +192,7 @@ std::size_t	multipart_form_data::find_boundary( const std::string & boundary, co
 {
 	std::size_t find = buffer.find( "--" + boundary + "\r\n" );
 	if ( find == 0 )
-	{
+	{		
 		type = IN;
 		boundary_size = 4 + boundary.size();
 		return 0;
@@ -205,7 +205,6 @@ std::size_t	multipart_form_data::find_boundary( const std::string & boundary, co
 		return 0;
 	}
 
-
 	find = buffer.find( std::string("\r\n") + "--" + boundary + "\r\n" );
 	if ( find == std::string::npos )
 	{
@@ -217,6 +216,7 @@ std::size_t	multipart_form_data::find_boundary( const std::string & boundary, co
 		}
 		return find;
 	}
+
 	boundary_size = 6 + boundary.size();
 	type = IN;
 	return find;

@@ -29,10 +29,10 @@ class Response;
 class Request
 {
 	private:
-		std::string		store_length( std::string add_str );
-		std::string		store_chunk( std::string chunck_str );
+		std::string		store_length( const std::string & add_str );
+		std::string		store_chunk( const std::string & chunck_str );
 		std::ofstream	*create_unique_file();
-		int 			write_on_file( std::string str );
+		int 			write_on_file( const std::string & str );
 
 	protected:
 		int 									state;

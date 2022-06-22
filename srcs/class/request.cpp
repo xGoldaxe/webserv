@@ -172,9 +172,9 @@ std::ofstream	*Request::create_unique_file()
 	return File;
 }
 
-int	Request::write_on_file( std::string str )
+int	Request::write_on_file( const std::string & str )
 {
-	*(this->body_file) << str;
+	this->body_file->write( str.data(), str.size() );
 	this->_body_content += str;
 	return str.size();
 }
@@ -185,7 +185,7 @@ std::string	Request::get_body_content(void) const
 	return this->_body_content;
 }
 
-std::string	Request::store_length( std::string add_str )
+std::string	Request::store_length( const std::string & add_str )
 {
 	long long int t = static_cast<long long int>(add_str.size());
 	std::size_t missing = std::min( this->remain_body_length, t );
@@ -200,7 +200,7 @@ std::string	Request::store_length( std::string add_str )
 	return add_str.substr( missing, add_str.size() );
 }
 
-std::string	Request::store_chunk( std::string chunk_str )
+std::string	Request::store_chunk( const std::string & chunk_str )
 {
 	try
 	{
@@ -326,7 +326,7 @@ void		Request::start_processing(void)
 	}
 }
 
-#define PROCESS_SIZE 10
+#define PROCESS_SIZE 10024
 void	Request::process_file(void)
 {
 	try
@@ -351,9 +351,12 @@ void	Request::process_file(void)
 		this->remain_body_length -= static_cast<long long int>(size);
 
 		char* buffer = new char[size];
+		bzero( buffer, size );
 
 		this->processed_file->read( buffer, size );
-		this->multipart_obj.feed( buffer );
+		std::string str_buff;
+		str_buff.append( buffer, size );
+		this->multipart_obj.feed( str_buff );
 		delete[] buffer;
 	}
 	catch(const HTTPError& e)

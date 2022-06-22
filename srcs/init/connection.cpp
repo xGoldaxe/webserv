@@ -36,7 +36,9 @@ void	Connection::read_data()
 {
 	char    buff[1024];
 	bzero( buff, 1024 );
-	recv( this->_fd, buff, 1024 - 1, MSG_DONTWAIT );
+	ssize_t size = recv( this->_fd, buff, 1024 - 1, MSG_DONTWAIT );
+	if ( size == -1 )
+		return ;
 	if ( this->_is_dead )
 		return ;
 	// if we start to write a new request, we reset the timer!
@@ -44,7 +46,7 @@ void	Connection::read_data()
 	{
 		this->_begin_time = time(NULL);
 	}
-	this->_raw_data += buff;
+	this->_raw_data.append( buff, size );
 	this->_is_new_data = true;
 }
 

@@ -15,7 +15,7 @@ bool	Server::close_connection( int client_socket )
 
 void    Server::read_connection( int client_socket )
 {
-    char buffer[32];
+    char buffer[1];
 	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
 	{
 		this->close_connection( client_socket );

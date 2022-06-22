@@ -112,6 +112,11 @@ std::string Server_conf::getRoot() const
 	return this->root;
 }
 
+void Server_conf::resetPorts()
+{
+	this->port.clear();
+}
+
 void Server_conf::addPort(unsigned short port)
 {
 	this->port.push_back(port);

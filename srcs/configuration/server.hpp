@@ -67,6 +67,7 @@ class Server_conf
 		int								getBodyMaxSize() const;
 		std::string						getRoot() const;
 		void							addPort(unsigned short port);
+		void							resetPorts();
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);

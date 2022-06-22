@@ -9,13 +9,15 @@ std::vector<Bundle_server> pack_servers(std::vector<Server_conf> servers)
 		std::vector<unsigned short> server_ports = it->getPort();
 		for (std::vector<unsigned short>::iterator port_it = server_ports.begin(); port_it != server_ports.end(); port_it++)
 		{
-			bundle_servers[std::make_pair(it->getHost(), *port_it)].addServer(*it, *port_it);
+			Server_conf serv(*it);
+			serv.resetPorts();
+			serv.addPort(*port_it);
+			bundle_servers[std::make_pair(it->getHost(), *port_it)].addServer(serv, *port_it);
 		}
 	}
 
 	std::vector<Bundle_server> vector_servers;
 	for (std::map<std::pair<std::string, unsigned short>, Bundle_server>::iterator it = bundle_servers.begin(); it != bundle_servers.end(); it++) {
-		std::cout << "hey" << std::endl;
 		vector_servers.push_back(it->second);
 	}
 	
@@ -26,7 +28,7 @@ void print_bundled_servers(std::vector<Bundle_server> bundle_servers)
 {
 	for (std::vector<Bundle_server>::iterator it = bundle_servers.begin(); it != bundle_servers.end(); it++)
 	{
-		std::cout << "************Vector "<< it->getHost() <<":"<< it->getPort() <<"*************" << std::endl;
+		std::cout << "************ Vector " << it->getHost() << ":" << it->getPort() << " *************" << std::endl;
 		it->print_servers();
 	}
 }

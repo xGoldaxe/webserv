@@ -22,6 +22,14 @@ void Bundle_server::addServer(Server_conf server, unsigned short port)
 	this->servers.push_back(server);
 }
 
+Server_conf Bundle_server::getMainServer() const
+{
+	if (this->servers.empty())
+		throw std::invalid_argument("get_server_from_hostname: vector is empty");
+
+	return this->servers[0];
+}
+
 std::vector<Server_conf> Bundle_server::getServers() const
 {
 	return this->servers;

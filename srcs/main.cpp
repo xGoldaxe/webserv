@@ -30,9 +30,13 @@ int main(int argc, char **argv, char **env)
 
 	std::vector<Server *> servers;
 	std::vector<Server_conf> servers_config = conf.getServers();
-	std::vector<Bundle_server> bundle = pack_servers(servers_config);
-	print_bundled_servers(bundle);
-	for (std::vector<Server_conf>::iterator it = servers_config.begin(); it != servers_config.end(); it++)
+	std::vector<Bundle_server> bundles = pack_servers(servers_config);
+
+	#ifdef DEBUG
+		print_bundled_servers(bundles);
+	#endif
+
+	for (std::vector<Bundle_server>::iterator it = bundles.begin(); it != bundles.end(); it++)
 	{
 		servers.push_back(new Server(env, *it));
 		try

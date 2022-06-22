@@ -17,9 +17,10 @@ int is_file(std::string dir)
         return 0;
     }
 
-    /** @todo Justification: interdiction dans le sujet. */
-    if (errno == ENOTDIR)
+    std::ifstream File( dir.c_str() );
+    if ( File.is_open() == true )
     {
+        File.close();
         return 1;
     }
     // doesnt exist

@@ -88,6 +88,10 @@ std::size_t	multipart_form_data::get_max_upload(void) const
 {
 	return this->max_upload;
 }
+std::vector<std::pair<std::string, std::string> >	multipart_form_data::get_files(void) const
+{
+	return this->files;
+}
 /* ************************************************************************** */
 /*                                                                            */
 /*            @MAIN FUNCTIONS                                                 */
@@ -119,7 +123,7 @@ void	multipart_form_data::feed( const std::string &str )
 			this->parse_part( part, this->name, this->filename, this->body_content ); // can throw 400
 			if ( this->filename != "" )
 			{
-				this->store_body( this->body_content );
+				this->files.push_back( std::make_pair<std::string, std::string>( this->filename, this->body_content ) );
 			}
 			this->name = "";
 			this->filename = "";
@@ -137,6 +141,7 @@ void	multipart_form_data::parse_part( const std::string & part, std::string & na
 	std::size_t empty_line_index = part.find( "\r\n\r\n" );
 	if ( empty_line_index == std::string::npos )
 		throw HTTPCode400();
+
 	if ( part.size() - ( empty_line_index + 4 ) > this->max_upload )
 		throw HTTPCode413();
 	
@@ -166,11 +171,6 @@ void	multipart_form_data::parse_part( const std::string & part, std::string & na
 		}
 	}
 	body = part.substr( empty_line_index + 4, part.size() );
-}
-
-void	multipart_form_data::store_body( const std::string & body )
-{
-	std::cout << "BODY: {" << body << "}" << std::endl; 
 }
 
 /* ************************************************************************** */

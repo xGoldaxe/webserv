@@ -293,7 +293,7 @@ std::string &Response::error_body(void)
                 this->_return_body_type = BODY_TYPE_FILE;
                 this->body = filename;
                 this->_is_custom_error = true;
-                this->req->auto_index = false;
+                this->auto_index = false;
                 this->load_body(this->_client_ip);
 
                 return (this->body);

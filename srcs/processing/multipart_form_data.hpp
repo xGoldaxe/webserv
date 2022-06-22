@@ -30,6 +30,8 @@ class multipart_form_data
 		std::string		name;
 		std::string		body_content;
 
+		std::vector<std::pair<std::string, std::string> >	files;
+
 		int				state;
 
 	public:
@@ -51,11 +53,12 @@ class multipart_form_data
 		int			get_state(void) const;
 		std::size_t	get_max_size(void) const;
 		std::size_t	get_max_upload(void) const;
+		std::vector<std::pair<std::string, std::string> >	get_files(void) const;
 
 		/* main functions */
 		void	feed( const std::string &str );
 		void	parse_part( const std::string & part, std::string & name, std::string & filename, std::string & body );
-		void	store_body( const std::string & body );
+
 
 		/* verification */
 		bool			verify_boundary( const std::string &boundary );

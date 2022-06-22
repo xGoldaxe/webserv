@@ -100,6 +100,7 @@ class Request
 		long long int	get_body_length(void) const;
 		int			get_body_transfer(void) const;
 		std::string	get_body_content(void) const;
+		std::vector<std::pair<std::string, std::string> >	get_posted_files(void) const;
 
 		std::string get_header_value(std::string name) const;
 

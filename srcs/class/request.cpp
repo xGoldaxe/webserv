@@ -80,6 +80,11 @@ int	Request::get_body_transfer(void) const
 {
 	return this->body_transfer;
 }
+std::vector<std::pair<std::string, std::string> >	Request::get_posted_files(void) const
+{
+	return this->multipart_obj.get_files();
+}
+
 
 bool Request::is_request_valid(void) const
 {

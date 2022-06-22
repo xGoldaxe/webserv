@@ -23,7 +23,6 @@ SRCS	=	main.cpp \
 			cgi/cgi_manager.cpp \
 			errors/http_code.cpp \
 			class/response_error_page.cpp \
-			class/read_chunk.cpp \
 			request_header/request_header.cpp \
 			processing/multipart_form_data.cpp \
 			../request_parsing/srcs/parse_request.cpp \
@@ -52,11 +51,11 @@ DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG  -g -O2
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG # -g -O2
 
 RM		=	rm -rf
 
-CXX		=	c++
+CXX		=	GLIBCXX_FORCE_NEW=1 c++
 
 # COLORS
 NONE			= \033[0m

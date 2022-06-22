@@ -35,7 +35,6 @@ void store_data_from_raw_req(
 		parsed_first_line[1],
 		parsed_first_line[2]);
 	stored_req->fill_query( query_string );
-	std::cout << "{" << parsed_first_line[1] << "}" << std::endl;
 	stored_req->fill_headers(headers);
 }
 

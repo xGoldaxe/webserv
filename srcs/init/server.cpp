@@ -173,6 +173,7 @@ void Server::init_connection()
 	this->_socket_fd = sock;
 	int set_opt = 1;
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
+	setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int));
 
 	this->_bind_port(sock, this->_addr);
 

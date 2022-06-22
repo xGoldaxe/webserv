@@ -18,7 +18,7 @@ bool	Server::close_connection( int client_socket )
 void    Server::read_connection( int client_socket )
 {
 	char buffer[32];
-	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 )
+	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 ) /** @todo Récupérer la valeur de retour et couper la connexion si -1 */
 	{
 		this->close_connection( client_socket );
 		return ;
@@ -181,7 +181,7 @@ void Server::init_connection()
 		throw ServerNotListeningException();
 
 	this->_report(sock, this->_addr);
-	fcntl(sock, F_SETFL, O_NONBLOCK); /** @todo */
+	fcntl(sock, F_SETFL, O_NONBLOCK);
 
 	this->_poll_fd = epoll_create1(O_CLOEXEC);
 	this->_poll_socket_eq.insert(std::pair<int, int>(this->_poll_fd, sock));
@@ -208,7 +208,7 @@ void    Server::handle_responses()
 			else
 			{
 				std::string response_content = "0\r\n\r\n";
-				::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
+				::send(res->client_socket, response_content.c_str(), response_content.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 
 				it->second.end_send();
 				if (it->second.get_is_dead())
@@ -272,8 +272,7 @@ void Server::handle_client()
 
 		struct epoll_event ev;
 		bzero(&ev, sizeof(ev));
-		// ev.events = EPOLLET | EPOLLIN;
-		ev.events = EPOLLIN;
+		ev.events = EPOLLIN|EPOLLOUT|EPOLLET;
 		ev.data.fd = client_socket;
 		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 

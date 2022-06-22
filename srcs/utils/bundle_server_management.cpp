@@ -2,44 +2,32 @@
 
 std::vector<Bundle_server> pack_servers(std::vector<Server_conf> servers)
 {
-//	for (unsigned int k = 0; k < servers.size(); k++)
-//	{
-//		servers[k].sortPort();
-	//}
+	std::map<std::pair<std::string, unsigned short>, Bundle_server> bundle_servers;
 
-	std::vector<unsigned short> v_intersection;
-	std::vector<Bundle_server> bundle_servers;
-	unsigned int jterator = 0;
-	for (unsigned int i = 0; i < servers.size(); i++)
+	for (std::vector<Server_conf>::iterator it = servers.begin(); it != servers.end(); it++)
 	{
-		while (jterator < bundle_servers.size())
+		std::vector<unsigned short> server_ports = it->getPort();
+		for (std::vector<unsigned short>::iterator port_it = server_ports.begin(); port_it != server_ports.end(); port_it++)
 		{
-			//std::set_intersection(bundle_servers[jterator].getServers()[0])
-			if (!bundle_servers[jterator].getServers().empty()
-				&& bundle_servers[jterator].getServers()[0].getHost() == servers[i].getHost()
-				&& bundle_servers[jterator].getServers()[0].getPort() == servers[i].getPort())
-			{
-				bundle_servers[jterator].addServer(Server_conf(servers[i]));
-				break;
-			}
-			jterator++;
+			bundle_servers[std::make_pair(it->getHost(), *port_it)].addServer(*it, *port_it);
 		}
-		if (jterator == bundle_servers.size())
-		{
-			bundle_servers.push_back(Bundle_server(Server_conf(servers[i])));
-		}
-		
-		jterator = 0;
 	}
-	return bundle_servers;
+
+	std::vector<Bundle_server> vector_servers;
+	for (std::map<std::pair<std::string, unsigned short>, Bundle_server>::iterator it = bundle_servers.begin(); it != bundle_servers.end(); it++) {
+		std::cout << "hey" << std::endl;
+		vector_servers.push_back(it->second);
+	}
+	
+	return vector_servers;
 }
 
 void print_bundled_servers(std::vector<Bundle_server> bundle_servers)
 {
-	for (unsigned int i = 0; i < bundle_servers.size(); i++)
+	for (std::vector<Bundle_server>::iterator it = bundle_servers.begin(); it != bundle_servers.end(); it++)
 	{
-		std::cout << "************Vector " << i << " *************" << std::endl;
-		bundle_servers[i].print_servers();
+		std::cout << "************Vector "<< it->getHost() <<":"<< it->getPort() <<"*************" << std::endl;
+		it->print_servers();
 	}
 }
 

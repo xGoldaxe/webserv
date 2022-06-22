@@ -4,17 +4,21 @@ Bundle_server::Bundle_server()
 {
 }
 
-Bundle_server::Bundle_server(Server_conf server)
+Bundle_server::Bundle_server(Server_conf server, unsigned short port) : _host(server.getHost()), _port(port)
 {
 	this->servers.push_back(server);
 }
 
-Bundle_server::Bundle_server(std::vector<Server_conf> servers) : servers(servers)
+Bundle_server::Bundle_server(std::vector<Server_conf> servers, unsigned short port) : servers(servers), _host(servers[0].getHost()), _port(port)
 {
 }
 
-void Bundle_server::addServer(Server_conf server)
+void Bundle_server::addServer(Server_conf server, unsigned short port)
 {
+	if (this->servers.empty()) {
+		this->_host = server.getHost();
+		this->_port = port;
+	}
 	this->servers.push_back(server);
 }
 
@@ -25,20 +29,12 @@ std::vector<Server_conf> Bundle_server::getServers() const
 
 std::string Bundle_server::getHost() const
 {
-	if (!this->servers.empty())
-	{
-		return this->servers[0].getHost();
-	}
-	return "";
+	return this->_host;
 }
 
 unsigned short Bundle_server::getPort() const
 {
-	if (!this->servers.empty())
-	{
-		return this->servers[0].getPort();
-	}
-	return "";
+	return this->_port;
 }
 
 Bundle_server &Bundle_server::operator=(Bundle_server const &rhs)

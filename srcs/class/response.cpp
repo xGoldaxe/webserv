@@ -503,7 +503,7 @@ void Response::try_url(std::string client_ip) {
 				it != this->posted_files.end(); ++it )
 				{
 					std::string path = subpath + it->first;
-					if ( is_file( path ) != IS_FILE_NOT_FOLDER )
+					if ( is_file( path ) != IS_FILE_ERROR )
 						throw HTTPCode403();
 					std::ofstream File( path.c_str() );
 					if ( File.is_open() == false )

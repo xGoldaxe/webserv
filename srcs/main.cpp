@@ -5,6 +5,7 @@ MimeTypes mimes;
 
 int main(int argc, char **argv, char **env)
 {
+
 	// Define the config file to use
 	std::string config_filename("config/default.wbserv");
 	if (argc == 2 && argv[1]) {

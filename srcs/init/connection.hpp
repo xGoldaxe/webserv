@@ -44,11 +44,11 @@ class Connection
 		bool	is_fulfilled();
 		bool	is_invalid_req();
 		void	read_data();
-		void	queue_iteration(std::vector<Route> routes);
+		void	queue_iteration(Bundle_server bundle);
 		bool	check_state();
 		void	process();
 		void	soft_clear();
-		bool	init_request(std::vector<Route> routes);
+		bool	init_request(Bundle_server bundle);
 		Request	*extract_request();
 		void	end_send();
 		/* error case */

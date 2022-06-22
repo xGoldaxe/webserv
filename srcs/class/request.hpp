@@ -105,7 +105,7 @@ class Request
 
 		/* feed body */
 		std::string	feed_body( std::string add_str );
-		void		try_construct(std::string raw_request, std::vector<Route> routes);
+		void		try_construct(std::string raw_request, Bundle_server bundle);
 		void		check_file_url(void);
 
 		/* processing */

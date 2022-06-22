@@ -154,11 +154,11 @@ static int check_if_config_is_proper(std::string buffer)
 	std::vector<std::string> words;
 	size_t pos;
 	std::string copy;
-	unsigned int it = 0;
 	bool insideserver = false;
 	bool insidelocation = false;
 	bool bracketserver = false;
 	bool bracketlocation = false;
+	std::vector<std::string>::iterator itr;
 
 	copy.append(buffer);
 
@@ -173,21 +173,22 @@ static int check_if_config_is_proper(std::string buffer)
 		copy.erase(0, pos + 1);
 	}
 
-	while (it < words.size())
+	itr = words.begin();
+	while (itr != words.end())
 	{
-		if (words[it].compare("server") == 0)
+		if ((*itr).compare("server") == 0)
 		{
 			if (insideserver || insidelocation || bracketserver || bracketlocation)
 				return (-1);
 			insideserver = true;
 		}
-		if (words[it].compare("location") == 0)
+		if ((*itr).compare("location") == 0)
 		{
 			if ((insideserver && !bracketserver) || insidelocation || !bracketserver || bracketlocation)
 				return (-1);
 			insidelocation = true;
 		}
-		if (words[it].compare("{") == 0)
+		if ((*itr).compare("{") == 0)
 		{
 			if ((insideserver && insidelocation && !bracketserver) || (bracketserver && insideserver && !insidelocation) || bracketlocation || (!insideserver && !insidelocation))
 				return (-1);
@@ -196,7 +197,7 @@ static int check_if_config_is_proper(std::string buffer)
 			if (insidelocation)
 				bracketlocation = true;
 		}
-		if (words[it].compare("}") == 0)
+		if ((*itr).compare("}") == 0)
 		{
 			if ((!insideserver && !insidelocation) || (!insideserver && !bracketserver) || (insidelocation && !bracketlocation))
 				return (-1);
@@ -214,7 +215,7 @@ static int check_if_config_is_proper(std::string buffer)
 				}
 			}
 		}
-		it++;
+		itr++;
 	}
 
 	if (insideserver || insidelocation || bracketserver || bracketlocation)
@@ -309,7 +310,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 	if (words.empty())
 		throw std::invalid_argument("Config file is empty");
-	if (words.size() > 0 && words[0].compare("server") != 0)
+	if (words.size() > 0 && words.front().compare("server") != 0)
 		throw std::invalid_argument("Configuration file does not start with 'server'");
 	while (it < words.size())
 	{
@@ -818,89 +819,26 @@ Webserv_conf::Webserv_conf(std::string filename)
 	}
 	this->servers.push_back(server);
 
-	// Assign default variables to servers if none defined in parsing
-	unsigned int checkservers = 0;
-	while (checkservers < this->servers.size())
-	{
-		if (this->servers[checkservers].getName().empty())
-			this->servers[checkservers].setName(DEFAULT_SERVER_NAME);
 
-		if (this->servers[checkservers].getRoutes().empty())
+	// Assign default variables to servers if none defined in parsing
+	std::vector<Server_conf>::iterator itsrv = this->servers.begin();
+	while (itsrv != this->servers.end())
+	{
+		if ((*itsrv).getName().empty())
+			(*itsrv).setName(DEFAULT_SERVER_NAME);
+
+		if ((*itsrv).getRoutes().empty())
 			throw std::invalid_argument("A server has no location!");
 
-		if (this->servers[checkservers].getPort().empty())
-			this->servers[checkservers].addPort(DEFAULT_PORT);
+		if ((*itsrv).getPort().empty())
+			(*itsrv).addPort(DEFAULT_PORT);
 
-		this->servers[checkservers].check_methods_route();
-		checkservers++;
+		(*itsrv).check_methods_route();
+		itsrv++;
 	}
 
 	// Duplicate check
 	check_server_dupe(this->servers);
-
-/*
-
-	std::vector<std::vector<Server_conf> > sorted_servers = std::vector<std::vector<Server_conf> >();
-
-	// iterate over servers and add them to the vector of servers
-	unsigned int jterator = 0;
-	for (unsigned int i = 0; i < this->servers.size(); i++)
-	{
-		while (jterator < sorted_servers.size())
-		{
-			if (!sorted_servers[jterator].empty()
-				&& sorted_servers[jterator][0].getHost() == servers[i].getHost()
-				&& sorted_servers[jterator][0].getPort() == servers[i].getPort())
-			{
-				sorted_servers[jterator].push_back(this->servers[i]);
-				break;
-			}
-			jterator++;
-		}
-		if (jterator == sorted_servers.size())
-		{
-			sorted_servers.push_back(std::vector<Server_conf>());
-			sorted_servers.back().push_back(this->servers[i]);
-		}
-		
-		jterator = 0;
-	}
-*/
-
-/*
-	// bundle all the results into the bundled_servers vector
-	for (unsigned int i = 0; i < sorted_servers.size(); i++)
-	{
-		this->bundle_servers.push_back(Bundle_server());
-		for (unsigned int j = 0; j < sorted_servers[i].size(); j++)
-		{
-			this->bundle_servers[i].addServer(sorted_servers[i][j]);
-		}
-	}
-*/
-/*
-	unsigned int jterator = 0;
-	for (unsigned int i = 0; i < this->servers.size(); i++)
-	{
-		while (jterator < this->bundle_servers.size())
-		{
-			if (!this->bundle_servers[jterator].getServers().empty()
-				&& this->bundle_servers[jterator].getServers()[0].getHost() == servers[i].getHost()
-				&& this->bundle_servers[jterator].getServers()[0].getPort() == servers[i].getPort())
-			{
-				this->bundle_servers[jterator].addServer(Server_conf(this->servers[i]));
-				break;
-			}
-			jterator++;
-		}
-		if (jterator == this->bundle_servers.size())
-		{
-			this->bundle_servers.push_back(Bundle_server(Server_conf(this->servers[i])));
-		}
-		
-		jterator = 0;
-	}
-*/
 }
 
 

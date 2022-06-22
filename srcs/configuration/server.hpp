@@ -49,7 +49,10 @@ class Server_conf
 	public:
 		Server_conf(void);
 		~Server_conf(void);
+		Server_conf(const Server_conf &rhs);
 		Server_conf(int emp);
+		Server_conf& operator=(const Server_conf& other);
+
 
 
 		void 							setBodyMaxSizeRoute(int body_max_size);
@@ -64,6 +67,7 @@ class Server_conf
 		int								getBodyMaxSize() const;
 		std::string						getRoot() const;
 		void							addPort(unsigned short port);
+		void							resetPorts();
 		void 							addRoute(Route route);
 		void 							setName(std::string server_name);
 		void							addIndex(std::string index);
@@ -101,5 +105,7 @@ class Server_conf
 		void							setChunkHeadLimitRoute(int chunk_body_limit);
 		void							setChunkBodyLimitRoute(int chunk_body_limit);
 		void 							shortprintServer();
+		bool							name_is_in_list(std::string server_name);
+		void 							sortPort();
 
 };

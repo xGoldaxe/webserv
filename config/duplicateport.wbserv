@@ -1,21 +1,26 @@
 server
 {
+	server_name = uno ;
+
 	listen = 3060 ;
 	listen = 3030 ;
 	listen = 3000 ;
 
-	location /testuno
+	location /
 	{
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
 	}
 }
 
 server
 {
+	server_name = dos ;
+
 	listen = 3090 ;
 	listen = 3030 ;
 	listen = 3040 ;
 	
-	location /testuno
+	location /
 	{
 	}
 

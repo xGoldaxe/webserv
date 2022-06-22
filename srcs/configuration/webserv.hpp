@@ -10,6 +10,7 @@
 
 #include "../class/route.hpp"
 #include "server.hpp"
+#include "bundle_server.hpp"
 
 class Server_conf;
 
@@ -46,15 +47,14 @@ class Webserv_conf
 {
 	private:
 		std::vector<Server_conf>	servers;
-		std::vector<std::vector<Server_conf> > sorted_servers; //oskour
 		std::string 				http_version;
 	public:
 		Webserv_conf(void);
 		Webserv_conf(std::string filename);
-		std::vector<Server_conf> getServers() const;
-		std::vector<std::vector<Server_conf> > getSortedServers() const;
-		std::string				 getHttpVersion() const;
-		static void 			testconf(char *argv);
+		~Webserv_conf(void);
+
+		std::vector<Server_conf> 	getServers() const;
+		std::string				 	getHttpVersion() const;
 
 		Webserv_conf &   operator=( Webserv_conf const & rhs );
 

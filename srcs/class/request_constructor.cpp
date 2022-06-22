@@ -75,7 +75,12 @@ void	Request::try_construct( std::string raw_request, Bundle_server bundle)
 
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
 
-		this->route = find_route(bundle.get_server_from_server_name(this->get_header_value("Host")).getRoutes(), this->legacy_url, this->method);
+		std::string host = this->get_header_value("Host");
+		if (host == "") {
+			throw HTTPCode400();
+		}
+
+		this->route = find_route(bundle.get_server_from_server_name(host).getRoutes(), this->legacy_url, this->method);
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */

@@ -38,9 +38,9 @@ void	Connection::read_data()
 	bzero( buff, 1024 );
 	ssize_t size = recv( this->_fd, buff, 1024 - 1, MSG_DONTWAIT );
 	if ( size == -1 )
-		return ;
+		return ; /** @todo On doit absolument close la socket client à ce moment là */
 	if ( this->_is_dead )
-		return ;
+		return ; /** @todo On doit absolument close la socket client à ce moment là */
 	// if we start to write a new request, we reset the timer!
 	if ( this->_raw_data.size() == 0 )
 	{

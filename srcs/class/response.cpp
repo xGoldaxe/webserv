@@ -165,7 +165,7 @@ int Response::send()
 		headers_response += this->body + "\r\n";
 	}
 
-	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
+	int status = ::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 	if (this->req->getMethod() == "HEAD" || !(this->body.length() > this->getChunkMaxSize() || this->isFile()))
 	{
 		return (-1);
@@ -195,7 +195,7 @@ int		Response::send_chunk()
 		std::string response_body(this->body, 0, std::min<size_t>(this->_body_max_size, this->body.length()));
 		std::string response_content = intToHex(response_body.length()) + "\r\n" + response_body + "\r\n";
 		this->body.erase(0, this->_body_max_size);
-		::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
+		::send(this->client_socket, response_content.c_str(), response_content.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 		return this->body.length();
 	}
 	else if (this->_return_body_type == BODY_TYPE_CGI)
@@ -204,11 +204,6 @@ int		Response::send_chunk()
 
 		try {
 			chunk_type = this->_cgi->readChunk(this->_body_max_size);
-		} catch (const HTTPCode500 &e) {
-			this->set_status( e.getCode(), e.getDescription() );
-			this->error_body();
-			this->send();
-			return this->send();
 		} catch (const HTTPCode5XX &e) {
 			this->set_status( e.getCode(), e.getDescription() );
 			this->error_body();
@@ -220,7 +215,7 @@ int		Response::send_chunk()
 			std::string out = this->_cgi->getOutput();
 			if (out.length() > 0) {
 				std::string response_content = intToHex(out.length()) + "\r\n" + out + "\r\n";
-				::send(this->client_socket, response_content.c_str(), response_content.length(), 0);	
+				::send(this->client_socket, response_content.c_str(), response_content.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 			}
 			return (1);
 		} else if (chunk_type == CHUNK_HEADER) {
@@ -239,7 +234,7 @@ int		Response::send_chunk()
 
 			headers_response += headers;
 
-			::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0);
+			::send(this->client_socket, headers_response.c_str(), headers_response.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 			return (headers_response.length());
 		}
 
@@ -260,7 +255,7 @@ int		Response::send_chunk()
 
 		std::string response_content = intToHex(transmit_size) + "\r\n" + std::string(buf, transmit_size) + "\r\n";
 
-		::send(this->client_socket, response_content.c_str(), response_content.length(), 0);
+		::send(this->client_socket, response_content.c_str(), response_content.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 
 		this->_file_len -= transmit_size;
 
@@ -270,7 +265,7 @@ int		Response::send_chunk()
 	}
 	else
 	{
-		::send(this->client_socket, this->body.c_str(), this->body.length(), 0);
+		::send(this->client_socket, this->body.c_str(), this->body.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
 		return 0;
 	}
 }

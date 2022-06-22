@@ -3,7 +3,6 @@
 #include <string>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <errno.h>
 #include <fstream>
 
 #define IS_FILE_FOLDER 0

@@ -4,6 +4,7 @@ SRCS	=	main.cpp \
 			utils/string.cpp \
 			init/server.cpp \
 			utils/utils.cpp \
+			utils/bundle_server_management.cpp \
 			init/connection.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \
@@ -13,6 +14,7 @@ SRCS	=	main.cpp \
 			configuration/redirection.cpp \
 			configuration/webserv.cpp \
 			configuration/server.cpp \
+			configuration/bundle_server.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \

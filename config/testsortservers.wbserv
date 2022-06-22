@@ -2,7 +2,7 @@ server
 {
 	server_name = test ;
 	host = 127.0.0.1 ;
-	error_page 404 403 = /error.html ;
+	error_page 404 403 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
 	server_body_size = 1024 ;
@@ -16,7 +16,7 @@ server
 	{
 		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
-		error_page 404 = /404.html ;
+		error_page 404 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
@@ -42,7 +42,7 @@ server
 {
 	server_name = test ;
 	host = 127.0.0.2 ;
-	error_page 404 403 = /error.html ;
+	error_page 404 403 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
 	server_body_size = 1024 ;
@@ -56,7 +56,7 @@ server
 	{
 		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
-		error_page 404 = /404.html ;
+		error_page 404 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
@@ -81,7 +81,7 @@ server
 {
 	server_name = webserv.fr ;
 	host = 127.0.0.1 ;
-	error_page 404 403 = /error.html ;
+	error_page 404 403 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 	body_max_size = 1024 ;
 	read_timeout = 10 ;
 	server_body_size = 1024 ;
@@ -91,14 +91,14 @@ server
 	chunk_head_limit = 110 ;
 	chunk_body_limit = 120 ;
 	run_file_path = /run/webserv/ ;
-	location /
+	location /music
 	{
 		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
-		error_page 404 = /404.html ;
+		error_page 404 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
 		rewrite 301 /moved.html /sub/index.html ;
-		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
+		rewrite 303 /music/rick_roll https://www.youtube.com/watch?v=h_D3VFfhvs4 ;
 		autoindex on ;
 		send_file on ;
 		file_limit = 100 ;

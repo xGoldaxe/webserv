@@ -8,7 +8,9 @@ bool	Server::close_connection( int client_socket )
 	if ( ret_val )
 	{
 		this->_connections.erase( it );
-		std::cout << "Client close remote: " << client_socket << std::endl;
+		#ifdef DEBUG
+			std::cout << "Client close remote: " << client_socket << std::endl;
+		#endif
 	}
 	return ret_val;
 }
@@ -36,10 +38,6 @@ void    Server::add_response( Request * req, int fd )
 	Server_conf serv = this->_virtual_servers.get_server_from_server_name(hostname);
 
 	Response *res = new Response( fd, serv.getIndex(), req, this->_socket_addr_eq[fd].c_str(), serv.getBodyMaxSize());
-
-	if (hostname == "") {
-		res->set_status(400, "Bad Request");
-	}
 
 	if ( req->is_request_valid() )
 	{
@@ -215,8 +213,7 @@ void    Server::handle_responses()
 				if (it->second.get_is_dead())
 					this->close_connection(res->client_socket);
 
-				if (res->req->is_request_valid())
-					res->output(this->_request_handled++);
+				res->output(this->_request_handled++);
 				delete res;
 			}
 		}

@@ -237,7 +237,7 @@ void Server_conf::printServer()
 	std::vector<std::string>::iterator iti;
 	std::map<int, std::string>::iterator ite;
 	std::vector<std::string>::iterator its;
-	unsigned int itr = 0;
+	std::vector<Route>::iterator itr;
 
 	std::cout << "********Server********" << std::endl;
 
@@ -295,9 +295,10 @@ void Server_conf::printServer()
 	std::cout << std::endl;
 	if (this->routes.empty())
 		std::cout << "None";
-	while (itr < this->routes.size())
+	itr = this->routes.begin();
+	while (itr != this->routes.end())
 	{
-		this->routes[itr].printRoute();
+		(*itr).printRoute();
 		itr++;
 	}
 	std::cout << std::endl;
@@ -331,11 +332,10 @@ void Server_conf::set_cgi_path(std::string cgi_path)
 
 void Server_conf::check_methods_route(void)
 {
-	unsigned int itr = 0;
-
-	while (itr < this->routes.size())
+	std::vector<Route>::iterator itr = this->routes.begin();
+	while (itr != this->routes.end())
 	{
-		this->routes[itr].check_methods_route();
+		(*itr).check_methods_route();
 		itr++;
 	}
 }
@@ -380,16 +380,14 @@ void Server_conf::setChunkBodyLimitRoute(int chunk_body_limit)
 
 bool Server_conf::name_is_in_list(std::string server_name)
 {
-	unsigned int i = 0;
+	std::vector<std::string>::iterator it = this->server_name.begin();
 
-	while(i < this->server_name.size())
+	while(it != this->server_name.end())
 	{
-		if(this->server_name[i].compare(server_name) == 0)
+		if((*it).compare(server_name) == 0)
 			return true;
-		i++;
+		it++;
 	}
-
-
 	return false;
 }
 

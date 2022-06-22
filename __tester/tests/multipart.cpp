@@ -116,6 +116,50 @@ void	multipart_suite( Asserter &asserter )
 	raw = "some--boundary\r\nwe dont care";
 	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw, type, readed ), 
 								std::string::npos );
+
+	asserter.name("binary");
+	std::string raw_img = "";
+	raw_img.append( "\
+����������������������������������������������������������������������������������������������������������������������������s\"����� �� ��\r\n\
+(\"�((����\r\n\
+\r\n\
+�(� � � � �\"�(\"\r\n\
+�*(���\r\n\
+���� \r\n\
+�\"� ��(��\r\n\
+�\"��� (�� \r\n\
+����(���(�(�(�����(**�*\r\n\
+��  \r\n\
+���\r\n\
+�*�����\r\n\
+� \"��EF�E@@@@@@TE@PTAEPTDieTU@�d@@PA\"�hDTT@@P@DTE@AAE@@(�\"������\r\n\
+�\r\n\
+����������\r\n\
+�\r\n\
+��(���\r\n\
+�(�(�(�(�����H� \"�\r\n\
+�\"�H� ����\r\n\
+(�*#-  \r\n\
+\r\n\
+����\"�\r\n\
+\"( �����\r\n\
+\r\n\
+�(�\r\n\
+�*� �\r\n\
+� ����\r\n\
+\"���*� ��*\r\n\
+��(��(�(\r\n\
+ \r\n\
+ \r\n\
+ \r\n\
+������*��\r\n\
+ \"��(�\r\n\
+\r\n\
+\r\n\
+��\r\n--boundary--\r\ndqwdqw", 1070 );
+	std::cout << mtpart->find_boundary( mtpart->get_boundary(), raw_img, type, readed ) << std::endl;
+	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw_img, type, readed ), 
+								static_cast<std::size_t>(1051) );
 	
 	asserter.name("End");
 	raw = "0123456789\r\n--boundary--\r\nwe dont care";
@@ -143,7 +187,7 @@ void	multipart_suite( Asserter &asserter )
 
 	asserter.name("no body");
 	raw = "Content-Disposition: form-data;\
- name=\"form1\"; filename=file.txt\r\nuseless-header: blabla\r\n\
+name=\"form1\";filename=file.txt\r\nuseless-header:blabla\r\n\
 \r\n";
 	parse_part_secure( asserter, mtpart, raw, name, filename, body );
 	asserter.verify_assert_equal<std::string>( name, "form1" );
@@ -200,12 +244,12 @@ void	multipart_suite( Asserter &asserter )
 	raw = "";
 	try_header_multipart( asserter, req, raw );
 	asserter.verify_exception();
-
+	
 	asserter.name("Good");
 	raw = " multipart/form-data; boundary=\"boundary\"";
 	try_header_multipart( asserter, req, raw );
 	asserter.add_comment( "no exception" );
-	asserter.verify_assert_bool( true );
+
 	delete req;
 	asserter.delete_last_tag();
 

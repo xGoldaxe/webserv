@@ -78,6 +78,9 @@ void	Request::try_construct( std::string raw_request, Bundle_server bundle)
 		if (host == "") {
 			throw HTTPCode400();
 		}
+		if (host.find_first_of(':') != host.npos) {
+			host = std::string(host, 0, host.find_first_of(':'));
+		}
 
 		this->route = find_route(bundle.get_server_from_server_name(host).getRoutes(), this->legacy_url, this->method);
 		this->auto_index = this->route.get_auto_index();

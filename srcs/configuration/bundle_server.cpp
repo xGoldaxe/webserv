@@ -51,12 +51,22 @@ Bundle_server &Bundle_server::operator=(Bundle_server const &rhs)
 	return *this;
 }
 
+static char asciitolower(char in) {
+    if (in <= 'Z' && in >= 'A')
+        return in - ('Z' - 'z');
+    return in;
+}
+
+
 Server_conf Bundle_server::get_server_from_server_name(std::string server_name)
 {
 	unsigned int iter = 0;
 
 	if (this->servers.empty())
 		throw std::invalid_argument("get_server_from_hostname: vector is empty");
+
+	// Force lower key on server_name
+	std::transform(server_name.begin(), server_name.end(), server_name.begin(), asciitolower);
 
 	while (iter < this->servers.size())
 	{

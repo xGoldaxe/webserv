@@ -13,9 +13,9 @@ server {
 	max_amount_of_request = 100 ;
 
 	location / {
-		root /home/restray/42/webserv/www/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
-		methods = GET ;
+		methods = GET POST ;
 		rewrite 301 /moved.html /sub/index.html ;
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		autoindex on ;
@@ -24,21 +24,21 @@ server {
 	}
 
 	location /sub {
-		root /home/restray/42/webserv/www/ ;
-		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
+		error_page 404 = /mnt/nfs/homes/tbelhomm/Desktop/webserv/defaultPages/404.html ;
 		index = /index.html /index.htm ;
 		methods = GET POST ;
 	}
 
 	location /post {
-		root /home/restray/42/webserv/www/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
 		index = /index.html /index.htm ;
 		methods = POST ;
 	}
 
 	location /php { 
 		error_page 404 = /defaultPages/500.html ;
-		root /home/restray/42/webserv/cgi/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
 		index = /index.php ;
 		enable_cgi on ; 
 		cgi_extension = php ;
@@ -49,7 +49,7 @@ server {
 
 server {
 	server_name = cgi.local ;
-	host = 0.0.0.0 ;
+	host = 10.11.4.6 ;
 	listen = 3000 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
@@ -60,8 +60,7 @@ server {
 	max_uri_size = 40 ;
 
 	location / {
-		root /home/restray/42/webserv/www/sub/ ;
-		error_page 404 = /home/restray/42/webserv/defaultPages/404.html ;
+		error_page 404 = /mnt/nfs/homes/tbelhomm/Desktop/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
 		index = ;
 		autoindex on ;
@@ -69,7 +68,7 @@ server {
 		file_limit = 100 ;
 	}
 	location /php { 
-		root /home/restray/42/webserv/cgi/ ;
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/cgi/ ;
 		methods = POST GET HEAD ;
 		index = /index.php ;
 		send_file on ;

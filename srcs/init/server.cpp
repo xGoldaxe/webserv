@@ -120,7 +120,7 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 	this->_queue = std::queue<Response *>();
 
 	this->BACKLOG = 1024; /** @todo bundle.getMaxWorkers() **/
-	this->_run_folder = "/mnt/nfs/homes/pleveque/goinfre/webserv"; /** @todo bundle.runFolder() **/
+	this->_run_folder = "./memory"; /** @todo bundle.runFolder() **/
 	this->_server_conf = Server_conf(); /** @todo this->_server_conf = bundle.getFirstConfig(); **/
 
 	this->_create_run_folder();
@@ -180,7 +180,7 @@ void Server::init_connection()
 	this->_socket_fd = sock;
 	int set_opt = 1;
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
-	setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int));
+	/** @correction setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int)); */
 
 	this->_bind_port(sock, this->_addr);
 

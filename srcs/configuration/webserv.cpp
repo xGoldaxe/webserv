@@ -400,6 +400,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if ((it + 1) < words.size())
 			{
 				server.addRoute(Route(words[it + 1], 1));
+				server.setRouteRoot(server.getRoot());
 			}
 			else
 			{
@@ -456,7 +457,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				it = it + 2;
 				while (it < words.size() && words[it].compare(";") != 0)
 				{
-					if (words[it].compare("GET") != 0 && words[it].compare("POST") != 0 && words[it].compare("DELETE") != 0 && words[it].compare("HEAD") != 0 && words[it].compare("PUT") != 0)
+					if (words[it].compare("GET") != 0 && words[it].compare("POST") != 0 && words[it].compare("DELETE") != 0 && words[it].compare("HEAD") != 0)
 					{
 						throw std::invalid_argument("Error parsing Methods! This is invalid: " + words[it]);
 					}

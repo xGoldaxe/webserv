@@ -35,6 +35,7 @@ Request::Request( size_t process_data_size, const std::string & memory_path )
 	/* conf */
 	this->process_data_size = process_data_size;
 	this->memory_path = memory_path;
+	// std::cout << memory_path << std::endl;
 }
 
 /* end coplien */

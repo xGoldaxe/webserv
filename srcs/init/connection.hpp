@@ -42,7 +42,7 @@ class Connection
 	public:
 
 		/* coplien */
-		Connection( int fd, char *client_ip, const Server_conf & response_chunk_size );
+		Connection( int fd, char *client_ip, Server_conf conf );
 		Connection( Connection const &src );
 		~Connection( void );
 

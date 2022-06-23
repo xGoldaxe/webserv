@@ -29,18 +29,21 @@ Request	*Connection::extract_request()
 /* like a get next line, but a "bit" more complex */
 void	Connection::read_data()
 {
+	if ( this->_is_dead )
+		return ;
+
 	char    buff[this->_process_data_size];
 	bzero( buff, this->_process_data_size );
 	ssize_t size = recv( this->_fd, buff, this->_process_data_size - 1, MSG_DONTWAIT );
 	if ( size == -1 )
-		return ; /** @todo On doit absolument close la socket client à ce moment là */
-	if ( this->_is_dead )
-		return ; /** @todo On doit absolument close la socket client à ce moment là */
-	// if we start to write a new request, we reset the timer!
-	if ( this->_raw_data.size() == 0 )
 	{
-		Connection::update_timeout();
+		// this->_is_dead = true;
+		return ;
 	}
+
+	if ( this->_raw_data.size() == 0 )
+		Connection::update_timeout();
+
 	this->_raw_data.append( buff, size );
 	this->_is_new_data = true;
 }
@@ -52,25 +55,33 @@ bool	Connection::check_state()
 
 	if ( this->_is_dead == true )
 	{
-		std::cout << "error occured" << std::endl;
+		#ifdef debug
+			std::cout << "internal error occured" << std::endl;
+		#endif
 		error_status = 500;
 		error_message = "Internal Server Error";
 	}
 	if ( this->is_timeout() == true )
 	{
-		std::cout << "trigger timeout" << std::endl; /** @todo */
+		#ifdef debug
+			std::cout << "trigger timeout" << std::endl;
+		#endif
 		error_status = 408;
 		error_message = "Request Timeout";
 	}
 	if ( this->_raw_data.size() > this->_max_size )
 	{
-		std::cout << "trigger max size" << std::endl; /** @todo */
+		#ifdef debug
+			std::cout << "trigger max size" << std::endl;
+		#endif
 		error_status = 413;
 		error_message = "Request Entity Too Large";
 	}
 	if ( this->_requests.size() > this->_max_request )
 	{
-		std::cout << "trigger too much requests" << std::endl; /** @todo */
+		#ifdef debug
+			std::cout << "trigger too much requests" << std::endl;
+		#endif
 		error_status = 429;
 		error_message = "Too Many Requests";
 	}
@@ -98,7 +109,7 @@ bool	Connection::check_state()
 
 void	Connection::queue_iteration(Bundle_server bundle)
 {
-	if (this->_is_dead)
+	if ( this->_is_dead && _is_sending_data )
 		return ;
 
 	bool	keep_going = true;
@@ -204,7 +215,7 @@ bool	Connection::_data_added()
 /*************************
 * @coplien
 * ***********************/
-Connection::Connection(int fd, char *client_ip, const Server_conf & conf ) : 
+Connection::Connection(int fd, char *client_ip, Server_conf conf ) : 
 _fd(fd),
 _is_init(false),
 _client_ip(client_ip)
@@ -221,6 +232,7 @@ _client_ip(client_ip)
 	this->_idle_timeout = 60;/** @todo @datack, do this **/
 	this->_max_size = conf.getBodyMaxSize();
 	this->_max_request = conf.get_max_amount_of_request();
+	this->_process_data_size = 1024; /** @todo **/
 	this->_conf = conf;
 }
 

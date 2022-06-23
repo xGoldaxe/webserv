@@ -1,5 +1,4 @@
 #include "connection.hpp"
-#include "unistd.h" /** @todo */
 
 /*************************
 * @error case functions

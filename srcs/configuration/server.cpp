@@ -1,9 +1,9 @@
 #include "server.hpp"
 
 Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT),
-								 read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE),
+								 onread_Timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE),
 								 max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST), max_uri_size(DEFAULT_MAX_URI_SIZE),
-								 run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER)
+								 run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER), idle_timeout(DEFAULT_IDLE_TIMEOUT_SERVER), process_data_size(DEFAULT_PROCESS_DATA_SIZE_SERVER)
 {
 	this->server_name.push_back(DEFAULT_SERVER_NAME);
 	this->port.push_back(3000);
@@ -19,15 +19,10 @@ Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_
 	// routes.at(0).add_error_page(404, "defaultPages/404.html");
 }
 
-Server_conf::Server_conf ( const Server_conf & rhs) : port(rhs.port), routes(rhs.routes),server_name(rhs.server_name)
-													, host(rhs.host), index(rhs.index), body_max_size(rhs.body_max_size)
-													, root(rhs.root), error_pages(rhs.error_pages), read_timeout(rhs.read_timeout)
-													, server_body_size(rhs.server_body_size), client_header_size(rhs.client_header_size)
-													, max_amount_of_request(rhs.max_amount_of_request), max_uri_size(rhs.max_uri_size)
-													, run_file_path(rhs.run_file_path), chunk_head_limit(rhs.chunk_head_limit),
-													chunk_body_limit(rhs.chunk_body_limit)
+Server_conf::Server_conf(const Server_conf &rhs) : port(rhs.port), routes(rhs.routes), server_name(rhs.server_name), host(rhs.host), index(rhs.index), body_max_size(rhs.body_max_size), root(rhs.root), error_pages(rhs.error_pages), onread_Timeout(rhs.onread_Timeout), server_body_size(rhs.server_body_size), client_header_size(rhs.client_header_size), max_amount_of_request(rhs.max_amount_of_request), max_uri_size(rhs.max_uri_size), run_file_path(rhs.run_file_path), chunk_head_limit(rhs.chunk_head_limit),
+												   chunk_body_limit(rhs.chunk_body_limit), idle_timeout(rhs.idle_timeout), process_data_size(rhs.process_data_size)
 {
-}	
+}
 
 Server_conf &Server_conf::operator=(const Server_conf &rhs)
 {
@@ -36,23 +31,24 @@ Server_conf &Server_conf::operator=(const Server_conf &rhs)
 		this->port = rhs.port;
 		this->routes = rhs.routes;
 		this->server_name = rhs.server_name;
-		this->host = rhs.host; 
+		this->host = rhs.host;
 		this->index = rhs.index;
 		this->body_max_size = rhs.body_max_size;
 		this->root = (rhs.root);
 		this->error_pages = (rhs.error_pages);
-		this->read_timeout = (rhs.read_timeout);
-		this->server_body_size= (rhs.server_body_size);
+		this->onread_Timeout = (rhs.onread_Timeout);
+		this->server_body_size = (rhs.server_body_size);
 		this->client_header_size = (rhs.client_header_size);
 		this->max_amount_of_request = (rhs.max_amount_of_request);
 		this->max_uri_size = (rhs.max_uri_size);
 		this->run_file_path = (rhs.run_file_path);
 		this->chunk_head_limit = (rhs.chunk_head_limit);
 		this->chunk_body_limit = (rhs.chunk_body_limit);
+		this->idle_timeout = (rhs.idle_timeout);
+		this->process_data_size = rhs.process_data_size;
 	}
 	return (*this);
 }
-
 
 Server_conf::~Server_conf(void)
 {
@@ -60,15 +56,19 @@ Server_conf::~Server_conf(void)
 
 // empty
 Server_conf::Server_conf(int emp) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE),
-									root(DEFAULT_ROOT), read_timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST),
-									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER)
+									root(DEFAULT_ROOT), onread_Timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST),
+									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER), idle_timeout(DEFAULT_IDLE_TIMEOUT_SERVER), process_data_size(DEFAULT_PROCESS_DATA_SIZE_SERVER)
 {
 	(void)emp;
 }
 
 int Server_conf::getReadTimeOut() const
 {
-	return this->read_timeout;
+	return this->onread_Timeout;
+}
+int Server_conf::getIdleTimeOut() const
+{
+	return this->idle_timeout;
 }
 int Server_conf::getServerBodySize() const
 {
@@ -183,9 +183,13 @@ void Server_conf::setRouteRoot(std::string root)
 	this->routes.back().set_root(root);
 }
 
-void Server_conf::setReadTimeOut(int read_timeout)
+void Server_conf::setReadTimeOut(int onread_Timeout)
 {
-	this->read_timeout = read_timeout;
+	this->onread_Timeout = onread_Timeout;
+}
+void Server_conf::setIdleTimeOut(int idle_timeout)
+{
+	this->idle_timeout = idle_timeout;
 }
 void Server_conf::setServerBodySize(int server_body_size)
 {
@@ -254,8 +258,10 @@ void Server_conf::printServer()
 	std::cout << "Body Max Size : " << this->body_max_size << std::endl;
 	std::cout << "root : " << this->root << std::endl;
 
-	std::cout << "Read Timeout : " << this->read_timeout << std::endl;
+	std::cout << "On Read Timeout : " << this->onread_Timeout << std::endl;
+	std::cout << "Idle Timeout : " << this->idle_timeout << std::endl;
 	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
+	std::cout << "Process Data Size : " << this->process_data_size << std::endl;
 	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
 	std::cout << "Chunk Head Limit : " << this->chunk_head_limit << std::endl;
 	std::cout << "Chunk Body Limit : " << this->chunk_body_limit << std::endl;
@@ -382,9 +388,9 @@ bool Server_conf::name_is_in_list(std::string server_name)
 {
 	std::vector<std::string>::iterator it = this->server_name.begin();
 
-	while(it != this->server_name.end())
+	while (it != this->server_name.end())
 	{
-		if((*it).compare(server_name) == 0)
+		if ((*it).compare(server_name) == 0)
 			return true;
 		it++;
 	}
@@ -396,8 +402,14 @@ void Server_conf::sortPort()
 	std::sort(this->port.begin(), this->port.end());
 }
 
-
-
+void Server_conf::setMultipartSizeRoute(int multipart_size)
+{
+	this->routes.back().set_max_multipart_size(multipart_size);
+}
+void Server_conf::setUploadSizeRoute(int upload_size)
+{
+	this->routes.back().set_max_upload_size(upload_size);
+}
 
 void Server_conf::shortprintServer()
 {
@@ -429,4 +441,14 @@ void Server_conf::shortprintServer()
 		std::cout << std::endl;
 	}
 #endif
+}
+
+void Server_conf::set_process_data_size(std::size_t process_data_size)
+{
+	this->process_data_size = process_data_size;
+}
+
+std::size_t Server_conf::get_process_data_size()
+{
+	return process_data_size;
 }

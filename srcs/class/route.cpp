@@ -1,7 +1,8 @@
 #include "route.hpp"
 
 Route::Route(void) : auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE),
-chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+					 chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+					 , max_multipart_size(DEFAULT_MAX_MULTIPART_SIZE_ROUTE), max_upload_size(DEFAULT_MAX_UPLOAD_SIZE_ROUTE)
 {
 	index.push_back("index.html");
 	methods.push_back("GET");
@@ -13,8 +14,8 @@ Route::Route(std::string root) : root(root)
 
 // default route
 Route::Route(std::string location, std::string root) : root(root), location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE),
-chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
-
+													   chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+													    , max_multipart_size(DEFAULT_MAX_MULTIPART_SIZE_ROUTE), max_upload_size(DEFAULT_MAX_UPLOAD_SIZE_ROUTE)
 {
 	index.push_back("index.html");
 	methods.push_back("GET");
@@ -29,9 +30,11 @@ Route::Route(Route rhs, int notcopy) : error_pages(rhs.error_pages),
 									   cgi_timeout(rhs.cgi_timeout),
 									   send_file(rhs.send_file),
 									   file_limit(rhs.file_limit),
-										body_max_size(rhs.body_max_size),
-										chunk_head_limit(rhs.chunk_head_limit),
-										chunk_body_limit(rhs.chunk_body_limit)
+									   body_max_size(rhs.body_max_size),
+									   chunk_head_limit(rhs.chunk_head_limit),
+									   chunk_body_limit(rhs.chunk_body_limit),
+									   max_multipart_size(rhs.max_multipart_size),
+									   max_upload_size(rhs.max_upload_size)
 {
 	(void)notcopy;
 	this->root = finish_by_only_one(rhs.root, '/');
@@ -41,13 +44,15 @@ Route::Route(Route rhs, int notcopy) : error_pages(rhs.error_pages),
 }
 
 Route::Route(std::string location, std::string root, int notdefault) : root(root), location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE),
-chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+																	   chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+																	    , max_multipart_size(DEFAULT_MAX_MULTIPART_SIZE_ROUTE), max_upload_size(DEFAULT_MAX_UPLOAD_SIZE_ROUTE)
 {
 	(void)notdefault;
 }
 
 Route::Route(std::string location, int notdefault) : location(location), auto_index(DEFAULT_AUTO_INDEX), cgi_enable(DEFAULT_CGI_ENABLE), cgi_timeout(DEFAULT_CGI_TIMEOUT), send_file(DEFAULT_SEND_FILE), file_limit(DEFAULT_FILE_LIMIT), body_max_size(DEFAULT_ROUTE_BODY_MAX_SIZE),
-chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+													 chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_ROUTE), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_ROUTE)
+													  , max_multipart_size(DEFAULT_MAX_MULTIPART_SIZE_ROUTE), max_upload_size(DEFAULT_MAX_UPLOAD_SIZE_ROUTE)
 {
 	(void)notdefault;
 }
@@ -57,6 +62,7 @@ Route::Route(const Route &rhs) : root(rhs.root), location(rhs.location),
 								 auto_index(rhs.auto_index), cgi_enable(rhs.cgi_enable), cgi_path(rhs.cgi_path), cgi_extension(rhs.cgi_extension), cgi_timeout(rhs.cgi_timeout),
 								 send_file(rhs.send_file), file_limit(rhs.file_limit), body_max_size(rhs.body_max_size),
 								 chunk_head_limit(rhs.chunk_head_limit), chunk_body_limit(rhs.chunk_body_limit)
+								 , max_multipart_size(rhs.max_multipart_size), max_upload_size(rhs.max_upload_size)
 {
 }
 
@@ -81,6 +87,8 @@ Route &Route::operator=(const Route &rhs)
 		this->body_max_size = rhs.body_max_size;
 		this->chunk_head_limit = rhs.chunk_head_limit;
 		this->chunk_body_limit = rhs.chunk_body_limit;
+		this->max_multipart_size = rhs.max_multipart_size;
+		this->max_upload_size = rhs.max_upload_size;
 	}
 	return (*this);
 }
@@ -184,9 +192,27 @@ void Route::add_index(std::string index)
 	this->index.push_back(index);
 }
 
-void Route::add_redirection(int redirect_code,std::string url, std::string redirect_url)
+void Route::add_redirection(int redirect_code, std::string url, std::string redirect_url)
 {
 	this->redirections.push_back(Redirection(redirect_code, url, redirect_url));
+}
+
+int Route::get_max_multipart_size(void)
+{
+	return this->max_multipart_size;
+}
+void Route::set_max_multipart_size(int max_multipart_size)
+{
+	this->max_multipart_size = max_multipart_size;
+}
+int Route::get_max_upload_size(void)
+{
+	return this->max_upload_size;
+
+}
+void Route::set_max_upload_size(int max_upload_size)
+{
+	this->max_upload_size = max_upload_size;
 }
 
 void Route::printMethods()
@@ -234,7 +260,8 @@ void Route::setBodyMaxSize(int body_max_size)
 
 bool Route::is_in_extension(std::string extension)
 {
-	for (std::vector<std::string>::iterator it = this->cgi_extension.begin(); it != this->cgi_extension.end(); it++) {
+	for (std::vector<std::string>::iterator it = this->cgi_extension.begin(); it != this->cgi_extension.end(); it++)
+	{
 		if (*it == extension)
 			return true;
 	}
@@ -301,11 +328,9 @@ void Route::printRoute()
 	std::cout << "Redirection : " << std::endl;
 	if (!this->redirections.empty())
 	{
-		while(itre < this->redirections.size())
+		while (itre < this->redirections.size())
 		{
-			std::cout << this->redirections[itre].get_redirect_code() << " " << 
-			this->redirections[itre].get_url() << " " <<
-			this->redirections[itre].get_redirect_url() <<  std::endl;
+			std::cout << this->redirections[itre].get_redirect_code() << " " << this->redirections[itre].get_url() << " " << this->redirections[itre].get_redirect_url() << std::endl;
 			itre++;
 		}
 	}
@@ -318,11 +343,14 @@ void Route::printRoute()
 	std::cout << "Auto Index : " << this->auto_index << std::endl;
 
 	std::cout << "Route Body Size : " << this->body_max_size << std::endl;
+	std::cout << "Route Multipart Size : " << this->max_multipart_size << std::endl;
+	std::cout << "Route Upload Size : " << this->max_upload_size << std::endl;
+
 	std::cout << "Chunk Head Limit : " << this->chunk_head_limit << std::endl;
 	std::cout << "Chunk Body Limit : " << this->chunk_body_limit << std::endl;
 	std::cout << "CGI Enabled : " << this->cgi_enable << std::endl;
 
-	if(!this->cgi_path.empty())
+	if (!this->cgi_path.empty())
 		std::cout << "CGI Path : " << this->cgi_path << std::endl;
 	else
 		std::cout << "CGI Path : Undefined " << std::endl;
@@ -357,9 +385,9 @@ Redirection Route::return_redirect_url(std::string url) const
 	unsigned int i = 0;
 	std::string res;
 
-	while(i < this->redirections.size())
+	while (i < this->redirections.size())
 	{
-		if(this->redirections[i].get_url().compare(url) == 0)
+		if (this->redirections[i].get_url().compare(url) == 0)
 			return this->redirections[i];
 		i++;
 	}
@@ -371,13 +399,13 @@ bool Route::has_redirection(std::string url) const
 	for (std::vector<Redirection>::const_iterator it = this->redirections.begin(); it != this->redirections.end(); it++)
 	{
 		std::string redirection_url = finish_by_only_one(it->get_url(), '/');
-		if(redirection_url == url)
+		if (redirection_url == url)
 			return true;
 	}
 	return false;
 }
 
-bool compareSize(Route i,Route j)
+bool compareSize(Route i, Route j)
 {
 	return (i.get_location().size() > j.get_location().size());
 }

@@ -4,7 +4,7 @@ server
 	host = 127.0.0.1 ;
 	error_page 404 403 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
@@ -44,7 +44,7 @@ server
 	host = 127.0.0.2 ;
 	error_page 404 403 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
@@ -83,7 +83,7 @@ server
 	host = 127.0.0.1 ;
 	error_page 404 403 = /mnt/nfs/homes/datack/Desktop/webserv/defaultPages/404.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
@@ -122,7 +122,7 @@ server
 	host = 127.0.0.3 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
@@ -161,7 +161,7 @@ server
 	host = 127.0.0.2 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
@@ -200,7 +200,7 @@ server
 	host = 127.0.0.2 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
@@ -240,7 +240,7 @@ server
 	listen = 3001 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
-	read_timeout = 10 ;
+	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;

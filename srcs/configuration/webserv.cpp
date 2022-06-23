@@ -28,10 +28,12 @@ static int return_type_parse(std::string s)
 									  "root", "index",
 									  "methods", "enable_cgi",
 									  "cgi_extension", "body_max_size", "server",
-									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
+									  "rewrite", "autoindex", "cgi_timeout", "onread_Timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
 									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
-									  "run_file_path", "chunk_head_limit", "chunk_body_limit"};
+									  "run_file_path", "chunk_head_limit", "chunk_body_limit"
+									  ,"idle_timeout", "max_multipart_size", "max_upload_size"
+									  , "process_data_size"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -601,17 +603,17 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
-				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
+				throw std::invalid_argument("Error parsing, encountered on_read_Timeout in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				if (std::atoi(words[it + 2].c_str()) < 1)
-					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
+					throw std::invalid_argument("Error parsing onread_Timeout, must be 1 or greater");
 				server.setReadTimeOut(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
 			else
 			{
-				throw std::invalid_argument("Error parsing Read Timeout!");
+				throw std::invalid_argument("Error parsing on_read_Timeout!");
 			}
 			break;
 		case SERVER_BODY_SIZE_PARSING:
@@ -623,7 +625,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				if (std::atoi(words[it + 2].c_str()) < 1)
-					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
+					throw std::invalid_argument("Error parsing onread_Timeout, must be 1 or greater");
 				server.setServerBodySize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
@@ -811,6 +813,78 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				throw std::invalid_argument("Error parsing Chunk Body Limit!");
 			}
+			break;
+		case IDLE_TIMEOUT_PARSING:
+			// server int seconds
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered idle_timeout in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing idle_timeout, must be 1 or greater");
+				server.setIdleTimeOut(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing idle_timeout!");
+			}
+			break;
+		case MAX_MULTIPART_SIZE_PARSING:
+			// location int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered multipart_size outside of a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing multipart max size, must be 1 or greater");
+				server.setMultipartSizeRoute(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Multipart Max Size!");
+			}
+			break;
+		case MAX_UPLOAD_SIZE_PARSING:
+			// location int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered upload max size outside of a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing upload max size, must be 1 or greater");
+				server.setUploadSizeRoute(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Upload Max Size!");
+			}
+			break;
+		case PROCESS_DATA_SIZE_PARSING:
+		//server std::size_t
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered process_data_size in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing process_data_size, must be 1 or greater");
+				server.set_process_data_size(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing process_data_size!");
+			}		
 			break;
 		default:
 			break;

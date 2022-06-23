@@ -22,6 +22,9 @@
 #define DEFAULT_RUN_FILE_PATH "/run/webserv/"
 #define DEFAULT_CHUNK_HEAD_LIMIT_SERVER 20
 #define DEFAULT_CHUNK_BODY_LIMIT_SERVER 100
+#define DEFAULT_IDLE_TIMEOUT_SERVER 60
+#define DEFAULT_PROCESS_DATA_SIZE_SERVER 1024
+
 
 class Route;
 
@@ -37,7 +40,7 @@ class Server_conf
 		int									body_max_size;
 		std::string 						root;
 		std::map<int, std::string>			error_pages;
-		int									read_timeout;
+		int									onread_Timeout;
 		int									server_body_size;
 		int									client_header_size;
 		int									max_amount_of_request;
@@ -45,6 +48,8 @@ class Server_conf
 		std::string							run_file_path;
 		int									chunk_head_limit;
 		int									chunk_body_limit;
+		int									idle_timeout;
+		std::size_t							process_data_size;
 
 	public:
 		Server_conf(void);
@@ -57,6 +62,7 @@ class Server_conf
 
 		void 							setBodyMaxSizeRoute(int body_max_size);
 		int								getReadTimeOut() const;
+		int								getIdleTimeOut() const;
 		int								getServerBodySize() const;
 		int								getClientHeaderSize() const;
 		std::vector<unsigned short>		getPort() const;
@@ -80,7 +86,8 @@ class Server_conf
 		void							setHost(std::string host);
 		void							setRouteRoot(std::string root);
 		void							printServer();
-		void							setReadTimeOut(int read_timeout);
+		void							setReadTimeOut(int onread_Timeout);
+		void							setIdleTimeOut(int idle_timeout);
 		void							setServerBodySize(int server_body_size);
 		void 							setClientHeaderSize(int client_header_size);
 		void 							setRouteAutoIndex(bool auto_index);
@@ -107,5 +114,8 @@ class Server_conf
 		void 							shortprintServer();
 		bool							name_is_in_list(std::string server_name);
 		void 							sortPort();
-
+		void 							setMultipartSizeRoute(int multipart_size);
+		void 							setUploadSizeRoute(int upload_size);
+		void							set_process_data_size(std::size_t process_data_size);
+		std::size_t						get_process_data_size();
 };

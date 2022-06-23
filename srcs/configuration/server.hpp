@@ -22,6 +22,7 @@
 #define DEFAULT_RUN_FILE_PATH "/run/webserv/"
 #define DEFAULT_CHUNK_HEAD_LIMIT_SERVER 20
 #define DEFAULT_CHUNK_BODY_LIMIT_SERVER 100
+#define DEFAULT_IDLE_TIMEOUT_SERVER 60
 
 class Route;
 
@@ -45,6 +46,7 @@ class Server_conf
 		std::string							run_file_path;
 		int									chunk_head_limit;
 		int									chunk_body_limit;
+		int									idle_timeout;
 
 	public:
 		Server_conf(void);
@@ -57,6 +59,7 @@ class Server_conf
 
 		void 							setBodyMaxSizeRoute(int body_max_size);
 		int								getReadTimeOut() const;
+		int								getIdleTimeOut() const;
 		int								getServerBodySize() const;
 		int								getClientHeaderSize() const;
 		std::vector<unsigned short>		getPort() const;
@@ -81,6 +84,7 @@ class Server_conf
 		void							setRouteRoot(std::string root);
 		void							printServer();
 		void							setReadTimeOut(int onread_Timeout);
+		void							setIdleTimeOut(int idle_timeout);
 		void							setServerBodySize(int server_body_size);
 		void 							setClientHeaderSize(int client_header_size);
 		void 							setRouteAutoIndex(bool auto_index);

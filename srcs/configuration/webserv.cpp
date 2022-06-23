@@ -31,7 +31,8 @@ static int return_type_parse(std::string s)
 									  "rewrite", "autoindex", "cgi_timeout", "onread_Timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
 									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
-									  "run_file_path", "chunk_head_limit", "chunk_body_limit"};
+									  "run_file_path", "chunk_head_limit", "chunk_body_limit"
+									  ,"idle_timeout"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -810,6 +811,24 @@ Webserv_conf::Webserv_conf(std::string filename)
 			else
 			{
 				throw std::invalid_argument("Error parsing Chunk Body Limit!");
+			}
+			break;
+		case IDLE_TIMEOUT_PARSING:
+			// server int seconds
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered idle_timeout in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing idle_timeout, must be 1 or greater");
+				server.setIdleTimeOut(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing idle_timeout!");
 			}
 			break;
 		default:

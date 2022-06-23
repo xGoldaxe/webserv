@@ -415,7 +415,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 				if (!verify_run_file_path(words[it + 1]))
 					throw std::invalid_argument("Invalid root path");
 				if (contextlocation == 0)
-					server.setName(words[it + 1]);
+					server.setRoot(words[it + 1]);
 				else
 					server.setRouteRoot(words[it + 1]);
 				it = it + 2;

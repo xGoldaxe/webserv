@@ -430,6 +430,7 @@ void Server_conf::shortprintServer()
 	std::cout << std::endl;
 
 	std::cout << "Host : " << this->host << std::endl;
+	std::cout << "Root : " << this->root << std::endl;
 
 	if ((!this->port.empty()))
 	{
@@ -440,6 +441,21 @@ void Server_conf::shortprintServer()
 		}
 		std::cout << std::endl;
 	}
+
+
+	std::vector<Route>::iterator itr;
+	std::cout << "Routes : ";
+	std::cout << std::endl;
+	if (this->routes.empty())
+		std::cout << "None";
+	itr = this->routes.begin();
+	while (itr != this->routes.end())
+	{
+		std::cout << "Route root: " << (*itr).get_root() << std::endl;
+		itr++;
+	}
+	std::cout << std::endl;
+
 #endif
 }
 

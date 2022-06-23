@@ -3,6 +3,7 @@ server
 	server_name = test ;
 	host = 127.0.0.1 ;
 	error_page 404 403 = /error.html ;
+	root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
 	body_max_size = 1024 ;
 	onread_Timeout = 10 ;
 	idle_timeout = 30 ;
@@ -14,9 +15,9 @@ server
 	chunk_head_limit = 110 ;
 	chunk_body_limit = 120 ;
 	run_file_path = /run/webserv/ ;
+	
 	location /
-	{
-		root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
+	{	
 		index = /index.html /index.htm ;
 		error_page 404 = /404.html ;
 		methods = POST GET DELETE ;

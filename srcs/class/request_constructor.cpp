@@ -72,7 +72,8 @@ void	Request::try_construct( std::string raw_request, Bundle_server bundle)
 	{
 		store_req(true, this);
 
-		preq::parse_request( raw_request, &(store_data_from_raw_req) );
+		// preq::parse_request( raw_request, &(store_data_from_raw_req), this->bundle.max_url_size() );
+		preq::parse_request( raw_request, &(store_data_from_raw_req), 5000 );
 
 		std::string host = this->get_header_value("Host");
 		if (host == "") {

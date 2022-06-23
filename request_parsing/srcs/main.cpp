@@ -1,6 +1,6 @@
 #include "req_parse.hpp"
 
-#define MAX_BUFFER_SIZE 16384
+#define MAX_BUFFER_SIZE 16384 /** @ignore */
 int main( void ) {
 
 	char data[MAX_BUFFER_SIZE];

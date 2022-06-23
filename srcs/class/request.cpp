@@ -311,6 +311,12 @@ void		Request::start_processing(void)
 		if ( this->body_file == NULL )
 			throw HTTPCode500();
 
+		if ( this->route.get_send_file() == false )
+		{
+			this->state = READY;
+			return ;
+		}
+
 		this->fulfilled = true;
 		this->body_file->close();
 		this->state = PROCESSING;

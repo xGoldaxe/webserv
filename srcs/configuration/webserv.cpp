@@ -32,7 +32,7 @@ static int return_type_parse(std::string s)
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
 									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
 									  "run_file_path", "chunk_head_limit", "chunk_body_limit"
-									  ,"idle_timeout"};
+									  ,"idle_timeout", "max_multipart_size", "max_upload_size"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -829,6 +829,42 @@ Webserv_conf::Webserv_conf(std::string filename)
 			else
 			{
 				throw std::invalid_argument("Error parsing idle_timeout!");
+			}
+			break;
+		case MAX_MULTIPART_SIZE_PARSING:
+			// location int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered multipart_size outside of a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing multipart max size, must be 1 or greater");
+				server.setMultipartSizeRoute(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Multipart Max Size!");
+			}
+			break;
+		case MAX_UPLOAD_SIZE_PARSING:
+			// location int
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (!contextlocation)
+				throw std::invalid_argument("Error parsing, encountered upload max size outside of a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing upload max size, must be 1 or greater");
+				server.setUploadSizeRoute(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing Upload Max Size!");
 			}
 			break;
 		default:

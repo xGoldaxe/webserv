@@ -14,7 +14,7 @@
 
 class Server_conf;
 
-#define SIZE_PARSING 27
+#define SIZE_PARSING 29
 
 #define SERVER_NAME_PARSING 0
 #define LISTEN_PARSING 1
@@ -43,6 +43,8 @@ class Server_conf;
 #define CHUNK_HEAD_LIMIT_PARSING 24
 #define CHUNK_BODY_LIMIT_PARSING 25
 #define IDLE_TIMEOUT_PARSING 26
+#define MAX_MULTIPART_SIZE_PARSING 27
+#define MAX_UPLOAD_SIZE_PARSING 28
 
 
 class Webserv_conf

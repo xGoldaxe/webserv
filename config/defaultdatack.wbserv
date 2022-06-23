@@ -26,6 +26,8 @@ server
 		file_limit = 100 ;
 		chunk_head_limit = 130 ;
 		chunk_body_limit = 140 ;
+		max_multipart_size = 5000 ;
+		max_upload_size = 4000 ;
 	}
 	location /php
 	{ 

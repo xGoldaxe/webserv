@@ -111,5 +111,7 @@ class Server_conf
 		void 							shortprintServer();
 		bool							name_is_in_list(std::string server_name);
 		void 							sortPort();
+		void 							setMultipartSizeRoute(int multipart_size);
+		void 							setUploadSizeRoute(int upload_size);
 
 };

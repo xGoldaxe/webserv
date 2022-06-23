@@ -20,6 +20,8 @@
 #define DEFAULT_ROUTE_BODY_MAX_SIZE 2048
 #define DEFAULT_CHUNK_HEAD_LIMIT_ROUTE 20
 #define DEFAULT_CHUNK_BODY_LIMIT_ROUTE 100
+#define DEFAULT_MAX_MULTIPART_SIZE_ROUTE 8000
+#define DEFAULT_MAX_UPLOAD_SIZE_ROUTE 8000
 
 class Route
 {
@@ -41,6 +43,8 @@ class Route
 		int 								body_max_size;
 		int									chunk_head_limit;
 		int									chunk_body_limit;
+		int									max_multipart_size;
+		int									max_upload_size;
 
 	public:
 		Route( void );
@@ -55,6 +59,10 @@ class Route
 
 		Route& operator=(const Route& other);
 
+		int 								get_max_multipart_size(void);
+		void 								set_max_multipart_size(int max_multipart_size);
+		int 								get_max_upload_size(void);
+		void 								set_max_upload_size(int max_upload_size);
 		int									get_cgi_timeout(void);
 		bool								get_send_file(void);
 		int									get_file_limit(void);

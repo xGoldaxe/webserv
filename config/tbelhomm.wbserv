@@ -49,8 +49,8 @@ server {
 
 server {
 	server_name = cgi.local ;
-	host = 10.11.4.6 ;
-	listen = 3000 ;
+	host = 10.12.2.9 ;
+	listen = 3001 ;
 	error_page 404 403 = /error.html ;
 	body_max_size = 1024 ;
 	onread_Timeout = 10 ;
@@ -60,6 +60,7 @@ server {
 	max_uri_size = 40 ;
 
 	location / {
+		root /mnt/nfs/homes/tbelhomm/Desktop/webserv/www/ ;
 		error_page 404 = /mnt/nfs/homes/tbelhomm/Desktop/webserv/defaultPages/404.html ;
 		methods = POST GET DELETE ;
 		index = ;

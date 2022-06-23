@@ -206,21 +206,26 @@ void    Server::handle_responses()
 		{
 			std::map<int, Connection>::iterator it = this->_connections.find(res->client_socket);
 
+			int status_res = 0;
 			it->second.update_timeout();
-			if (res->send_chunk() > 0)
+			if ((status_res = res->send_chunk()) > 0)
 			{
 				new_queue.push(res);
 			}
-			else
+			else if (status_res <= 0)
 			{
-				std::string response_content = "0\r\n\r\n";
-				::send(res->client_socket, response_content.c_str(), response_content.length(), 0); /** @todo Récupérer la valeur de retour et couper la connexion si 0 ou -1 */
-
-				it->second.end_send();
-				if (it->second.get_is_dead())
-					this->close_connection(res->client_socket);
+				if (status_res == 0) {
+					std::string response_content = "0\r\n\r\n";
+					int status = ::send(res->client_socket, response_content.c_str(), response_content.length(), 0);
+					if (status < 0)
+						this->close_connection(res->client_socket);
+				}
 
 				res->output(this->_request_handled++);
+
+				it->second.end_send();
+				if (it->second.get_is_dead() || status_res < 0)
+					this->close_connection(res->client_socket);
 				delete res;
 			}
 		}

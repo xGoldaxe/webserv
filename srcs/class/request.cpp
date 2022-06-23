@@ -16,7 +16,7 @@ Request::~Request(void)
 	}
 }
 
-Request::Request(void)
+Request::Request( size_t process_data_size, const std::string & memory_path )
 {
 	this->state = PARSING;
 
@@ -30,7 +30,11 @@ Request::Request(void)
 	this->body_transfer = NO_BODY;
 	this->_body_content = "";
 
-	this->multipart_obj = multipart_form_data( "boundary" );
+	this->multipart_obj = multipart_form_data();
+
+	/* conf */
+	this->process_data_size = process_data_size;
+	this->memory_path = memory_path;
 }
 
 /* end coplien */
@@ -150,7 +154,7 @@ std::ofstream	*Request::create_unique_file()
 	static int i = 0;
 	
 	std::string filename = std::string( 
-		+ CGI_FILES_PATH
+		this->memory_path
 		+ std::string( "mem." )
 		+ to_string(i)
 		+ "."
@@ -326,7 +330,6 @@ void		Request::start_processing(void)
 	}
 }
 
-#define PROCESS_SIZE 10024
 void	Request::process_file(void)
 {
 	try
@@ -344,7 +347,7 @@ void	Request::process_file(void)
 			return ;
 		}
 
-		std::streamsize size = PROCESS_SIZE;
+		std::streamsize size = this->process_data_size;
 		if ( this->remain_body_length < static_cast<long long int>(size) )
 			size = static_cast<std::streamsize>(remain_body_length);
 

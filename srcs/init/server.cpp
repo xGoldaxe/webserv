@@ -18,7 +18,7 @@ bool	Server::close_connection( int client_socket )
 void    Server::read_connection( int client_socket )
 {
 	char buffer[32];
-	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 ) /** @todo Récupérer la valeur de retour et couper la connexion si -1 */
+	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 ) /** @todo Récupérer la valeur de retour et couper la connexion si -1, je pense pas que cq soit necessqire ici */
 	{
 		this->close_connection( client_socket );
 		return ;
@@ -83,8 +83,8 @@ void  Server::trigger_queue( void )
 /* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
 void    Server::wait_for_connections( void )
 {
-	struct epoll_event evlist[1024];
-	int nbr_req = epoll_wait(this->_poll_fd, evlist, 1024, 0);
+	struct epoll_event evlist[ this->BACKLOG ];
+	int nbr_req = epoll_wait(this->_poll_fd, evlist, this->BACKLOG, 0);
 	for (int i = 0; i < nbr_req; ++i) { 
 		this->read_connection(evlist[i].data.fd);
 	}
@@ -102,7 +102,7 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 													// _error_pages(serv_conf.error),
 													// _read_timeout(serv_conf.getReadTimeOut()),
 													// _server_body_size(serv_conf.getServerBodySize()),
-													// _client_header_size(serv_conf.getClientHeaderSize())
+													// _client_header_size(serv_conf.getClientHeaderSize()),
 {
 	this->_create_run_folder();
 
@@ -118,6 +118,8 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 
 	this->_is_init = false;
 	this->_queue = std::queue<Response *>();
+
+	this->BACKLOG = 1024; /** @todo **/
 }
 
 Server::Server(const Server &rhs) : _addr(rhs._addr),
@@ -177,7 +179,7 @@ void Server::init_connection()
 
 	this->_bind_port(sock, this->_addr);
 
-	if (listen(sock, BACKLOG) < 0)
+	if (listen(sock, this->BACKLOG) < 0)
 		throw ServerNotListeningException();
 
 	this->_report(sock, this->_addr);
@@ -244,7 +246,7 @@ void Server::handle_client()
 		if (client_socket == -1)
 			break;
 
-		if (this->_connections.size() > BACKLOG)
+		if ( this->_connections.size() > static_cast<std::size_t>(this->BACKLOG) )
 		{
 			close(client_socket);
 			continue;

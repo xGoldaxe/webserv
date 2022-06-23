@@ -6,6 +6,7 @@
 #include <vector>
 #include "../errors/http_code.hpp"
 
+/** @todo LINK THIS TO ROUTE CONFIGURATION **/
 #define MAX_MULTIPART_SIZE 8000 // 8mo like PHP
 #define MAX_UPLOAD_SIZE 8000
 

@@ -33,7 +33,6 @@
 class Connection;
 #include "connection.hpp"
 
-#define BACKLOG 10000
 #define MAX_RUNNERS 20
 
 #include "../class/response.hpp"
@@ -86,6 +85,7 @@ private:
 	int								_read_timeout;
 	int								_server_body_size;
 	int								_client_header_size;
+	short int						BACKLOG;
 
 	// Methods
 	Server();

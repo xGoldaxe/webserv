@@ -87,6 +87,7 @@ private:
 	int								_client_header_size;
 	short int						BACKLOG;
 	std::string						_run_folder;
+	Server_conf						_server_conf;
 
 	// Methods
 	Server();

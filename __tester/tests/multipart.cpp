@@ -157,7 +157,6 @@ void	multipart_suite( Asserter &asserter )
 \r\n\
 \r\n\
 ��\r\n--boundary--\r\ndqwdqw", 1070 );
-	std::cout << mtpart->find_boundary( mtpart->get_boundary(), raw_img, type, readed ) << std::endl;
 	asserter.verify_assert_equal<std::size_t>( mtpart->find_boundary( mtpart->get_boundary(), raw_img, type, readed ), 
 								static_cast<std::size_t>(1051) );
 	
@@ -225,7 +224,7 @@ name=\"form1\";filename=file.txt\r\nuseless-header:blabla\r\n\
 	asserter.suite_comment( "request header" );
 	asserter.add_tag("header_multipart");
 	asserter.name("Empty boundary");
-	Request *req = new Request();
+	Request *req = new Request( 1024, "" );
 	raw = " multipart/form-data; boundary=\"\"";
 	try_header_multipart( asserter, req, raw );
 	asserter.verify_exception();

@@ -6,7 +6,7 @@ int	main( int argc, char **argv )
 {
 	(void)argc;
 	Asserter asserter( &argv[1] );
-	demo_suite( asserter );
+	// demo_suite( asserter );
 	all_tests( asserter );
 	// content_length_test( asserter );
 	util_test( asserter );

@@ -36,12 +36,8 @@ std::string preq::replace_percent( std::string url )
 	return res;
 }
 
-bool	preq::parse_url( std::string url, std::string & ret_url,std::string & path_info, std::string & query_string, size_t max_url_size )
+bool	preq::parse_url( std::string url, std::string & ret_url, std::string & query_string )
 {
-	(void)path_info;
-	if ( url.size() > max_url_size )
-		throw HTTPCode414();
-
 	url = replace_percent( url );
 
 	std::string res_url;

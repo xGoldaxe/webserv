@@ -119,8 +119,9 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 	this->_is_init = false;
 	this->_queue = std::queue<Response *>();
 
-	this->BACKLOG = 1024; /** @todo **/
-	this->_run_folder = "/mnt/nfs/homes/pleveque/goinfre/webserv"; /** @todo **/
+	this->BACKLOG = 1024; /** @todo bundle.getMaxWorkers() **/
+	this->_run_folder = "/mnt/nfs/homes/pleveque/goinfre/webserv"; /** @todo bundle.runFolder() **/
+	this->_server_conf = Server_conf(); /** @todo this->_server_conf = bundle.getFirstConfig(); **/
 
 	this->_create_run_folder();
 }
@@ -283,7 +284,7 @@ void Server::handle_client()
 
 		this->_connections.insert(
 			std::pair<int, Connection>(client_socket,
-				Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_body_size))); /** @todo ?????????? */
+				Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_conf )));
 		this->_socket_addr_eq[client_socket] = inet_ntoa(cli_addr.sin_addr);
 	}
 }

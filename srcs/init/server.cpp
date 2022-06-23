@@ -92,6 +92,7 @@ void    Server::wait_for_connections( void )
 	}
 }
 
+#define RUN_FOLDER "./memory/"
 Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 													_virtual_servers(bundle),
 													_env(env),
@@ -120,8 +121,8 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 	this->_queue = std::queue<Response *>();
 
 	this->BACKLOG = 1024; /** @todo bundle.getMaxWorkers() **/
-	this->_run_folder = "./memory"; /** @todo bundle.runFolder() **/
-	this->_server_conf = Server_conf(); /** @todo this->_server_conf = bundle.getFirstConfig(); **/
+	this->_run_folder = RUN_FOLDER; /** @todo bundle.runFolder() **/
+	this->_server_conf = bundle.getMainServer();
 
 	this->_create_run_folder();
 }

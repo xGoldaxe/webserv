@@ -25,7 +25,6 @@ class Connection
 		const char				*_client_ip;
 		bool					_is_new_data;
 		/* from server conf */
-		size_t					_response_max_size;
 		size_t					_onread_timeout;
 		size_t					_idle_timeout;
 		size_t					_max_size;

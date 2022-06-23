@@ -1,6 +1,5 @@
 #include "request.hpp"
 
-
 Request::~Request(void)
 {
 	if ( this->processed_file != NULL )
@@ -15,7 +14,7 @@ Request::~Request(void)
 		delete this->body_file;
 	}
 }
-
+#define RUN_FOLDER "./memory/"
 Request::Request( size_t process_data_size, const std::string & memory_path )
 {
 	this->state = PARSING;
@@ -35,9 +34,10 @@ Request::Request( size_t process_data_size, const std::string & memory_path )
 	/* conf */
 	this->process_data_size = process_data_size;
 	// this->memory_path = memory_path;
-	this->memory_path = "./memory/";
+	this->memory_path = RUN_FOLDER;
 	(void)memory_path;
 	// std::cout << memory_path << std::endl;
+	this->is_multipart = false;
 }
 
 /* end coplien */
@@ -173,7 +173,7 @@ std::ofstream	*Request::create_unique_file()
 	std::cout << std::string( filename ) << std::endl;
 	this->body_file_path = filename;
 	this->_add_file( filename );
-	
+
 	++i;
 	return File;
 }
@@ -181,10 +181,12 @@ std::ofstream	*Request::create_unique_file()
 int	Request::write_on_file( const std::string & str )
 {
 	this->body_file->write( str.data(), str.size() );
-	this->_body_content += str;
+	if ( this->body_file->good() == false )
+		this->set_status( 500, "Internal Server Error" );
+	else
+		this->_body_content += str;
 	return str.size();
 }
-
 
 std::string	Request::get_body_content(void) const
 {
@@ -312,7 +314,7 @@ void		Request::start_processing(void)
 		if ( this->body_file == NULL )
 			throw HTTPCode500();
 
-		if ( this->route.get_send_file() == false )
+		if ( this->is_multipart == false || this->route.get_send_file() == false )
 		{
 			this->state = READY;
 			return ;
@@ -329,6 +331,7 @@ void		Request::start_processing(void)
 		{
 			this->state = INVALID;
 			delete this->processed_file;
+			this->processed_file = NULL;
 			throw HTTPCode500();
 		}
 	}
@@ -365,6 +368,11 @@ void	Request::process_file(void)
 		bzero( buffer, size );
 
 		this->processed_file->read( buffer, size );
+		if ( this->processed_file->good() == false )
+		{
+			delete[] buffer;
+			throw HTTPCode500();
+		}
 		std::string str_buff;
 		str_buff.append( buffer, size );
 		this->multipart_obj.feed( str_buff );

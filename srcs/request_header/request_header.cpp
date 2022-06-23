@@ -52,6 +52,7 @@ void	Request::multipart( const std::string &content )
 		std::map<std::string, std::string>::iterator b_it =  p_params.find( "boundary" );
 		if ( b_it == p_params.end() )
 			throw HTTPCode400();
-		this->multipart_obj = multipart_form_data( b_it->second, this->route.get_max_upload_size() + 200, this->route.get_max_upload_size() );
+		this->multipart_obj = multipart_form_data( b_it->second, this->route.get_max_upload_size() * 2, this->route.get_max_upload_size() );
+		this->is_multipart = true;
 	}
 }

@@ -223,12 +223,11 @@ _client_ip(client_ip)
 	this->_is_new_data = true;
 
 	/* from conf */
-	this->_response_max_size = 30000; /** @todo how do we get this? **/
 	this->_onread_timeout = conf.getReadTimeOut();
-	this->_idle_timeout = 60;/** @todo @datack, do this **/
+	this->_idle_timeout = conf.getIdleTimeOut();
 	this->_max_size = conf.getBodyMaxSize();
 	this->_max_request = conf.get_max_amount_of_request();
-	this->_process_data_size = 1024; /** @todo **/
+	this->_process_data_size = 1024; 
 	this->_conf = conf;
 }
 
@@ -241,7 +240,6 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_is_dead( src.get_is_dead()),
 												_client_ip(src._client_ip),
 												_is_new_data( src.get_is_new_data() ),
-												_response_max_size(src._response_max_size),
 												_onread_timeout ( src.get_onread_timeout() ),
 												_idle_timeout ( src.get_idle_timeout() ),
 												_max_size ( src.get_max_size() ),

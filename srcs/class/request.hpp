@@ -50,6 +50,7 @@ class Request
 		int										body_transfer;
 		bool									fulfilled;
 		multipart_form_data						multipart_obj;
+		bool									is_multipart;
 
 		std::ifstream							*processed_file;
 
@@ -68,6 +69,7 @@ class Request
 		
 		Request &   operator=( Request const & rhs );
 		Request( void );
+		Request( Request const &src );
 
 	public:
 		bool			auto_index;
@@ -81,7 +83,6 @@ class Request
 		Request( size_t process_data_size, const std::string & memory_path );
 		~Request( void );
 
-		Request( Request const &src );
 		/* end coplien */
 		/* fill from parsed req */
 		void		fill_start_line( std::string method,

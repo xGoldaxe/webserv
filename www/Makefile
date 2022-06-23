@@ -4,6 +4,7 @@ SRCS	=	main.cpp \
 			utils/string.cpp \
 			init/server.cpp \
 			utils/utils.cpp \
+			utils/bundle_server_management.cpp \
 			init/connection.cpp \
 			init/exception_server_not_listening.cpp \
 			class/request.cpp \
@@ -13,6 +14,7 @@ SRCS	=	main.cpp \
 			configuration/redirection.cpp \
 			configuration/webserv.cpp \
 			configuration/server.cpp \
+			configuration/bundle_server.cpp \
 			http_header/Date.cpp \
 			http_header/Server.cpp \
 			http_header/Data-length.cpp \
@@ -21,7 +23,6 @@ SRCS	=	main.cpp \
 			cgi/cgi_manager.cpp \
 			errors/http_code.cpp \
 			class/response_error_page.cpp \
-			class/read_chunk.cpp \
 			request_header/request_header.cpp \
 			processing/multipart_form_data.cpp \
 			../request_parsing/srcs/parse_request.cpp \
@@ -50,11 +51,11 @@ DEPS	=	${HEADERS:%.hpp=srcs/%.hpp}
 
 NAME	=	webserv
 
-CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 -D DEBUG  -g -O2
+CXXFLAGS	=	-Wall -Wextra -Werror -I. -std=c++98 # -D DEBUG -g -O2
 
 RM		=	rm -rf
 
-CXX		=	c++
+CXX		=	GLIBCXX_FORCE_NEW=1 c++
 
 # COLORS
 NONE			= \033[0m

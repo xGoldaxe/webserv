@@ -35,10 +35,7 @@ void	Connection::read_data()
 	bzero( buff, this->_process_data_size );
 	ssize_t size = recv( this->_fd, buff, this->_process_data_size - 1, MSG_DONTWAIT );
 	if ( size == -1 )
-	{
-		// this->_is_dead = true;
 		return ;
-	}
 
 	if ( this->_raw_data.size() == 0 )
 		Connection::update_timeout();

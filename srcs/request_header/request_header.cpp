@@ -46,12 +46,12 @@ void	Request::transfer_encoding( const std::string &content )
 void	Request::multipart( const std::string &content )
 {
 	std::vector<std::string> params = split_params( content );
-	if ( params.size() < 1 || params[0] != "multipart/form-data" )
-		throw HTTPCode400();
-	
-	std::map<std::string, std::string> p_params = parse_params( params.begin() + 1, params.end() );
-	std::map<std::string, std::string>::iterator b_it =  p_params.find( "boundary" );
-	if ( b_it == p_params.end() )
-		throw HTTPCode400();
-	this->multipart_obj.set_boundary( b_it->second );
+	if ( params.size() > 1 && params[0] == "multipart/form-data" )
+	{
+		std::map<std::string, std::string> p_params = parse_params( params.begin() + 1, params.end() );
+		std::map<std::string, std::string>::iterator b_it =  p_params.find( "boundary" );
+		if ( b_it == p_params.end() )
+			throw HTTPCode400();
+		this->multipart_obj = multipart_form_data( b_it->second, this->route.get_max_upload_size() + 200, this->route.get_max_upload_size() );
+	}
 }

@@ -410,30 +410,32 @@ bool compareSize(Route i, Route j)
 	return (i.get_location().size() > j.get_location().size());
 }
 
+/*  each time a route match the path, she's selected */
+/* for example we have /some/sub/location/text.html 
+routes:
+	-	/some/not/
+	-	/some/sub/location/
+	- 	/some/sub/
+we return the firt matching route
+wich is /some/sub/location
+*/
 Route find_route(std::vector<Route> routes, std::string url, std::string method)
 {
-	std::string method_denied = "";
-
 	std::sort(routes.begin(), routes.end(), &compareSize);
 
 	for (std::vector<Route>::iterator it = routes.begin(); it != routes.end(); ++it)
 	{
-		std::string test_url = finish_by_only_one(url, '/');
-		if (test_url.size() >= it->get_location().size() && it->get_location() == test_url.substr(0, it->get_location().size()))
+		std::string test_url = delete_filename( url ) + "/";
+		if (test_url.size() >= it->get_location().size() &&
+				it->get_location() == test_url.substr(0, it->get_location().size()))
 		{
 			std::vector<std::string> methods = it->get_methods();
-			if (std::find(methods.begin(), methods.end(), method) == methods.end())
-			{
-				method_denied = it->get_location();
-				continue;
-			}
-			// else if (method_denied.size() > it->get_location().size()) {
-			// 	throw HTTPCode405();
-			// }
-			/** @todo  **/
+			if ( std::find(methods.begin(), methods.end(), method ) == methods.end() )
+				throw HTTPCode405();
+
 			return Route(*it);
 		}
-		else if (it->has_redirection(test_url))
+		else if (it->has_redirection( url ))
 		{
 			return Route(*it);
 		}

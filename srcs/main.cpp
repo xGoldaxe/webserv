@@ -1,5 +1,4 @@
 #include "webserv.hpp"
-#define SIZE 1024
 
 MimeTypes mimes;
 

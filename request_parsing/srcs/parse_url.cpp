@@ -3,7 +3,6 @@
 #include "../../srcs/errors/http_code.hpp"
 #include "../../srcs/utils/string.hpp"
 #include "../../srcs/utils/utils.hpp"
-#define MAX_URL_SIZE 5000
 
 bool	preq::is_full_hexa( std::string s )
 {
@@ -37,12 +36,8 @@ std::string preq::replace_percent( std::string url )
 	return res;
 }
 
-bool	preq::parse_url( std::string url, std::string & ret_url,std::string & path_info, std::string & query_string )
+bool	preq::parse_url( std::string url, std::string & ret_url, std::string & query_string )
 {
-	(void)path_info;
-	if ( url.size() > MAX_URL_SIZE )
-		throw HTTPCode414();
-
 	url = replace_percent( url );
 
 	std::string res_url;

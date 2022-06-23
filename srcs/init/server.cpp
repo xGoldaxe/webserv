@@ -18,7 +18,7 @@ bool	Server::close_connection( int client_socket )
 void    Server::read_connection( int client_socket )
 {
 	char buffer[32];
-	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 ) /** @todo Récupérer la valeur de retour et couper la connexion si -1 */
+	if ( recv(client_socket, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT) == 0 ) /**  Récupérer la valeur de retour et couper la connexion si -1, je pense pas que cq soit necessqire ici */
 	{
 		this->close_connection( client_socket );
 		return ;
@@ -58,13 +58,15 @@ void    Server::add_response( Request * req, int fd )
 	int shouldQueue = res->send();
 	if (shouldQueue >= 0) {
 		this->_queue.push(res);
-	} else {
+	} 
+	else {
 		std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
 		if (it != this->_connections.end()) {
 			it->second.end_send();
 		}
 		res->output(this->_request_handled++);
-		delete req;
+		delete res; // will also delete req
+		res = NULL;
 		req = NULL;
 	}
 }
@@ -83,8 +85,8 @@ void  Server::trigger_queue( void )
 /* wont wait for connection anymore, instead we will alternate from Connection_queue and epoll */
 void    Server::wait_for_connections( void )
 {
-	struct epoll_event evlist[1024];
-	int nbr_req = epoll_wait(this->_poll_fd, evlist, 1024, 0);
+	struct epoll_event evlist[ this->BACKLOG ];
+	int nbr_req = epoll_wait(this->_poll_fd, evlist, this->BACKLOG, 0);
 	for (int i = 0; i < nbr_req; ++i) { 
 		this->read_connection(evlist[i].data.fd);
 	}
@@ -102,10 +104,8 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 													// _error_pages(serv_conf.error),
 													// _onread_Timeout(serv_conf.getReadTimeOut()),
 													// _server_body_size(serv_conf.getServerBodySize()),
-													// _client_header_size(serv_conf.getClientHeaderSize())
+													// _client_header_size(serv_conf.getClientHeaderSize()),
 {
-	this->_create_run_folder();
-
 	s_server_addr_in addr;
 	std::memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
@@ -118,6 +118,12 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 
 	this->_is_init = false;
 	this->_queue = std::queue<Response *>();
+
+	this->BACKLOG = 1024; /** @todo bundle.getMaxWorkers() **/
+	this->_run_folder = "/mnt/nfs/homes/pleveque/goinfre/webserv"; /** @todo bundle.runFolder() **/
+	this->_server_conf = Server_conf(); /** @todo this->_server_conf = bundle.getFirstConfig(); **/
+
+	this->_create_run_folder();
 }
 
 Server::Server(const Server &rhs) : _addr(rhs._addr),
@@ -139,6 +145,7 @@ Server::Server(const Server &rhs) : _addr(rhs._addr),
 									_server_body_size(rhs._server_body_size),
 									_client_header_size(rhs._client_header_size)
 {
+	std::cout << "CALL" << std::endl;
 	this->_is_init = false;
 }
 
@@ -177,7 +184,7 @@ void Server::init_connection()
 
 	this->_bind_port(sock, this->_addr);
 
-	if (listen(sock, BACKLOG) < 0)
+	if (listen(sock, this->BACKLOG) < 0)
 		throw ServerNotListeningException();
 
 	this->_report(sock, this->_addr);
@@ -187,7 +194,6 @@ void Server::init_connection()
 	this->_poll_socket_eq.insert(std::pair<int, int>(this->_poll_fd, sock));
 }
 
-/** @todo trigger an event when everything is sent ( used mainly to close connection when its required (400, 408) ) **/
 void    Server::handle_responses()
 {
 	std::queue<Response *> new_queue;
@@ -244,7 +250,7 @@ void Server::handle_client()
 		if (client_socket == -1)
 			break;
 
-		if (this->_connections.size() > BACKLOG)
+		if ( this->_connections.size() > static_cast<std::size_t>(this->BACKLOG) )
 		{
 			close(client_socket);
 			continue;
@@ -277,7 +283,8 @@ void Server::handle_client()
 		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 
 		this->_connections.insert(
-			std::pair<int, Connection>(client_socket, Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_body_size)));
+			std::pair<int, Connection>(client_socket,
+				Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_conf )));
 		this->_socket_addr_eq[client_socket] = inet_ntoa(cli_addr.sin_addr);
 	}
 }
@@ -346,19 +353,16 @@ bool Server::is_server_name(std::string hostname)
 	return false;
 }
 
-#define CGI_FILES_PATH "memory"
-
 void    Server::_create_run_folder()
 {
 	struct stat st;
 
-	if ( stat(CGI_FILES_PATH, &st) == -1 )
+	if ( stat( this->_run_folder.data(), &st) == -1 )
 	{
-		mkdir(CGI_FILES_PATH, 0700);
+		mkdir( this->_run_folder.data(), 0700);
 	}
-	if ( stat(CGI_FILES_PATH, &st) == -1 )
+	if ( stat( this->_run_folder.data(), &st) == -1 )
 	{
 		std::cerr << "Can't create memory folder." << std::endl;
-		exit(0); /** @todo @xGoldaxe c'est danger ça!! */
 	}
 }

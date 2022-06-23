@@ -1,11 +1,6 @@
 #include "connection.hpp"
 #include "unistd.h" /** @todo */
 
-#define ONREAD_TIMEOUT 45
-#define IDLE_TIMEOUT 60
-#define MAX_SIZE 5000
-#define MAX_REQUESTS 5
-
 /*************************
 * @error case functions
 * ***********************/
@@ -14,8 +9,8 @@ bool	Connection::is_timeout(void)
 	time_t now = time(NULL);
 
 	if ( this->_raw_data.size() > 0 || this->_req != NULL )
-		return ( now - this->_begin_time > ONREAD_TIMEOUT );
-	return ( now - this->_begin_time > IDLE_TIMEOUT );
+		return ( now - this->_begin_time > this->_onread_timeout );
+	return ( now - this->_begin_time > this->_idle_timeout );
 }
 
 /*************************
@@ -34,18 +29,21 @@ Request	*Connection::extract_request()
 /* like a get next line, but a "bit" more complex */
 void	Connection::read_data()
 {
-	char    buff[1024];
-	bzero( buff, 1024 );
-	ssize_t size = recv( this->_fd, buff, 1024 - 1, MSG_DONTWAIT );
-	if ( size == -1 )
-		return ; /** @todo On doit absolument close la socket client à ce moment là */
 	if ( this->_is_dead )
-		return ; /** @todo On doit absolument close la socket client à ce moment là */
-	// if we start to write a new request, we reset the timer!
-	if ( this->_raw_data.size() == 0 )
+		return ;
+
+	char    buff[this->_process_data_size];
+	bzero( buff, this->_process_data_size );
+	ssize_t size = recv( this->_fd, buff, this->_process_data_size - 1, MSG_DONTWAIT );
+	if ( size == -1 )
 	{
-		this->_begin_time = time(NULL);
+		// this->_is_dead = true;
+		return ;
 	}
+
+	if ( this->_raw_data.size() == 0 )
+		Connection::update_timeout();
+
 	this->_raw_data.append( buff, size );
 	this->_is_new_data = true;
 }
@@ -55,21 +53,35 @@ bool	Connection::check_state()
 	int error_status = 0;
 	std::string error_message;
 
+	if ( this->_is_dead == true )
+	{
+		#ifdef debug
+			std::cout << "internal error occured" << std::endl;
+		#endif
+		error_status = 500;
+		error_message = "Internal Server Error";
+	}
 	if ( this->is_timeout() == true )
 	{
-		std::cout << "trigger timeout" << std::endl; /** @todo */
+		#ifdef debug
+			std::cout << "trigger timeout" << std::endl;
+		#endif
 		error_status = 408;
-		error_message = "Request Time-out";
+		error_message = "Request Timeout";
 	}
-	if ( this->_raw_data.size() > MAX_SIZE )
+	if ( this->_raw_data.size() > this->_max_size )
 	{
-		std::cout << "trigger max size" << std::endl; /** @todo */
+		#ifdef debug
+			std::cout << "trigger max size" << std::endl;
+		#endif
 		error_status = 413;
 		error_message = "Request Entity Too Large";
 	}
-	if ( this->_requests.size() > MAX_REQUESTS )
+	if ( this->_requests.size() > this->_max_request )
 	{
-		std::cout << "trigger too much requests" << std::endl; /** @todo */
+		#ifdef debug
+			std::cout << "trigger too much requests" << std::endl;
+		#endif
 		error_status = 429;
 		error_message = "Too Many Requests";
 	}
@@ -77,7 +89,7 @@ bool	Connection::check_state()
 	{
 		if ( this->_req != NULL )
 			delete this->_req;
-		this->_req = new Request();
+		this->_req = new Request( this->_process_data_size, this->_conf.getRunFilePath() );
 		this->_req->set_status( error_status, error_message );
 		//we delete all request and add only one
 		while( this->_requests.empty() == false )
@@ -97,7 +109,7 @@ bool	Connection::check_state()
 
 void	Connection::queue_iteration(Bundle_server bundle)
 {
-	if (this->_is_dead)
+	if ( this->_is_dead && _is_sending_data )
 		return ;
 
 	bool	keep_going = true;
@@ -147,7 +159,13 @@ void	Connection::queue_iteration(Bundle_server bundle)
 
 void	Connection::update_timeout()
 {
-	this->_begin_time = std::time(0);
+	time_t act = std::time(NULL);
+	if ( act == -1 )
+	{
+		this->_is_dead = true;
+		return ;
+	}
+	this->_begin_time = static_cast<size_t>(act);
 }
 
 /* init with conf informations, and other usefull things for req and res */
@@ -155,7 +173,7 @@ bool	Connection::init_request(Bundle_server bundle)
 {
 	this->_is_init = true;
 
-	this->_req = new Request();
+	this->_req = new Request( this->_process_data_size, this->_conf.getRunFilePath() );
 	this->_req->try_construct(this->_raw_data, bundle); // set the request to valid in case of success
 
 	return this->_req->is_request_valid();
@@ -168,6 +186,8 @@ void	Connection::soft_clear()
 	this->_is_init = false;
 	this->_req = NULL;
 }
+
+// void	Connection::clean_
 
 void	Connection::end_send()
 {
@@ -195,13 +215,25 @@ bool	Connection::_data_added()
 /*************************
 * @coplien
 * ***********************/
-Connection::Connection(int fd, char *client_ip, size_t response_chunk_size) : _fd(fd), _is_init(false), _client_ip(client_ip), _response_max_size(response_chunk_size)
+Connection::Connection(int fd, char *client_ip, Server_conf conf ) : 
+_fd(fd),
+_is_init(false),
+_client_ip(client_ip)
 {
-	this->_begin_time = time(NULL);
+	this->update_timeout();
 	this->_req = NULL;
 	this->_is_sending_data = false;
 	this->_is_dead = false;
 	this->_is_new_data = true;
+
+	/* from conf */
+	this->_response_max_size = 30000; /** @todo how do we get this? **/
+	this->_onread_timeout = conf.getReadTimeOut();
+	this->_idle_timeout = 60;/** @todo @datack, do this **/
+	this->_max_size = conf.getBodyMaxSize();
+	this->_max_request = conf.get_max_amount_of_request();
+	this->_process_data_size = 1024; /** @todo **/
+	this->_conf = conf;
 }
 
 Connection::Connection(Connection const &src) : _fd(src.get_fd()),
@@ -212,8 +244,14 @@ Connection::Connection(Connection const &src) : _fd(src.get_fd()),
 												_is_sending_data( src.get_is_sending_data() ),
 												_is_dead( src.get_is_dead()),
 												_client_ip(src._client_ip),
+												_is_new_data( src.get_is_new_data() ),
 												_response_max_size(src._response_max_size),
-												_is_new_data( src.get_is_new_data() )
+												_onread_timeout ( src.get_onread_timeout() ),
+												_idle_timeout ( src.get_idle_timeout() ),
+												_max_size ( src.get_max_size() ),
+												_max_request ( src.get_max_request() ),
+												_process_data_size( src.get_process_data_size() ),
+												_conf( src.get_conf() )
 {}
 
 Connection &	Connection::operator=( Connection const & rhs )
@@ -261,7 +299,7 @@ bool	Connection::is_init( void ) const	{
 	return ( this->_is_init );
 }
 
-time_t	Connection::get_time( void ) const	{
+size_t	Connection::get_time( void ) const	{
 	
 	return ( this->_begin_time );
 }
@@ -283,4 +321,34 @@ std::string Connection::get_client_ip(void) const {
 bool	Connection::get_is_new_data(void) const {
 
 	return ( this->_is_new_data );
+}
+
+size_t	Connection::get_onread_timeout( void ) const	{
+	
+	return ( this->_onread_timeout );
+}
+
+size_t	Connection::get_idle_timeout( void ) const	{
+	
+	return ( this->_idle_timeout );
+}
+
+size_t	Connection::get_max_size( void ) const	{
+	
+	return ( this->_max_size );
+}
+
+size_t	Connection::get_max_request( void ) const	{
+	
+	return ( this->_max_request );
+}
+
+size_t	Connection::get_process_data_size( void ) const	{
+	
+	return ( this->_process_data_size );
+}
+
+Server_conf	Connection::get_conf() const {
+
+	return this->_conf;
 }

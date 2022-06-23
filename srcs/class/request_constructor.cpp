@@ -20,11 +20,9 @@ Request *store_req(bool mode, Request *req = NULL)
 void store_data_from_raw_req(
 	std::vector<std::string> parsed_first_line,
 	std::map<std::string, std::string> headers,
-	std::string query_string,
-	std::string path_info
+	std::string query_string
 )
 {
-	(void)path_info;
 	Request *stored_req = store_req(false);
 
 	if (!stored_req)

@@ -3,8 +3,7 @@
 void	print_parsed_req( 
 	std::vector<std::string> parsed_first_line,
 	std::map<std::string, std::string> headers,
-	std::string query_string,
-	std::string path_info
+	std::string query_string
 ) {
 
 	// first_line
@@ -19,5 +18,4 @@ void	print_parsed_req(
 	}
 
 	std::cout << query_string;
-	std::cout << path_info;
 }

@@ -9,6 +9,7 @@ server
 	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
 	max_uri_size = 40 ;
+	run_file_path = /mnt/nfs/homes/pleveque/goinfre/webserv/ ;
 	location /
 	{
 		root /mnt/nfs/homes/pleveque/Documents/webserv/www/ ;
@@ -25,7 +26,7 @@ server
 		root /mnt/nfs/homes/pleveque/Documents/webserv/www/sub/ ;
 		error_page 404 = /mnt/nfs/homes/pleveque/Documents/webserv/defaultPages/404.html ;
 		index = /index.html /index.htm ;
-		methods = GET POST ;
+		methods =  POST ;
 		autoindex on ;
 	}
 	location /post

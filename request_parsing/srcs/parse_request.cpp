@@ -33,7 +33,10 @@ std::vector<std::string>	preq::parse_start_line( std::string raw_line ) {
 /* during the parsing at any time, an exception could happened. We just have to
 catch it and send back an error 400 response */
 
-int preq::parse_request( std::string & data, void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>, std::string, std::string) ) {
+int preq::parse_request(
+std::string & data,
+void (*print_or_store)(std::vector<std::string>, std::map<std::string, std::string>, std::string )
+) {
 
 	std::vector<std::string> lines = read_until( data, &check_line );
 	if ( lines.size() < 1 )
@@ -45,7 +48,6 @@ int preq::parse_request( std::string & data, void (*print_or_store)(std::vector<
 		throw HTTPCode400();
 	std::vector<std::string> parsed_first_line = parse_start_line( start_line );
 	
-
 	// headers
 	std::map<std::string, std::string> headers;
 	if ( lines.size() > 1 )
@@ -63,8 +65,7 @@ int preq::parse_request( std::string & data, void (*print_or_store)(std::vector<
 	
 
 	std::string query_string;
-	std::string path_info;
-	if ( preq::parse_url( parsed_first_line[1], parsed_first_line[1], path_info, query_string ) == false )
+	if ( preq::parse_url( parsed_first_line[1], parsed_first_line[1], query_string ) == false )
 		throw HTTPCode400();
 
 	if ( preq::verify_absolute_url( parsed_first_line[1] ) == false )
@@ -73,6 +74,6 @@ int preq::parse_request( std::string & data, void (*print_or_store)(std::vector<
 	if ( parsed_first_line[2] != "HTTP/1.1")
 		throw HTTPCode505();
 	
-	print_or_store( parsed_first_line, headers, query_string, path_info );
+	print_or_store( parsed_first_line, headers, query_string );
 	return (0);
 }

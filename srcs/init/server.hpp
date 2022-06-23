@@ -33,7 +33,6 @@
 class Connection;
 #include "connection.hpp"
 
-#define BACKLOG 10000
 #define MAX_RUNNERS 20
 
 #include "../class/response.hpp"
@@ -86,6 +85,9 @@ private:
 	int								_onread_Timeout;
 	int								_server_body_size;
 	int								_client_header_size;
+	short int						BACKLOG;
+	std::string						_run_folder;
+	Server_conf						_server_conf;
 
 	// Methods
 	Server();
@@ -99,5 +101,4 @@ private:
 
 	void add_response(Request *req, int fd);
 	bool is_a_server_name(std::string server_name);
-
 };

@@ -36,7 +36,7 @@ void	Request::transfer_encoding( const std::string &content )
 	{
 		this->body_length = 0;
 		this->body_transfer = CHUNKED;
-		this->chunk_buffer.set_limits( CHUNK_HEAD_LIMIT, CHUNK_BODY_LIMIT );
+		this->chunk_buffer.set_limits( this->route.getChunkHeadLimit(), this->route.getChunkBodyLimit() );
 		this->fulfilled = false;
 	}
 	else

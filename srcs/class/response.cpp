@@ -444,6 +444,7 @@ void	Response::check_file_url(void)
 	}
 	else if ( is_file( this->url ) == IS_FILE_FOLDER )
 	{
+		this->url = finish_by_only_one( this->url, '/');
 		if ( this->_route.get_auto_index() == true )
 		{
 			this->auto_index = true;
@@ -484,16 +485,19 @@ void Response::try_url(std::string client_ip) {
 		{
 			if ( this->req->getMethod() == "DELETE" )
 			{
+				if ( this->_route.get_send_file() != true )
+					throw HTTPCode403();
 				if ( is_file( this->url ) != IS_FILE_NOT_FOLDER )
-					HTTPCode403();
+					throw HTTPCode403();
 				int status = remove( this->url.c_str() );
 				if ( status != 0 )
-					HTTPCode403();
+					throw HTTPCode403();
 				this->_template_body( this->req->get_legacy_url(), "deleted sucessfully!");
 			}
 			else if ( this->req->getMethod() == "POST" )
 			{
 				std::string subpath = delete_filename( this->get_url() ) + "/";
+				std::cout << subpath << std::endl;
 				for ( std::vector< std::pair<std::string, std::string> >::iterator it = this->posted_files.begin();
 					it != this->posted_files.end(); ++it )
 				{

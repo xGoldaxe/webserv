@@ -21,9 +21,6 @@
 #define READY 3
 #define INVALID 4
 
-#define CHUNK_HEAD_LIMIT 20
-#define CHUNK_BODY_LIMIT 100
-
 class Response;
 
 class Request
@@ -55,6 +52,11 @@ class Request
 		multipart_form_data						multipart_obj;
 
 		std::ifstream							*processed_file;
+
+		/*conf */
+		size_t									process_data_size;
+		std::string								memory_path;
+		/*conf */
 		
 		/* not copied */
 		std::ofstream							*body_file;
@@ -63,6 +65,9 @@ class Request
 		static std::vector<std::string>	_created_files;
 		void							_add_file( std::string filename );
 		void							_delete_file( std::string filename );
+		
+		Request &   operator=( Request const & rhs );
+		Request( void );
 
 	public:
 		bool			auto_index;
@@ -73,10 +78,9 @@ class Request
 		void delete_all_files();
 
 		/* coplien */
-		Request( void );
+		Request( size_t process_data_size, const std::string & memory_path );
 		~Request( void );
 
-		Request &   operator=( Request const & rhs );
 		Request( Request const &src );
 		/* end coplien */
 		/* fill from parsed req */

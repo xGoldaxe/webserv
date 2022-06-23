@@ -37,7 +37,7 @@ class Server_conf
 		int									body_max_size;
 		std::string 						root;
 		std::map<int, std::string>			error_pages;
-		int									read_timeout;
+		int									onread_Timeout;
 		int									server_body_size;
 		int									client_header_size;
 		int									max_amount_of_request;
@@ -80,7 +80,7 @@ class Server_conf
 		void							setHost(std::string host);
 		void							setRouteRoot(std::string root);
 		void							printServer();
-		void							setReadTimeOut(int read_timeout);
+		void							setReadTimeOut(int onread_Timeout);
 		void							setServerBodySize(int server_body_size);
 		void 							setClientHeaderSize(int client_header_size);
 		void 							setRouteAutoIndex(bool auto_index);

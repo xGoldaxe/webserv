@@ -28,7 +28,7 @@ static int return_type_parse(std::string s)
 									  "root", "index",
 									  "methods", "enable_cgi",
 									  "cgi_extension", "body_max_size", "server",
-									  "rewrite", "autoindex", "cgi_timeout", "read_timeout",
+									  "rewrite", "autoindex", "cgi_timeout", "onread_Timeout",
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
 									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
 									  "run_file_path", "chunk_head_limit", "chunk_body_limit"};
@@ -601,17 +601,17 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if (firstservswitch)
 				throw std::invalid_argument("Error parsing, no server was defined");
 			if (contextlocation)
-				throw std::invalid_argument("Error parsing, encountered read timeout in a location");
+				throw std::invalid_argument("Error parsing, encountered on_read_Timeout in a location");
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				if (std::atoi(words[it + 2].c_str()) < 1)
-					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
+					throw std::invalid_argument("Error parsing onread_Timeout, must be 1 or greater");
 				server.setReadTimeOut(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}
 			else
 			{
-				throw std::invalid_argument("Error parsing Read Timeout!");
+				throw std::invalid_argument("Error parsing on_read_Timeout!");
 			}
 			break;
 		case SERVER_BODY_SIZE_PARSING:
@@ -623,7 +623,7 @@ Webserv_conf::Webserv_conf(std::string filename)
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
 				if (std::atoi(words[it + 2].c_str()) < 1)
-					throw std::invalid_argument("Error parsing read_timeout, must be 1 or greater");
+					throw std::invalid_argument("Error parsing onread_Timeout, must be 1 or greater");
 				server.setServerBodySize(std::atoi(words[it + 2].c_str()));
 				it = it + 3;
 			}

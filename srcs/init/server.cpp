@@ -100,7 +100,7 @@ Server::Server(char **env, Bundle_server bundle) : _request_handled(0),
 													// _root(serv_conf.getRoot()),
 													// _routes(serv_conf.getRoutes()),
 													// _error_pages(serv_conf.error),
-													// _read_timeout(serv_conf.getReadTimeOut()),
+													// _onread_Timeout(serv_conf.getReadTimeOut()),
 													// _server_body_size(serv_conf.getServerBodySize()),
 													// _client_header_size(serv_conf.getClientHeaderSize())
 {
@@ -135,7 +135,7 @@ Server::Server(const Server &rhs) : _addr(rhs._addr),
 									_body_max_size(rhs._body_max_size),
 									_root(rhs._root),
 									_routes(rhs._routes),
-									_read_timeout(rhs._read_timeout),
+									_onread_Timeout(rhs._onread_Timeout),
 									_server_body_size(rhs._server_body_size),
 									_client_header_size(rhs._client_header_size)
 {

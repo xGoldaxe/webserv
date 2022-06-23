@@ -83,7 +83,7 @@ private:
 	std::string 					_root;
 	std::vector<Route>				_routes;
 	std::map<int, std::string>		_error_pages;
-	int								_read_timeout;
+	int								_onread_Timeout;
 	int								_server_body_size;
 	int								_client_header_size;
 

@@ -35,7 +35,7 @@ Request::Request( size_t process_data_size, const std::string & memory_path )
 	/* conf */
 	this->process_data_size = process_data_size;
 	// this->memory_path = memory_path;
-	this->memory_path = "./memory";
+	this->memory_path = "./memory/";
 	(void)memory_path;
 	// std::cout << memory_path << std::endl;
 }
@@ -148,14 +148,13 @@ Request &   Request::operator=( Request const & rhs )
 	return (*this);
 }
 
-#define CGI_FILES_PATH "memory/"
-
 #include <fstream>
 //invalid if we trigger MAX_INT request in 1s, we assume its just impossible
 std::ofstream	*Request::create_unique_file()
 {
 	static int i = 0;
 	
+	std::cout << this->memory_path << std::endl;
 	std::string filename = std::string( 
 		this->memory_path
 		+ std::string( "mem." )

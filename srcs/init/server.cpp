@@ -180,7 +180,7 @@ void Server::init_connection()
 	this->_socket_fd = sock;
 	int set_opt = 1;
 	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &set_opt, sizeof(int));
-	/** @correction setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int)); */
+	setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &set_opt, sizeof(int));
 
 	this->_bind_port(sock, this->_addr);
 
@@ -278,7 +278,7 @@ void Server::handle_client()
 
 		struct epoll_event ev;
 		bzero(&ev, sizeof(ev));
-		ev.events = EPOLLIN|EPOLLOUT|EPOLLET;
+		ev.events = EPOLLIN | EPOLLOUT;
 		ev.data.fd = client_socket;
 		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 

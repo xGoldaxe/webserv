@@ -23,6 +23,8 @@
 #define DEFAULT_CHUNK_HEAD_LIMIT_SERVER 20
 #define DEFAULT_CHUNK_BODY_LIMIT_SERVER 100
 #define DEFAULT_IDLE_TIMEOUT_SERVER 60
+#define DEFAULT_PROCESS_DATA_SIZE_SERVER 1024
+
 
 class Route;
 
@@ -47,6 +49,7 @@ class Server_conf
 		int									chunk_head_limit;
 		int									chunk_body_limit;
 		int									idle_timeout;
+		std::size_t							process_data_size;
 
 	public:
 		Server_conf(void);
@@ -113,5 +116,6 @@ class Server_conf
 		void 							sortPort();
 		void 							setMultipartSizeRoute(int multipart_size);
 		void 							setUploadSizeRoute(int upload_size);
-
+		void							set_process_data_size(std::size_t process_data_size);
+		std::size_t						get_process_data_size();
 };

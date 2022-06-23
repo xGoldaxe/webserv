@@ -14,7 +14,7 @@
 
 class Server_conf;
 
-#define SIZE_PARSING 29
+#define SIZE_PARSING 30
 
 #define SERVER_NAME_PARSING 0
 #define LISTEN_PARSING 1
@@ -45,6 +45,7 @@ class Server_conf;
 #define IDLE_TIMEOUT_PARSING 26
 #define MAX_MULTIPART_SIZE_PARSING 27
 #define MAX_UPLOAD_SIZE_PARSING 28
+#define PROCESS_DATA_SIZE_PARSING 29
 
 
 class Webserv_conf

@@ -3,7 +3,7 @@
 Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE), root(DEFAULT_ROOT),
 								 onread_Timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE),
 								 max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST), max_uri_size(DEFAULT_MAX_URI_SIZE),
-								 run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER), idle_timeout(DEFAULT_IDLE_TIMEOUT_SERVER)
+								 run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER), idle_timeout(DEFAULT_IDLE_TIMEOUT_SERVER), process_data_size(DEFAULT_PROCESS_DATA_SIZE_SERVER)
 {
 	this->server_name.push_back(DEFAULT_SERVER_NAME);
 	this->port.push_back(3000);
@@ -20,7 +20,7 @@ Server_conf::Server_conf(void) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_
 }
 
 Server_conf::Server_conf(const Server_conf &rhs) : port(rhs.port), routes(rhs.routes), server_name(rhs.server_name), host(rhs.host), index(rhs.index), body_max_size(rhs.body_max_size), root(rhs.root), error_pages(rhs.error_pages), onread_Timeout(rhs.onread_Timeout), server_body_size(rhs.server_body_size), client_header_size(rhs.client_header_size), max_amount_of_request(rhs.max_amount_of_request), max_uri_size(rhs.max_uri_size), run_file_path(rhs.run_file_path), chunk_head_limit(rhs.chunk_head_limit),
-												   chunk_body_limit(rhs.chunk_body_limit), idle_timeout(rhs.idle_timeout)
+												   chunk_body_limit(rhs.chunk_body_limit), idle_timeout(rhs.idle_timeout), process_data_size(rhs.process_data_size)
 {
 }
 
@@ -45,6 +45,7 @@ Server_conf &Server_conf::operator=(const Server_conf &rhs)
 		this->chunk_head_limit = (rhs.chunk_head_limit);
 		this->chunk_body_limit = (rhs.chunk_body_limit);
 		this->idle_timeout = (rhs.idle_timeout);
+		this->process_data_size = rhs.process_data_size;
 	}
 	return (*this);
 }
@@ -56,7 +57,7 @@ Server_conf::~Server_conf(void)
 // empty
 Server_conf::Server_conf(int emp) : host(DEFAULT_HOST), body_max_size(DEFAULT_BODY_MAX_SIZE),
 									root(DEFAULT_ROOT), onread_Timeout(DEFAULT_READ_TIMEOUT), server_body_size(DEFAULT_SERVER_BODY_SIZE), client_header_size(DEFAULT_CLIENT_HEADER_SIZE), max_amount_of_request(DEFAULT_MAX_AMOUNT_OF_REQUEST),
-									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER), idle_timeout(DEFAULT_IDLE_TIMEOUT_SERVER)
+									max_uri_size(DEFAULT_MAX_URI_SIZE), run_file_path(DEFAULT_RUN_FILE_PATH), chunk_head_limit(DEFAULT_CHUNK_HEAD_LIMIT_SERVER), chunk_body_limit(DEFAULT_CHUNK_BODY_LIMIT_SERVER), idle_timeout(DEFAULT_IDLE_TIMEOUT_SERVER), process_data_size(DEFAULT_PROCESS_DATA_SIZE_SERVER)
 {
 	(void)emp;
 }
@@ -260,6 +261,7 @@ void Server_conf::printServer()
 	std::cout << "On Read Timeout : " << this->onread_Timeout << std::endl;
 	std::cout << "Idle Timeout : " << this->idle_timeout << std::endl;
 	std::cout << "Server Body Size : " << this->server_body_size << std::endl;
+	std::cout << "Process Data Size : " << this->process_data_size << std::endl;
 	std::cout << "Client Header Size : " << this->client_header_size << std::endl;
 	std::cout << "Chunk Head Limit : " << this->chunk_head_limit << std::endl;
 	std::cout << "Chunk Body Limit : " << this->chunk_body_limit << std::endl;
@@ -403,7 +405,6 @@ void Server_conf::sortPort()
 void Server_conf::setMultipartSizeRoute(int multipart_size)
 {
 	this->routes.back().set_max_multipart_size(multipart_size);
-
 }
 void Server_conf::setUploadSizeRoute(int upload_size)
 {
@@ -440,4 +441,14 @@ void Server_conf::shortprintServer()
 		std::cout << std::endl;
 	}
 #endif
+}
+
+void Server_conf::set_process_data_size(std::size_t process_data_size)
+{
+	this->process_data_size = process_data_size;
+}
+
+std::size_t Server_conf::get_process_data_size()
+{
+	return process_data_size;
 }

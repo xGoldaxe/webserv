@@ -32,7 +32,8 @@ static int return_type_parse(std::string s)
 									  "server_body_size", "send_file", "file_limit", "client_header_size",
 									  "host", "max_amount_of_request", "max_uri_size", "cgi_path",
 									  "run_file_path", "chunk_head_limit", "chunk_body_limit"
-									  ,"idle_timeout", "max_multipart_size", "max_upload_size"};
+									  ,"idle_timeout", "max_multipart_size", "max_upload_size"
+									  , "process_data_size"};
 	// initializing vector like an array is only available at CPP 11+
 	// forced to create a regular array before putting inside a vector
 	std::vector<std::string> tab(&tab1[0], &tab1[SIZE_PARSING]);
@@ -866,6 +867,24 @@ Webserv_conf::Webserv_conf(std::string filename)
 			{
 				throw std::invalid_argument("Error parsing Upload Max Size!");
 			}
+			break;
+		case PROCESS_DATA_SIZE_PARSING:
+		//server std::size_t
+			if (firstservswitch)
+				throw std::invalid_argument("Error parsing, no server was defined");
+			if (contextlocation)
+				throw std::invalid_argument("Error parsing, encountered process_data_size in a location");
+			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
+			{
+				if (std::atoi(words[it + 2].c_str()) < 1)
+					throw std::invalid_argument("Error parsing process_data_size, must be 1 or greater");
+				server.set_process_data_size(std::atoi(words[it + 2].c_str()));
+				it = it + 3;
+			}
+			else
+			{
+				throw std::invalid_argument("Error parsing process_data_size!");
+			}		
 			break;
 		default:
 			break;

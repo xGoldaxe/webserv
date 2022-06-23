@@ -8,6 +8,7 @@ server
 	idle_timeout = 30 ;
 	server_body_size = 1024 ;
 	client_header_size = 1024 ;
+	process_data_size = 2048 ;
 	max_amount_of_request = 100 ;
 	max_uri_size = 40 ;
 	chunk_head_limit = 110 ;

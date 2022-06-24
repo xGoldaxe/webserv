@@ -34,6 +34,7 @@ class Request
 	protected:
 		int 									state;
 		Webserv_conf							conf;
+		Server_conf								serv_conf;
 		std::string								method;
 		std::string								legacy_url;
 		std::map<std::string, std::string>		headers;
@@ -132,7 +133,7 @@ class Request
         };
 
 		/* headers */
-		void	content_length( const std::string &content );
+		void	content_length( const std::string &content, int max_size );
 		void	transfer_encoding( const std::string &content );
 		void	multipart( const std::string &content );
 

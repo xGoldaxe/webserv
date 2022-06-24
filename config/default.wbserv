@@ -6,9 +6,8 @@ server
 	body_max_size = 1024 ;
 	onread_Timeout = 10 ;
 	server_body_size = 1024 ;
-	client_header_size = 1024 ;
+	client_header_size = 10 ;
 	max_amount_of_request = 100 ;
-	max_uri_size = 40 ;
 	run_file_path = /mnt/nfs/homes/pleveque/goinfre/webserv/ ;
 	location /
 	{
@@ -19,7 +18,8 @@ server
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		autoindex on ;
 		send_file on ;
-		file_limit = 100 ;
+		file_limit = 1024 ;
+		max_multipart_size = 1024 ;
 	}
 	location /sub
 	{

@@ -65,7 +65,7 @@ bool	Connection::check_state()
 		error_status = 408;
 		error_message = "Request Timeout";
 	}
-	if ( this->_raw_data.size() > this->_max_size )
+	if ( this->_raw_data.size() > ( this->_max_size + this->_conf.getBodyMaxSize() ) * this->_max_request )
 	{
 		#ifdef debug
 			std::cout << "trigger max size" << std::endl;
@@ -169,8 +169,9 @@ bool	Connection::init_request(Bundle_server bundle)
 {
 	this->_is_init = true;
 
+	std::string req_data = this->_raw_data.substr( 0, this->_raw_data.find( "\r\n\r\n" ) );
 	this->_req = new Request( this->_process_data_size, this->_conf.getRunFilePath() );
-	this->_req->try_construct(this->_raw_data, bundle); // set the request to valid in case of success
+	this->_req->try_construct( req_data, bundle ); // set the request to valid in case of success
 
 	return this->_req->is_request_valid();
 }
@@ -225,7 +226,7 @@ _client_ip(client_ip)
 	/* from conf */
 	this->_onread_timeout = conf.getReadTimeOut();
 	this->_idle_timeout = conf.getIdleTimeOut();
-	this->_max_size = conf.getBodyMaxSize();
+	this->_max_size = conf.getClientHeaderSize();
 	this->_max_request = conf.get_max_amount_of_request();
 	this->_process_data_size = 1024; 
 	this->_conf = conf;

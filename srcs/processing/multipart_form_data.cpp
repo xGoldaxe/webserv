@@ -138,6 +138,9 @@ void	multipart_form_data::parse_part( const std::string & part, std::string & na
 	name = "";
 	filename = "";
 	body = "";
+	if ( part.size() > this->max_size )
+		throw HTTPCode413();
+
 	std::size_t empty_line_index = part.find( "\r\n\r\n" );
 	if ( empty_line_index == std::string::npos )
 		throw HTTPCode400();

@@ -68,6 +68,9 @@ void	Request::try_construct( std::string raw_request, Bundle_server bundle)
 {
 	try
 	{
+		if ( raw_request.size() > static_cast<std::size_t>( bundle.getMainServer().getClientHeaderSize() ) )
+			throw HTTPCode413();
+
 		store_req(true, this);
 
 		preq::parse_request( raw_request, &(store_data_from_raw_req) );
@@ -80,7 +83,8 @@ void	Request::try_construct( std::string raw_request, Bundle_server bundle)
 			host = std::string(host, 0, host.find_first_of(':'));
 		}
 
-		this->route = find_route(bundle.get_server_from_server_name(host).getRoutes(), this->legacy_url, this->method);
+		this->serv_conf = bundle.get_server_from_server_name(host);
+		this->route = find_route(this->serv_conf.getRoutes(), this->legacy_url, this->method);
 		this->auto_index = this->route.get_auto_index();
 		
 		/* find body_length */
@@ -89,7 +93,7 @@ void	Request::try_construct( std::string raw_request, Bundle_server bundle)
 			if ( it->first == "Transfer-Encoding" )
 				this->transfer_encoding( it->second );
 			else if ( it->first == "Content-Length" )
-				this->content_length( it->second );
+				this->content_length( it->second, this->serv_conf.getBodyMaxSize() );
 			else if ( it->first == "Content-Type" )
 				this->multipart( it->second );
 		}

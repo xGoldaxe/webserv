@@ -226,6 +226,8 @@ std::string	Request::store_chunk( const std::string & chunk_str )
 			else
 			{
 				this->body_length += this->write_on_file( this->chunk_buffer.get_body() );
+				if ( this->body_length > this->serv_conf.getBodyMaxSize() )
+					throw HTTPCode413();
 				this->chunk_buffer.clean();
 			}
 		}
@@ -251,7 +253,7 @@ std::string	Request::feed_body( std::string add_str )
 
 	if ( add_str.size() == 0 )
 		return add_str;
-	if ( this->body_transfer == LENGTH )
+	else if ( this->body_transfer == LENGTH )
 		return this->store_length( add_str );
 	else if ( this->body_transfer == CHUNKED )
 		return this->store_chunk( add_str );
@@ -343,6 +345,7 @@ void		Request::start_processing(void)
 
 void	Request::process_file(void)
 {
+	char* buffer = NULL;
 	try
 	{
 		if ( this->state != PROCESSING )
@@ -364,22 +367,20 @@ void	Request::process_file(void)
 
 		this->remain_body_length -= static_cast<long long int>(size);
 
-		char* buffer = new char[size];
+		buffer = new char[size];
 		bzero( buffer, size );
 
 		this->processed_file->read( buffer, size );
 		if ( this->processed_file->good() == false )
-		{
-			delete[] buffer;
 			throw HTTPCode500();
-		}
 		std::string str_buff;
 		str_buff.append( buffer, size );
 		this->multipart_obj.feed( str_buff );
-		delete[] buffer;
 	}
 	catch(const HTTPError& e)
 	{
 		this->set_status( e.getCode(), e.getDescription() );
 	}
+	if ( buffer != NULL )
+			delete[] buffer;
 }

@@ -516,8 +516,8 @@ Webserv_conf::Webserv_conf(std::string filename)
 
 			if ((it + 3) < words.size() && words[it + 1].compare("=") == 0 && words[it + 3].compare(";") == 0)
 			{
-				if (std::atoi(words[it + 2].c_str()) < 1)
-					throw std::invalid_argument("Error parsing body_max_size, must be 1 or greater");
+				if (std::atoi(words[it + 2].c_str()) < 1 || std::atoi(words[it + 2].c_str()) > 1000000)
+					throw std::invalid_argument("Error parsing body_max_size, must be 1 or greater or the provided value is too big");
 				if (contextlocation)
 					server.setBodyMaxSizeRoute(std::atoi(words[it + 2].c_str()));
 				else

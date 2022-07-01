@@ -4,16 +4,16 @@ server
 	host = 127.0.0.1 ;
 	error_page 404 403 = /error.html ;
 	root /mnt/nfs/homes/datack/Desktop/webserv/www/ ;
-	body_max_size = 1024 ;
+	body_max_size = 1000000 ;
 	onread_Timeout = 10 ;
 	idle_timeout = 30 ;
-	server_body_size = 1024 ;
-	client_header_size = 1024 ;
-	process_data_size = 2048 ;
-	max_amount_of_request = 100 ;
+	server_body_size = 107374182 ;
+	client_header_size = 1024000000 ;
+	process_data_size = 20480000 ;
+	max_amount_of_request = 1000000 ;
 	max_uri_size = 40 ;
-	chunk_head_limit = 110 ;
-	chunk_body_limit = 120 ;
+	chunk_head_limit = 110000000 ;
+	chunk_body_limit = 120000000 ;
 	run_file_path = /run/webserv/ ;
 	
 	location /
@@ -25,11 +25,12 @@ server
 		rewrite 303 /rick_roll https://www.youtube.com/watch?v=dQw4w9WgXcQ ;
 		autoindex on ;
 		send_file on ;
-		file_limit = 100 ;
+		file_limit = 100000000 ;
 		chunk_head_limit = 130 ;
 		chunk_body_limit = 140 ;
 		max_multipart_size = 5000 ;
 		max_upload_size = 4000 ;
+		body_max_size = 1000000 ;
 	}
 	location /php
 	{ 

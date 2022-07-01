@@ -3,7 +3,7 @@ server
 	server_name = test test.fr webserv.bg ;
 	host = 0.0.0.0 ;
 	listen = 4000 ;
-	body_max_size = 1024000 ;
+	body_max_size = 102400 ;
 	onread_Timeout = 10 ;
 	server_body_size = 1024000 ;
 	client_header_size = 1024 ;

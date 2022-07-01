@@ -3,10 +3,10 @@ server
 	server_name = test test.fr webserv.bg ;
 	host = 0.0.0.0 ;
 	listen = 4000 ;
-	body_max_size = 1024 ;
+	body_max_size = 1024000 ;
 	onread_Timeout = 10 ;
-	server_body_size = 1024 ;
-	client_header_size = 10 ;
+	server_body_size = 1024000 ;
+	client_header_size = 1024 ;
 	max_amount_of_request = 100 ;
 	run_file_path = /mnt/nfs/homes/pleveque/goinfre/webserv/ ;
 	location /

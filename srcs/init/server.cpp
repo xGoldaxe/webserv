@@ -8,9 +8,9 @@ bool	Server::close_connection( int client_socket )
 	if ( ret_val )
 	{
 		this->_connections.erase( it );
-		#ifdef DEBUG
+		// #ifdef DEBUG
 			std::cout << "Client close remote: " << client_socket << std::endl;
-		#endif
+		// #endif
 	}
 	return ret_val;
 }
@@ -60,10 +60,11 @@ void    Server::add_response( Request * req, int fd )
 		this->_queue.push(res);
 	} 
 	else {
-		std::map<int, Connection>::iterator it = this->_connections.find( res->client_socket );
-		if (it != this->_connections.end()) {
-			it->second.end_send();
+		std::map<int, Connection>::iterator it_connection = this->_connections.find( res->client_socket );
+		if (it_connection != this->_connections.end()) {
+			it_connection->second.end_send();
 		}
+		this->_close_queue.push( it_connection->first );
 		res->output(this->_request_handled++);
 		delete res; // will also delete req
 		res = NULL;
@@ -79,6 +80,12 @@ void  Server::trigger_queue( void )
 		Request *req = it->second.extract_request();
 		if ( req != NULL )
 			this->add_response( req, it->first );
+	}
+	//delete some connections
+	while ( this->_close_queue.empty() != true )
+	{
+		this->close_connection( this->_close_queue.front() );
+		this->_close_queue.pop();
 	}
 }
 
@@ -146,7 +153,6 @@ Server::Server(const Server &rhs) : _addr(rhs._addr),
 									_server_body_size(rhs._server_body_size),
 									_client_header_size(rhs._client_header_size)
 {
-	std::cout << "CALL" << std::endl;
 	this->_is_init = false;
 }
 
@@ -288,6 +294,9 @@ void Server::handle_client()
 		ev.data.fd = client_socket;
 		epoll_ctl(this->_poll_fd, EPOLL_CTL_ADD, client_socket, &ev);
 
+		// #ifdef DEBUG
+			std::cout << "new connection: " << client_socket << std::endl;
+		// #endif
 		this->_connections.insert(
 			std::pair<int, Connection>(client_socket,
 				Connection(client_socket, inet_ntoa(cli_addr.sin_addr), this->_server_conf )));

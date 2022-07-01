@@ -318,12 +318,14 @@ void Server::_report(int sock, s_server_addr_in server_addr)
 
 void Server::_bind_port(int sock, s_server_addr_in server_addr)
 {
-	int i = 0;
-	while (bind(sock, (s_server_addr)&server_addr, sizeof(server_addr)) == -1 && i < 10)
+	if (bind(sock, (s_server_addr)&server_addr, sizeof(server_addr)) == -1)
 	{
-		std::cerr << "Can't bind port " << ntohs(server_addr.sin_port) << ". Retrying in 10sec. (Try " << i << "/10)" << std::endl;
-		sleep(10);
-		i++;
+		char in_addr[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &(server_addr.sin_addr), in_addr, INET_ADDRSTRLEN);
+
+		std::cerr << "Address:Port are already used (or missing permissions) " << in_addr << ":" << ntohs(server_addr.sin_port) << std::endl;
+		
+		throw ServerNotListeningException();
 	}
 }
 

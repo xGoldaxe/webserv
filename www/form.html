@@ -7,8 +7,14 @@
     <title>Document</title>
 </head>
 <body>
+    <p>Single file</p>
     <form action="form.html" method="post" enctype="multipart/form-data">
         <input type="file" name="test_file" id="file"> <br>
+        <input type="submit" value="Envoyer">
+    </form>
+    <p>Multiple Files</p>
+    <form action="form.html" method="post" enctype="multipart/form-data">
+        <input type="file" name="test_file" id="file" multiple> <br>
         <input type="submit" value="Envoyer">
     </form>
 </body>

@@ -34,9 +34,9 @@ int main(int argc, char **argv, char **env)
 	
 	for (std::vector<Bundle_server>::iterator it = bundles.begin(); it != bundles.end(); it++)
 	{
-		servers.push_back(new Server(env, *it));
 		try
 		{
+			servers.push_back(new Server(env, *it));
 			servers.back()->init_connection();
 		}
 		catch (const std::exception &e)

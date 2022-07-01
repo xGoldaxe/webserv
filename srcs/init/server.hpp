@@ -69,6 +69,7 @@ private:
 	std::map<int, int>				_poll_socket_eq;
 	std::queue<Connection *>		_c_queue;
 	std::queue<Response *>   		_queue;
+	std::queue<int>   				_close_queue;
 	size_t                   		_request_handled;
 	Bundle_server					_virtual_servers;
 	char							**_env;

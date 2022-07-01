@@ -27,7 +27,7 @@ if [[ "$1" == "clean" ]] ; then
 fi
 
 # update binary if required
-make re
+make
 
 if [[ "$1" != "" ]] ; then
 	# do only one, in debug mode

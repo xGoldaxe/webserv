@@ -105,6 +105,8 @@ std::map<std::string, std::string>	preq::get_headers_req( std::vector<std::strin
 	for ( std::vector<std::string>::iterator it = begin; it != end; ++it )
 	{
 		std::string header_field = *it;
+		std::cout << "HEADER: " << *it;
+
 		//invalid end of file
 		if ( check_and_trunc_line( &header_field ) == false )
 			throw HTTPCode400();

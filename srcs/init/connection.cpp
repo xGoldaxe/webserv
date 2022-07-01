@@ -169,7 +169,7 @@ bool	Connection::init_request(Bundle_server bundle)
 {
 	this->_is_init = true;
 
-	std::string req_data = this->_raw_data.substr( 0, this->_raw_data.find( "\r\n\r\n" ) );
+	std::string req_data = this->_raw_data.substr( 0, this->_raw_data.find( "\r\n\r\n" ) + 4 );
 	this->_req = new Request( this->_process_data_size, this->_conf.getRunFilePath() );
 	this->_req->try_construct( req_data, bundle ); // set the request to valid in case of success
 
